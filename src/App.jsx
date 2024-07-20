@@ -8,6 +8,7 @@ import Home from './components/Home';
 import QuizApp from './components/QuizApp'; // Your QuizApp component
 import PythonQuizApp from './components/PythonQuizApp';
 import Quiz from './components/Quiz';
+import Leaderboard from './components/Leaderboard';
 import { useEffect, useState } from 'react';
 const App = () => {
 
@@ -20,6 +21,7 @@ const App = () => {
         <Route path="/quiz" element={<QuizApp />} />
         <Route path="/pyQuiz" element={<PythonQuizApp />} />
         <Route path="/mcqQuiz" element={<Quiz />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
       </Routes>
     </BrowserRouter>
   );

@@ -51,6 +51,15 @@ const Home = () => {
     }
   };
 
+  const handleQuizResults = (quizID, userID, quizName) => {
+    if (!isAuthenticated) {
+      alert('You need to log in to get the results.');
+      return;
+    }
+    //Adding navigation to leaderboard screen here
+    navigateTo(`/leaderboard?quizID=${quizID}&userID=${userID}&quizName=${quizName}`);
+  }
+
   const handleRegisterQuiz = async (quizID, userID) => {
     if (!isAuthenticated) {
       alert('You need to log in to register for the quiz.');
@@ -73,6 +82,8 @@ const Home = () => {
     }
   };
 
+
+
   const determineButtonLabel = (quiz) => {
     const now = new Date();
     const startDate = new Date(quiz.start);
@@ -83,7 +94,7 @@ const Home = () => {
     } else if (now >= startDate && now <= endDate) {
       return 'Start';
     } else {
-      return 'Ended';
+      return 'Results';
     }
   };
 
@@ -97,7 +108,7 @@ const Home = () => {
     } else if (now >= startDate && now <= endDate) {
       return 'bg-custom-blue  hover:bg-gray-800';
     } else {
-      return 'bg-gray-700 hover:bg-gray-700';
+      return 'bg-green-600 hover:bg-green-700';
     }
   };
 
@@ -176,6 +187,8 @@ const Home = () => {
                         handleRegisterQuiz(quiz._id, userID);
                       } else if (determineButtonLabel(quiz) === 'Start') {
                         handleStartQuiz(quiz._id, userID, quiz.quizName);
+                      } else if (determineButtonLabel(quiz) === 'Results') {
+                        handleQuizResults(quiz._id, userID, quiz.quizName);
                       }
                     }}
                     className={`text-white font-bold py-2 px-5 rounded-xl glow-effect ${determineButtonColor(quiz)}`}
