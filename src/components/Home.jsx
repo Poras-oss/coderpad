@@ -85,6 +85,7 @@ const Home = () => {
 
 
   const determineButtonLabel = (quiz) => {
+    const lowerCaseQuizName = quiz.quizName.toLowerCase();
     const now = new Date();
     const startDate = new Date(quiz.start);
     const endDate = new Date(quiz.end);
@@ -94,11 +95,17 @@ const Home = () => {
     } else if (now >= startDate && now <= endDate) {
       return 'Start';
     } else {
-      return 'Results';
+      if(lowerCaseQuizName.includes('mcq:')){
+        return 'Results';
+      }else{
+        return 'Ended'
+      }
+     
     }
   };
 
   const determineButtonColor = (quiz) => {
+    const lowerCaseQuizName = quiz.quizName.toLowerCase();
     const now = new Date();
     const startDate = new Date(quiz.start);
     const endDate = new Date(quiz.end);
@@ -108,7 +115,12 @@ const Home = () => {
     } else if (now >= startDate && now <= endDate) {
       return 'bg-custom-blue  hover:bg-gray-800';
     } else {
-      return 'bg-green-600 hover:bg-green-700';
+      if(lowerCaseQuizName.includes('mcq:')){
+        return 'bg-green-600 hover:bg-green-700';
+      }else{
+        return 'bg-gray-600 hover:bg-gray-700';
+      }
+      
     }
   };
 
