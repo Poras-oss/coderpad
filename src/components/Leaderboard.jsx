@@ -80,9 +80,9 @@ const Leaderboard = ({ quizId }) => {
                   <th className="px-3 py-3 sm:px-5 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Score
                   </th>
-                  <th className="px-3 py-3 sm:px-5 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  {/* <th className="px-3 py-3 sm:px-5 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Duration
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               <tbody>
@@ -97,9 +97,9 @@ const Leaderboard = ({ quizId }) => {
                     <td className="px-3 py-4 sm:px-5 border-b border-gray-200 bg-white text-sm">
                       <p className="text-gray-900 whitespace-no-wrap">{user.score}</p>
                     </td>
-                    <td className="px-3 py-4 sm:px-5 border-b border-gray-200 bg-white text-sm">
+                    {/* <td className="px-3 py-4 sm:px-5 border-b border-gray-200 bg-white text-sm">
                       <p className="text-gray-900 whitespace-no-wrap">{formatDuration(user.duration)}</p>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>
