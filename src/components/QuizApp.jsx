@@ -188,7 +188,10 @@ const QuizApp = () => {
           {/* Question Details */}
           <div className={`${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 flex-grow overflow-y-auto`}>
             <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-              <h3 className="text-xl font-bold mb-2">{currentQuestion.question_text}</h3>
+            <div 
+    className="question-text"
+    dangerouslySetInnerHTML={{ __html: currentQuestion.question_text }}
+  />
               <div className="border-t border-gray-300 my-4 w-full"></div>
               <br />
               <h4 className='text-xl font-bold mb-2'>Table Name: {currentQuestion.table_name}</h4>
