@@ -13,6 +13,8 @@ const ResizableMonacoEditor = ({ language, defaultValue, onChange }) => {
       value: defaultValue,
       language,
       theme: 'vs-dark', // or 'vs-light' for light theme
+      fontSize: 18,
+      fontFamily: 'Roboto-Mono',
     });
 
     editor.layout();
@@ -40,6 +42,7 @@ const ResizableMonacoEditor = ({ language, defaultValue, onChange }) => {
       minConstraints={[200, 100]}
       maxConstraints={[800, 600]}
       onResize={handleResize}
+  
       resizeHandles={['se']}
     >
       <div ref={editorRef} style={{ width: '100%', height: '100%' }} />

@@ -243,7 +243,7 @@ const QuizApp = () => {
             theme={isDarkMode ? "vs-dark" : "light"}
             value={userQuery}
             onChange={setUserQuery}
-            options={{ fontSize: 16 }}
+            
           />
           <div className="flex mt-2 space-x-2">
           <button
