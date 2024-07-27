@@ -232,7 +232,7 @@ const QuizApp = () => {
         </div>
   
         {/* Right side: Code Editor and Results */}
-        <div className={`w-1/2 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'} p-4 flex flex-col`}>
+        <div className={`w-2/3 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'} p-4 flex flex-col`}>
           <div className={`${isDarkMode ? 'bg-gray-700' : 'bg-white'} rounded-t-lg p-2`}>
             <span className="font-semibold">SQL</span>
           </div>
