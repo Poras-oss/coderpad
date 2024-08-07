@@ -5,10 +5,7 @@ import queryString from 'query-string';
 import {useAuth0} from '@auth0/auth0-react'
 
 const QuizApp = () => {
-
   const {loginWithPopup, loginWithRedirect, logout, user, isAuthenticated, getAccessTokenSilently} = useAuth0();
-
-  //Will check here if user is registerd in whitelist
 
   const [quizData, setQuizData] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -18,7 +15,6 @@ const QuizApp = () => {
   const [showFeedback, setShowFeedback] = useState(false);
   const [buttonText, setButtonText] = useState('Save Results');
   const [isDarkMode, setIsDarkMode] = useState(true);
-
   const [isRunning, setIsRunning] = useState(false);
 
   const parsed = queryString.parse(window.location.search);
@@ -26,8 +22,7 @@ const QuizApp = () => {
   const quizID = parsed.quizID;
  
   useEffect(() => {
-       
-   const fetchQuizData = async () => {
+    const fetchQuizData = async () => {
       try {
         const response = await axios.get(`https://server.datasenseai.com/sql-quiz/${quizID}/${userID}`);
         setQuizData(response.data);
@@ -62,17 +57,13 @@ const QuizApp = () => {
   
       setShowFeedback(true);
     } catch (error) {
-      // Error handling...
       setFeedback('Your query is incorrect');
       setShowFeedback(true);
     } finally {
       setIsRunning(false);
-
     }
   };
   
-  
-
   const compareResults = (userResults, expectedOutput) => {
     if (userResults.length !== expectedOutput.length) {
       return false;
@@ -81,21 +72,18 @@ const QuizApp = () => {
     const expectedString = JSON.stringify(expectedOutput.map(row => Object.values(row)));
     const userResultString = JSON.stringify(userResults.map(row => Object.values(row)));
 
-  
     return userResultString === expectedString;
   };
   
   const handleQuestionSelect = (index) => {
     setCurrentQuestionIndex(index);
     setFeedback('');  
-    setShowFeedback(false); // Reset feedback when selecting new question
+    setShowFeedback(false);
   };
-
 
   if (!quizData) return <div className='animate-bounce w-full h-screen flex items-center justify-center text-7xl font-bold'>STARTING....</div>;
 
   const currentQuestion = quizData.questions[currentQuestionIndex];
-
 
   const handleSaveResults = async () =>{
     try{
@@ -107,7 +95,7 @@ const QuizApp = () => {
       });
 
       console.log('Results saved successfully:', response.data);
-      setSavesStatus('Results saved succesfully!');
+      setSaveStatus('Results saved successfully!');
       setButtonText('Submitted');
       window.location.href = '/?userID=' + userID;
     } catch(error) {
@@ -118,13 +106,10 @@ const QuizApp = () => {
     }
   };
 
-
-
-
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
       <nav className={`${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'} p-4 flex justify-between items-center`}>
-        <h1 className=" mb-4 text-xl font-bold">SQL Quiz</h1>
+        <h1 className="mb-4 text-xl font-bold">SQL Quiz</h1>
         <button
           onClick={() => setIsDarkMode(!isDarkMode)}
           className={`px-4 py-2 rounded-full ${isDarkMode ? 'bg-white text-black' : 'bg-gray-800 text-white'}`}
@@ -137,85 +122,62 @@ const QuizApp = () => {
         <div className="w-1/2 flex flex-col overflow-hidden">
           {/* Question List */}
           <div className={`flex gap-10 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'} px-4 h-1/8 relative`}>
-  <div className="overflow-x-auto whitespace-nowrap scrollbar-container">
-    <ul className="flex flex-nowrap gap-4 py-2">
-      {quizData.questions.map((question, index) => (
-        <li
-          key={index}
-          className={`cursor-pointer py-2 px-4 rounded border ${
-            index === currentQuestionIndex
-              ? 'bg-blue-500 text-white'
-              : isDarkMode
-              ? 'bg-gray-700 text-white hover:bg-gray-600'
-              : 'bg-gray-300 text-gray-900 hover:bg-gray-400'
-          }`}
-          onClick={() => handleQuestionSelect(index)}
-        >
-          {index + 1}
-        </li>
-      ))}
-    </ul>
-  </div>
-</div>
+            <div className="overflow-x-auto whitespace-nowrap scrollbar-container">
+              <ul className="flex flex-nowrap gap-4 py-2">
+                {quizData.questions.map((question, index) => (
+                  <li
+                    key={index}
+                    className={`cursor-pointer py-2 px-4 rounded border ${
+                      index === currentQuestionIndex
+                        ? 'bg-blue-500 text-white'
+                        : isDarkMode
+                        ? 'bg-gray-700 text-white hover:bg-gray-600'
+                        : 'bg-gray-300 text-gray-900 hover:bg-gray-400'
+                    }`}
+                    onClick={() => handleQuestionSelect(index)}
+                  >
+                    {index + 1}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
 
-<style jsx>{`
-  .scrollbar-container {
-    scrollbar-width: thin;
-    scrollbar-color: ${isDarkMode ? '#4B5563 #1F2937' : '#9CA3AF #E5E7EB'};
-  }
-  
-  .scrollbar-container::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  
-  .scrollbar-container::-webkit-scrollbar-track {
-    background: ${isDarkMode ? '#1F2937' : '#E5E7EB'};
-    border-radius: 4px;
-  }
-  
-  .scrollbar-container::-webkit-scrollbar-thumb {
-    background-color: ${isDarkMode ? '#4B5563' : '#9CA3AF'};
-    border-radius: 4px;
-    border: 2px solid ${isDarkMode ? '#1F2937' : '#E5E7EB'};
-  }
-
-  .scrollbar-container::-webkit-scrollbar-thumb:hover {
-    background-color: ${isDarkMode ? '#6B7280' : '#6B7280'};
-  }
-`}</style>
-  
           {/* Question Details */}
           <div className={`${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} p-4 flex-grow overflow-y-auto`}>
             <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-            <div 
-    className="question-text"
-    dangerouslySetInnerHTML={{ __html: currentQuestion.question_text }}
-  />
+              <div 
+                className="question-text"
+                dangerouslySetInnerHTML={{ __html: currentQuestion.question_text }}
+              />
               <div className="border-t border-gray-300 my-4 w-full"></div>
-              <br />
-              <h4 className='text-xl font-bold mb-2'>Table Name: {currentQuestion.table_name}</h4>
-              <br />
+              <h4 className='text-xl font-bold mb-2'>Table Names: {currentQuestion.table_names.join(', ')}</h4>
               <h4 className='text-xl font-bold mb-2'>Table Data:</h4>
-              <br />
-              <table className="w-full mb-2">
-                <thead>
-                  <tr className={isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}>
-                    {currentQuestion.table_data.columns.map((column, index) => (
-                      <th key={index} className="border px-4 py-2">{column}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentQuestion.table_data.rows.map((row, rowIndex) => (
-                    <tr key={rowIndex} className={isDarkMode ? 'bg-gray-600' : 'bg-gray-50'}>
-                      {row.map((cell, cellIndex) => (
-                        <td key={cellIndex} className="border px-4 py-2">{cell}</td>
+              {currentQuestion.table_data.map((table, tableIndex) => (
+                <div key={tableIndex} className="table-container mb-4">
+                  <h5 className='text-lg font-bold mb-2'>Table Name: {table.table_name}</h5>
+                  <table className="w-full mb-2">
+                    <thead>
+                      <tr className={isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}>
+                        {table.columns.map((column, columnIndex) => (
+                          <th key={columnIndex} className="border px-4 py-2">{column}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {table.rows.map((row, rowIndex) => (
+                        <tr key={rowIndex} className={isDarkMode ? 'bg-gray-600' : 'bg-gray-50'}>
+                          {row.map((cell, cellIndex) => (
+                            <td key={cellIndex} className="border px-4 py-2">
+                              {typeof cell === 'object' ? JSON.stringify(cell) : cell}
+                            </td>
+                          ))}
+                        </tr>
                       ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                    </tbody>
+                  </table>
+                </div>
+              ))}
             </div>
             <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
               <h3 className="text-lg font-bold mb-2">Expected Answer</h3>
@@ -223,7 +185,7 @@ const QuizApp = () => {
                 <tbody>
                   {currentQuestion.expected_output.map((row, rowIndex) => (
                     <tr key={rowIndex} className={isDarkMode ? 'bg-gray-600' : 'bg-gray-50'}>
-                      {Object.values(row).map((value, cellIndex) => (
+                      {row.map((value, cellIndex) => (
                         <td key={cellIndex} className="border px-4 py-2">{value}</td>
                       ))}
                     </tr>
@@ -246,89 +208,74 @@ const QuizApp = () => {
             theme={isDarkMode ? "vs-dark" : "light"}
             value={userQuery}
             onChange={setUserQuery}
-            
           />
           <div className="flex mt-2 space-x-2">
-          <button
-  className={`flex-1 ${isRunning ? 'bg-blue-400' : 'bg-blue-500'} text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none flex items-center justify-center`}
-  onClick={handleRunCode}
-  disabled={isRunning}
->
-  {isRunning ? (
-    <>
-      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      Running...
-    </>
-  ) : 'Run Code'}
-</button>
-<button 
-  onClick={handleSaveResults} 
-  className="flex-1 bg-white text-green-500 border border-green-500 px-4 py-2 rounded hover:bg-green-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
->
+            <button
+              className={`flex-1 ${isRunning ? 'bg-blue-400' : 'bg-blue-500'} text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none flex items-center justify-center`}
+              onClick={handleRunCode}
+              disabled={isRunning}
+            >
+              {isRunning ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Running...
+                </>
+              ) : 'Run Code'}
+            </button>
+            <button 
+              onClick={handleSaveResults} 
+              className="flex-1 bg-white text-green-500 border border-green-500 px-4 py-2 rounded hover:bg-green-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+            >
               {buttonText}
             </button>
           </div>
           <div className={`mt-4 ${isDarkMode ? 'bg-gray-700' : 'bg-white'} rounded p-4 flex-grow overflow-y-auto`}>
-          {showFeedback && (
-  <div className="mt-2 flex flex-col space-y-4">
-    {feedback.isCorrect ? (
-      <span className="text-green-400 text-3xl font-semibold">Correct!</span>
-    ) : (
-      <>
-        <span className="text-red-400 text-xl font-semibold">Incorrect code!</span>
-        <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-  {/* <thead>
-    <tr>
-      {feedback.userAnswer && typeof feedback.userAnswer === 'string' && feedback.userAnswer.includes(',') ? (
-        feedback.userAnswer.split(' | ')[0].split(',').map((header, index) => (
-          <th key={index} className={`border px-4 py-2 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'} text-left`}>
-            Column {index + 1}
-          </th>
-        ))
-      ) : (
-        <th className={`border px-4 py-2 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'} text-left`}>Your Output</th>
-      )}
-    </tr>
-  </thead> */}
-  <tbody>
-    {feedback.userAnswer && typeof feedback.userAnswer === 'string' ? (
-      feedback.userAnswer.split(' | ').map((row, rowIndex) => (
-        <tr key={rowIndex}>
-          {row.split(',').map((cell, cellIndex) => (
-            <td key={cellIndex} className="border px-4 py-2 whitespace-nowrap">{cell.trim()}</td>
-          ))}
-        </tr>
-      ))
-    ) : Array.isArray(feedback.userAnswer) ? (
-      feedback.userAnswer.map((row, rowIndex) => (
-        <tr key={rowIndex}>
-          {(typeof row === 'object' ? Object.values(row) : [row]).map((cell, cellIndex) => (
-            <td key={cellIndex} className="border px-4 py-2 whitespace-nowrap">{cell}</td>
-          ))}
-        </tr>
-      ))
-    ) : (
-      <tr>
-        <td className="border px-4 py-2">No data available or invalid format</td>
-      </tr>
-    )}
-  </tbody>
-</table>
-        </div>
-      </>
-    )}
-  </div>
-)}
+            {showFeedback && (
+              <div className="mt-2 flex flex-col space-y-4">
+                {feedback.isCorrect ? (
+                  <span className="text-green-400 text-3xl font-semibold">Correct!</span>
+                ) : (
+                  <>
+                    <span className="text-red-400 text-xl font-semibold">Incorrect code!</span>
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse">
+                        <tbody>
+                          {feedback.userAnswer && typeof feedback.userAnswer === 'string' ? (
+                            feedback.userAnswer.split(' | ').map((row, rowIndex) => (
+                              <tr key={rowIndex}>
+                                {row.split(',').map((cell, cellIndex) => (
+                                  <td key={cellIndex} className="border px-4 py-2 whitespace-nowrap">{cell.trim()}</td>
+                                ))}
+                              </tr>
+                            ))
+                          ) : Array.isArray(feedback.userAnswer) ? (
+                            feedback.userAnswer.map((row, rowIndex) => (
+                              <tr key={rowIndex}>
+                                {(typeof row === 'object' ? Object.values(row) : [row]).map((cell, cellIndex) => (
+                                  <td key={cellIndex} className="border px-4 py-2 whitespace-nowrap">{cell}</td>
+                                ))}
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td className="border px-4 py-2">No data available or invalid format</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
-
 };
 
 export default QuizApp;
