@@ -81,7 +81,7 @@ const QuizApp = () => {
     setShowFeedback(false);
   };
 
-  if (!quizData) return <div className='animate-bounce w-full h-screen flex items-center justify-center text-7xl font-bold'>STARTING....</div>;
+  if (!quizData) return <div className='animate-ping w-full h-screen flex items-center justify-center text-7xl font-thin'>STARTING....</div>;
 
   const currentQuestion = quizData.questions[currentQuestionIndex];
 
