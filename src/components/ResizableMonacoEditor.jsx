@@ -1,52 +1,66 @@
-// components/ResizableMonacoEditor.js
-
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import * as monaco from 'monaco-editor';
-import { ResizableBox } from 'react-resizable';
-import 'react-resizable/css/styles.css';
 
-const ResizableMonacoEditor = ({ language, defaultValue, onChange }) => {
-  const editorRef = useRef(null);
+const ResizableMonacoEditor = ({ language, value, onChange, theme = 'vs-dark', options = {} }) => {
+  const containerRef = useRef(null);
+  const [editor, setEditor] = useState(null);
 
   useEffect(() => {
-    const editor = monaco.editor.create(editorRef.current, {
-      value: defaultValue,
+    if (!containerRef.current) return;
+
+    const editorInstance = monaco.editor.create(containerRef.current, {
+      value,
       language,
-      theme: 'vs-dark', // or 'vs-light' for light theme
-      fontSize: 18,
+      theme,
+      fontSize: 16,
       fontFamily: 'Roboto-Mono',
+      automaticLayout: true,
+      ...options,
     });
 
-    editor.layout();
+    setEditor(editorInstance);
 
-    // Optional: Add onChange event handler
-    editor.onDidChangeModelContent(() => {
-      onChange(editor.getValue());
-    });
+    return () => editorInstance.dispose();
+  }, [containerRef.current]); // Make sure the editor is only created once
 
-    return () => editor.dispose();
-  }, [language, defaultValue, onChange]);
-
-  const handleResize = () => {
-    // Trigger layout adjustment on resize
-    const editor = editorRef.current;
+  useEffect(() => {
     if (editor) {
-      editor.layout();
+      const disposable = editor.onDidChangeModelContent(() => {
+        const editorValue = editor.getValue();
+        if (editorValue !== value) {
+          onChange(editorValue); // only call onChange if the value has actually changed
+        }
+      });
+
+      return () => disposable.dispose();
     }
-  };
+  }, [editor, value, onChange]);
+
+  useEffect(() => {
+    if (editor && editor.getValue() !== value) {
+      editor.setValue(value);
+    }
+  }, [value, editor]);
+
+  useEffect(() => {
+    if (editor) {
+      monaco.editor.setTheme(theme);
+    }
+  }, [theme, editor]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (editor) {
+        editor.layout();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [editor]);
 
   return (
-    <ResizableBox
-      width={864} // Initial width
-      height={400} // Initial height
-      minConstraints={[200, 100]}
-      maxConstraints={[800, 600]}
-      onResize={handleResize}
-  
-      resizeHandles={['se']}
-    >
-      <div ref={editorRef} style={{ width: '100%', height: '100%' }} />
-    </ResizableBox>
+    <div ref={containerRef} style={{ width: '100%', height: '100%', overflow: 'hidden' }} />
   );
 };
 
