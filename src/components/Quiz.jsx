@@ -4,6 +4,8 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import queryString from 'query-string';
+import img from '../assets/dslogo1.png'
+import img1 from '../assets/bgimg.jpg'
 
 
 
@@ -128,7 +130,7 @@ const Quiz = () => {
         
     // Calculate quiz duration in seconds
         const endTime = new Date();
-         const durationInSeconds = Math.round((endTime - startTime) / 1000);
+        const durationInSeconds = Math.round((endTime - startTime) / 1000);
 
        
 
@@ -175,7 +177,7 @@ const Quiz = () => {
         // setTimer(30);
         // setQuizCompleted(false);
 
-        window.location.href = '/?userID=' + userID;
+        window.location.href ='/?userID=' + userID;
         return;
     };
 
@@ -192,6 +194,7 @@ const Quiz = () => {
                             Your Score: <span className="font-semibold">{score}</span> / {questions.length}
                         </p>
                         <div className="mb-6 space-y-4">
+                          
                             {questions.map((question, index) => (
                                 <div key={index} className="border-b pb-4">
                                     <h2 className="text-lg font-medium mb-2 text-gray-800">{question.question}</h2>
@@ -223,13 +226,18 @@ const Quiz = () => {
         }
     
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-                <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-4xl">
+          <div
+                className="min-h-screen flex items-center justify-center p-4"
+            style={{ backgroundImage: `url(${img1})`, backgroundPosition: 'center', }}
+          >
+               <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-4xl">
                     <div className="flex justify-between items-center mb-6">
+                    <img src={img} alt="Data Sense Logo" className="h-20" />
                         <span className="text-sm text-gray-500">
                             Question {currentQuestionIndex + 1} of {questions.length}
                         </span>
-                        <span className="text-sm font-semibold text-[#4B5563]">Time Remaining  {timer}s</span>
+                        <span className="text-sm font-semibold text-[#4B5563]
+                        ">Time Remaining  {timer}s</span>
                     </div>
                     <div className="bg-gray-800 p-6 rounded-lg mb-6">
                         <h1 className=" text-2xl font-semibold text-white">{questions[currentQuestionIndex].question}</h1>
@@ -273,4 +281,4 @@ const Quiz = () => {
         );
     };
     
-    export default Quiz;
+export default Quiz;
