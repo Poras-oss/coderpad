@@ -21,12 +21,25 @@ const QuizApp = () => {
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
   const quizID = parsed.quizID;
+  const questionID = parsed.questionID;
  
   useEffect(() => {
     const fetchQuizData = async () => {
       try {
-        const response = await axios.get(`https://server.datasenseai.com/sql-quiz/${quizID}/${userID}`);
-        setQuizData(response.data);
+        let response;
+        
+        if (quizID) {
+          // Fetch quiz data if quizID is present
+          response = await axios.get(`https://server.datasenseai.com/sql-quiz/${quizID}/${userID}`);
+        } else if (questionID) {
+          // Fetch question data if questionID is present
+          response = await axios.get(`https://server.datasenseai.com/test-series-coding/${questionID}`);
+        }
+
+        if (response) {
+          setQuizData(response.data);
+        }
+
       } catch (error) {
         console.error('Error fetching quiz data:', error);
       }

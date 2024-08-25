@@ -12,8 +12,8 @@ import Leaderboard from './components/Leaderboard';
 import QuizHome from './components/QuizHome'; // Import the QuizHome component
 import Instructions from './components/Instructions';
 import DataSkillsDashboard from './components/dash';
-
-
+import TestSeriesCoderpadHome from './components/TestSeriesCoderpadHome';
+import TestSeriesMcqHome from './components/TestSeriesMcqHome';
 const App = () => {
   return (
     <BrowserRouter>
@@ -25,6 +25,8 @@ const App = () => {
         <Route path="/mcqQuiz" element={<Quiz />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/instructions" element={<Instructions />} />
+        <Route path="/practice-area" element={<TestSeriesCoderpadHome />} />
+        <Route path="/quiz-area" element={<TestSeriesMcqHome />} />
       </Routes>
     </BrowserRouter>
   );
