@@ -84,14 +84,14 @@ const TestSeriesCoderpadHome = () => {
     ? quizzes.filter(quiz => quiz.difficulty.toLowerCase() === selectedDifficulty.toLowerCase())
     : quizzes;
 
-  const toggleQuestionExpansion = (quizId) => {
-    setExpandedQuestions(prev => ({...prev, [quizId]: !prev[quizId]}));
-  };
-
-  const shortenQuestion = (question, maxLength = 50) => {
-    if (question.length <= maxLength) return question;
-    return question.substring(0, maxLength) + '...';
-  };
+    const toggleQuestionExpansion = (quizId) => {
+      setExpandedQuestions(prev => ({...prev, [quizId]: !prev[quizId]}));
+    };
+  
+    const shortenQuestion = (question, maxLength = 135) => {
+      if (question.length <= maxLength) return question;
+      return question.substring(0, maxLength) + '...';
+    };
 
   return (
     <div className={`font-sans min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-gray-100 text-black'}`}>
@@ -160,16 +160,22 @@ const TestSeriesCoderpadHome = () => {
                   <td className="px-4 py-4 whitespace-nowrap text-sm">{index + 1}</td>
                   <td className="px-4 py-4 text-sm font-medium">
                     <div className="flex items-center">
-                      <span>{shortenQuestion(removeQuizTypePrefix(quiz.quizName))}</span>
-                      <button onClick={() => toggleQuestionExpansion(quiz._id)} className="ml-2">
-                        {expandedQuestions[quiz._id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      <span className="flex-grow">{shortenQuestion(removeQuizTypePrefix(quiz.quizName))}</span>
+                      <button 
+                        onClick={() => toggleQuestionExpansion(quiz._id)} 
+                        className="ml-2 flex-shrink-0 transition-transform duration-300 ease-in-out"
+                        style={{ transform: expandedQuestions[quiz._id] ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                      >
+                        <ChevronDown size={16} />
                       </button>
                     </div>
-                    {expandedQuestions[quiz._id] && (
-                      <div className="mt-2 text-sm text-gray-500">
-                        {removeQuizTypePrefix(quiz.quizName)}
-                      </div>
-                    )}
+                    <div 
+                      className={`mt-2 text-sm text-gray-500 overflow-hidden transition-all duration-500 ease-in-out ${
+                        expandedQuestions[quiz._id] ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                      }`}
+                    >
+                      {removeQuizTypePrefix(quiz.quizName)}
+                    </div>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
                     <div className="flex space-x-2">

@@ -14,6 +14,8 @@ import Instructions from './components/Instructions';
 import DataSkillsDashboard from './components/dash';
 import TestSeriesCoderpadHome from './components/TestSeriesCoderpadHome';
 import TestSeriesMcqHome from './components/TestSeriesMcqHome';
+import McqTestSeries from './components/McqTestSeries';
+
 const App = () => {
   return (
     <BrowserRouter>
@@ -27,6 +29,7 @@ const App = () => {
         <Route path="/instructions" element={<Instructions />} />
         <Route path="/practice-area" element={<TestSeriesCoderpadHome />} />
         <Route path="/quiz-area" element={<TestSeriesMcqHome />} />
+        <Route path="/mcq" element={<McqTestSeries />} />
       </Routes>
     </BrowserRouter>
   );

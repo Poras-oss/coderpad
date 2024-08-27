@@ -2,12 +2,15 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import img from '../assets/bgimg.jpg';
 import img1 from '../assets/dslogo1.png';
+import queryString from 'query-string';
 
 const Instructions = () => {
   const navigate = useNavigate();
+  const parsed = queryString.parse(window.location.search);
+  const subject = parsed.subject;
 
   const navigateToDash = () => {
-    navigate('/dash');
+    navigate('/quiz-area?subject='+subject);
   };
   const navigateToHome = () => {
     navigate('/');
