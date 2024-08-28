@@ -116,7 +116,7 @@ const McqTestSeries = () => {
         setUserAnswers(newAnswers);
         updateUserProgress(subject, difficulty);
         const calculatedScore = newAnswers.reduce((total, userAnswer, index) => {
-            return userAnswer && questions[index].options[userAnswer] === questions[index].answer ? total + 1 : total;
+            return userAnswer && questions[index].options[userAnswer] === questions[index].correct_answer ? total + 1 : total;
         }, 0);
 
       
@@ -166,7 +166,7 @@ const McqTestSeries = () => {
                     <div className="space-y-4 sm:space-y-6">
                       {questions.map((question, index) => {
                         const userAnswer = userAnswers[index];
-                        const isCorrect = userAnswer && question.options[userAnswer] === question.answer;
+                        const isCorrect = userAnswer && question.options[userAnswer] === question.correct_answer;
                         
                         return (
                           <div key={index} className="border-b border-gray-200 pb-3 sm:pb-4">
