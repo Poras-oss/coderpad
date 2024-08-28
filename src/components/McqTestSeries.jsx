@@ -7,7 +7,7 @@ import queryString from 'query-string';
 import img from '../assets/dslogo1.png'
 import img1 from '../assets/bgimg.jpg'
 
-import { ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 
 const McqTestSeries = () => {
@@ -135,7 +135,12 @@ const McqTestSeries = () => {
     };
 
     if (questions.length === 0) {
-        return <div className='animate-ping w-full h-screen flex items-center justify-center text-7xl font-thin'>STARTING....</div>;
+        return (
+          <div className="w-full h-screen flex flex-col items-center justify-center">
+            <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
+            <h5 className="mt-4 text-2xl font-thin text-gray-700">Loading...</h5>
+          </div>
+        );
     }
 
     if (quizCompleted) {
@@ -148,15 +153,15 @@ const McqTestSeries = () => {
                   </div>
                   <div className="p-3 sm:p-6">
                     <div className="mb-4 sm:mb-6 text-center">
-                      <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-800">
+                      <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-800">
                         Your Score:
-                      </p>
-                      <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-blue-600 mt-2">
+                      </h2>
+                      <h4 className="text-3xl sm:text-4xl md:text-5xl font-bold text-blue-600 mt-2">
                         {score} / {questions.length}
-                      </p>
-                      <p className="text-base sm:text-lg md:text-xl text-gray-600 mt-2">
+                      </h4>
+                      <h5 className="text-base sm:text-lg md:text-xl text-gray-600 mt-2">
                         {((score / questions.length) * 100).toFixed(2)}% Correct
-                      </p>
+                      </h5>
                     </div>
                     <div className="space-y-4 sm:space-y-6">
                       {questions.map((question, index) => {
