@@ -1,12 +1,12 @@
-import React, { useState, useEffect  } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
+import React, { useState, useEffect } from 'react';
+import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { Sun, Moon, Info, Lock } from 'lucide-react';
 import queryString from 'query-string';
 import { FaSun, FaMoon, FaBars, FaTimes } from 'react-icons/fa';
 
 const TestSeriesMcqHome = () => {
-  const { isAuthenticated, user, loginWithRedirect, logout } = useAuth0();
+  const { isLoaded, isSignedIn, user } = useUser();
   const navigateTo = useNavigate();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -186,7 +186,7 @@ const TestSeriesMcqHome = () => {
 
 
   const handleStartQuiz = (quizID, quizType, difficulty) => {
-    if (!isAuthenticated) {
+    if (!isSignedIn) {
       alert('You need to log in to start the quiz.');
       return;
     }
@@ -219,58 +219,50 @@ const TestSeriesMcqHome = () => {
   return (
     <div className={`font-sans min-h-screen flex flex-col ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
       <header className={`p-4 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-cyan-600 text-gray-800'}`}>
-        <div className="container mx-auto flex justify-between items-center relative">
-          <h1 className="text-2xl font-bold text-white">Datasense</h1>
-          
-          <div className="md:hidden z-20">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2"
-              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            >
-              {isMenuOpen ? <FaTimes /> : <FaBars />}
-            </button>
-          </div>
+      <div className="container mx-auto flex justify-between items-center relative">
+        <h1 className="text-2xl font-bold text-white">Datasense</h1>
+        
+        <div className="md:hidden z-20">
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-2"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          >
+            {isMenuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+        </div>
 
-          <nav className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex absolute md:relative top-full left-0 right-0 md:top-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'} md:bg-transparent z-10 flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 p-4 md:p-0`}>
-            <ul className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
-              <li>
-                <button
-                  onClick={() => setIsDarkMode(!isDarkMode)}
-                  className={`p-2 rounded-full ${isDarkMode ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-yellow-400'}`}
-                  aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-                >
-                  {isDarkMode ? <FaSun /> : <FaMoon />}
-                </button>
-              </li>
-              <li className="w-full md:w-auto">
-                {isAuthenticated ? (
-                  <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
-                   <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-700'} md:${isDarkMode ? 'text-white' : 'text-white'}`}>
-
-                      Welcome, {user.name}
-                    </span>
-                    <button
-                      onClick={() => logout({ returnTo: window.location.origin })}
-                      className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto"
-                    >
-                      Log Out
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => loginWithRedirect()}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto"
-                  >
+        <nav className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex absolute md:relative top-full left-0 right-0 md:top-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'} md:bg-transparent z-10 flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 p-4 md:p-0`}>
+          <ul className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
+            <li>
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className={`p-2 rounded-full ${isDarkMode ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-yellow-400'}`}
+                aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+              >
+                {isDarkMode ? <FaSun /> : <FaMoon />}
+              </button>
+            </li>
+            <li className="w-full md:w-auto">
+              {isLoaded && isSignedIn ? (
+                <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
+                  <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-700'} md:${isDarkMode ? 'text-white' : 'text-white'}`}>
+                    Welcome, {user.firstName}
+                  </span>
+                  <UserButton afterSignOutUrl="/" />
+                </div>
+              ) : (
+                <SignInButton mode="modal">
+                  <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto">
                     Log In
                   </button>
-                )}
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </header>
-
+                </SignInButton>
+              )}
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-grow">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {selectedQuizzes.map((quiz) => (

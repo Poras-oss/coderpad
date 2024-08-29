@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import queryString from 'query-string';
 import { useNavigate } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
-import { Video, FileText, ChevronDown , X } from 'lucide-react';
+import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
+import { Video, FileText, ChevronDown, X } from 'lucide-react';
 import { FaSun, FaMoon, FaBars, FaTimes } from 'react-icons/fa';
 import ReactPlayer from 'react-player/youtube';
 
 const TestSeriesCoderpadHome = () => {
-  const { isAuthenticated, user, loginWithRedirect, logout } = useAuth0();
+  const { isLoaded, isSignedIn, user } = useUser();
   const navigateTo = useNavigate();
   const [quizzes, setQuizzes] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -24,12 +24,11 @@ const TestSeriesCoderpadHome = () => {
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const [currentVideoId, setCurrentVideoId] = useState('');
 
-   // Use a single video ID for all quizzes (you can replace this with your actual video ID)
-   const sampleVideoId = '0O0jrTUg3UM';
+  const sampleVideoId = '0O0jrTUg3UM';
 
   useEffect(() => {
     validateSubject();
-  }, [subject]); // Added subject as a dependency
+  }, [subject]);
 
   const openVideoPopup = () => {
     setIsVideoPopupOpen(true);
@@ -84,9 +83,8 @@ const TestSeriesCoderpadHome = () => {
     }
   };
 
-
   const handleStartQuiz = (quizID, userID, quizName) => {
-    if (!isAuthenticated) {
+    if (!isSignedIn) {
       alert('You need to log in to start the quiz.');
       return;
     }
@@ -127,70 +125,62 @@ const TestSeriesCoderpadHome = () => {
     ? quizzes.filter(quiz => quiz.difficulty.toLowerCase() === selectedDifficulty.toLowerCase())
     : quizzes;
 
-    const toggleQuestionExpansion = (quizId) => {
-      setExpandedQuestions(prev => ({...prev, [quizId]: !prev[quizId]}));
-    };
-  
-    const shortenQuestion = (question, maxLength = 135) => {
-      if (question.length <= maxLength) return question;
-      return question.substring(0, maxLength) + '...';
-    };
+  const toggleQuestionExpansion = (quizId) => {
+    setExpandedQuestions(prev => ({...prev, [quizId]: !prev[quizId]}));
+  };
+
+  const shortenQuestion = (question, maxLength = 135) => {
+    if (question.length <= maxLength) return question;
+    return question.substring(0, maxLength) + '...';
+  };
 
   return (
     <div className={`font-sans min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-gray-100 text-black'}`}>
-      <header className={`p-4 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-cyan-600 text-gray-800'}`}>
-        <div className="container mx-auto flex justify-between items-center relative">
-          <h1 className="text-2xl font-bold text-white">Datasense</h1>
-          
-          <div className="md:hidden z-20">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2"
-              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            >
-              {isMenuOpen ? <FaTimes /> : <FaBars />}
-            </button>
-          </div>
+    <header className={`p-4 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-cyan-600 text-gray-800'}`}>
+      <div className="container mx-auto flex justify-between items-center relative">
+        <h1 className="text-2xl font-bold text-white">Datasense</h1>
+        
+        <div className="md:hidden z-20">
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-2"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          >
+            {isMenuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+        </div>
 
-          <nav className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex absolute md:relative top-full left-0 right-0 md:top-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'} md:bg-transparent z-10 flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 p-4 md:p-0`}>
-            <ul className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
-              <li>
-                <button
-                  onClick={() => setIsDarkMode(!isDarkMode)}
-                  className={`p-2 rounded-full ${isDarkMode ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-yellow-400'}`}
-                  aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-                >
-                  {isDarkMode ? <FaSun /> : <FaMoon />}
-                </button>
-              </li>
-              <li className="w-full md:w-auto">
-                {isAuthenticated ? (
-                  <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
-                   <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-700'} md:${isDarkMode ? 'text-white' : 'text-white'}`}>
-
-                      Welcome, {user.name}
-                    </span>
-                    <button
-                      onClick={() => logout({ returnTo: window.location.origin })}
-                      className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto"
-                    >
-                      Log Out
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => loginWithRedirect()}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto"
-                  >
+        <nav className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex absolute md:relative top-full left-0 right-0 md:top-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'} md:bg-transparent z-10 flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 p-4 md:p-0`}>
+          <ul className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
+            <li>
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className={`p-2 rounded-full ${isDarkMode ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-yellow-400'}`}
+                aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+              >
+                {isDarkMode ? <FaSun /> : <FaMoon />}
+              </button>
+            </li>
+            <li className="w-full md:w-auto">
+              {isLoaded && isSignedIn ? (
+                <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
+                  <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-700'} md:${isDarkMode ? 'text-white' : 'text-white'}`}>
+                    Welcome, {user.firstName}
+                  </span>
+                  <UserButton afterSignOutUrl="/" />
+                </div>
+              ) : (
+                <SignInButton mode="modal">
+                  <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto">
                     Log In
                   </button>
-                )}
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </header>
-
+                </SignInButton>
+              )}
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
       <main className="container mx-auto p-4">
         <div className="flex flex-wrap justify-center gap-2 my-6">
           {difficulties.map((difficulty) => (
