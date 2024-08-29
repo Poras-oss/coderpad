@@ -53,6 +53,8 @@ const QuizHome = () => {
   const [showDialog, setShowDialog] = useState(false);
   const navigate = useNavigate();
 
+  window.location.href = 'https://vibrant-attributes-210567.framer.app/page-2';
+
   const handleClick = () => {
     setShowDialog(true);
   };

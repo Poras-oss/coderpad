@@ -15,12 +15,12 @@ import DataSkillsDashboard from './components/dash';
 import TestSeriesCoderpadHome from './components/TestSeriesCoderpadHome';
 import TestSeriesMcqHome from './components/TestSeriesMcqHome';
 import McqTestSeries from './components/McqTestSeries';
-
+import Redirect from './components/Redirect'
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        { <Route path="/" element={<QuizHome />} /> }
+        { <Route path="/" element={<Redirect />} /> }
         <Route path="/dash" element={<DataSkillsDashboard />} />
         <Route path="/quiz" element={<QuizApp />} />
         <Route path="/pyQuiz" element={<PythonQuizApp />} />
