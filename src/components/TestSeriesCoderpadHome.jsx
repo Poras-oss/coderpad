@@ -3,9 +3,9 @@ import axios from 'axios';
 import queryString from 'query-string';
 import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
-import { Video, FileText, Sun, Moon, ChevronDown, ChevronUp } from 'lucide-react';
-
-const difficulties = ['Easy', 'Medium', 'Hard'];
+import { Video, FileText, ChevronDown , X } from 'lucide-react';
+import { FaSun, FaMoon, FaBars, FaTimes } from 'react-icons/fa';
+import ReactPlayer from 'react-player/youtube';
 
 const TestSeriesCoderpadHome = () => {
   const { isAuthenticated, user, loginWithRedirect, logout } = useAuth0();
@@ -14,13 +14,55 @@ const TestSeriesCoderpadHome = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [selectedDifficulty, setSelectedDifficulty] = useState(null);
   const [expandedQuestions, setExpandedQuestions] = useState({});
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const difficulties = ['Easy', 'Medium', 'Hard'];
+
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
   const subject = parsed.subject;
 
+  const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
+  const [currentVideoId, setCurrentVideoId] = useState('');
+
+   // Use a single video ID for all quizzes (you can replace this with your actual video ID)
+   const sampleVideoId = '0O0jrTUg3UM';
+
   useEffect(() => {
-    fetchQuizzes();
-  }, []);
+    validateSubject();
+  }, [subject]); // Added subject as a dependency
+
+  const openVideoPopup = () => {
+    setIsVideoPopupOpen(true);
+  };
+
+  const closeVideoPopup = () => {
+    setIsVideoPopupOpen(false);
+  };
+
+  const validateSubject = () => {
+    const validSubjects = ['mysql', 'python', 'tableau', 'excel', 'powerbi'];
+    
+    if (!subject) {
+      showPopup('URL is malformed. Subject is missing.');
+      redirectToHomePage();
+    } else if (!validSubjects.includes(subject.toLowerCase())) {
+      showPopup('URL is malformed. Invalid subject.');
+      redirectToHomePage();
+    } else if (subject.toLowerCase() !== 'mysql') {
+      showPopup('Questions will be available soon');
+      redirectToHomePage();
+    } else {
+      fetchQuizzes();
+    }
+  };
+
+  const showPopup = (message) => {
+    alert(message);
+  };
+
+  const redirectToHomePage = () => {
+    window.location.href = 'https://vibrant-attributes-210567.framer.app/page-2';
+  };
 
   const removeQuizTypePrefix = (quizName) => {
     return quizName.replace(/^(sql:|python:|mcq:)\s*/i, '');
@@ -41,7 +83,8 @@ const TestSeriesCoderpadHome = () => {
       console.error('Error fetching quizzes:', error);
     }
   };
-  
+
+
   const handleStartQuiz = (quizID, userID, quizName) => {
     if (!isAuthenticated) {
       alert('You need to log in to start the quiz.');
@@ -95,33 +138,56 @@ const TestSeriesCoderpadHome = () => {
 
   return (
     <div className={`font-sans min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-gray-100 text-black'}`}>
-      <header className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-cyan-700'} p-2 flex justify-between items-center`}>
-        <h1 className="text-3xl text-white">Datasense</h1>
-        <div className="flex items-center">
-          <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className={`mr-4 p-2 rounded-full ${isDarkMode ? 'bg-yellow-400 text-[#262626]' : 'bg-[#262626] text-yellow-400'}`}
-          >
-            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
-          {isAuthenticated ? (
-            <div className="flex items-center">
-              <span className="mr-4 text-white">Welcome, {user.name}</span>
-              <button
-                onClick={() => logout({ returnTo: window.location.origin })}
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Log Out
-              </button>
-            </div>
-          ) : (
+      <header className={`p-4 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-cyan-600 text-gray-800'}`}>
+        <div className="container mx-auto flex justify-between items-center relative">
+          <h1 className="text-2xl font-bold text-white">Datasense</h1>
+          
+          <div className="md:hidden z-20">
             <button
-              onClick={() => loginWithRedirect()}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
-              Log In
+              {isMenuOpen ? <FaTimes /> : <FaBars />}
             </button>
-          )}
+          </div>
+
+          <nav className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex absolute md:relative top-full left-0 right-0 md:top-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'} md:bg-transparent z-10 flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 p-4 md:p-0`}>
+            <ul className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
+              <li>
+                <button
+                  onClick={() => setIsDarkMode(!isDarkMode)}
+                  className={`p-2 rounded-full ${isDarkMode ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-yellow-400'}`}
+                  aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+                >
+                  {isDarkMode ? <FaSun /> : <FaMoon />}
+                </button>
+              </li>
+              <li className="w-full md:w-auto">
+                {isAuthenticated ? (
+                  <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
+                   <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-700'} md:${isDarkMode ? 'text-white' : 'text-white'}`}>
+
+                      Welcome, {user.name}
+                    </span>
+                    <button
+                      onClick={() => logout({ returnTo: window.location.origin })}
+                      className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto"
+                    >
+                      Log Out
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => loginWithRedirect()}
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto"
+                  >
+                    Log In
+                  </button>
+                )}
+              </li>
+            </ul>
+          </nav>
         </div>
       </header>
 
@@ -182,9 +248,9 @@ const TestSeriesCoderpadHome = () => {
                       <button className="text-blue-400 hover:text-blue-600">
                         <FileText size={20} />
                       </button>
-                      <button className="text-blue-400 hover:text-blue-600">
-                        <Video size={20} />
-                      </button>
+                      <button className="text-blue-400 hover:text-blue-600" onClick={openVideoPopup}>
+                    <Video size={20} />
+                  </button>
                     </div>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
@@ -207,6 +273,33 @@ const TestSeriesCoderpadHome = () => {
                 </tr>
               ))}
             </tbody>
+
+               {/* Video Popup */}
+      {isVideoPopupOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-800">Solution Video</h2>
+              <button 
+                onClick={closeVideoPopup}
+                className="text-gray-600 hover:text-gray-800 transition-colors duration-200"
+              >
+                <X size={28} />
+              </button>
+            </div>
+            <div className="relative pt-[56.25%]"> {/* 16:9 Aspect Ratio */}
+              <ReactPlayer
+                url={`https://www.youtube.com/watch?v=${sampleVideoId}`}
+                width="100%"
+                height="100%"
+                controls
+                playing
+                className="absolute top-0 left-0"
+              />
+            </div>
+          </div>
+        </div>
+      )}
           </table>
         </div>
       </main>

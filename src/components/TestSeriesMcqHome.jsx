@@ -22,7 +22,30 @@ const TestSeriesMcqHome = () => {
   };
 
   const quizzesBySubject = {
-    hardcodedQuizzes: [
+    mysql: [
+      {
+        _id: '1',
+        quizName: 'Basic Data Analysis',
+        type: 'MCQ',
+        difficulty: 'Easy',
+        description: 'Test your fundamental knowledge of data analysis concepts and techniques.',
+      },
+      {
+        _id: '2',
+        quizName: 'Intermediate Database Queries',
+        type: 'SQL',
+        difficulty: 'Medium',
+        description: 'Challenge yourself with complex SQL queries and database management problems.',
+      },
+      {
+        _id: '3',
+        quizName: 'Advanced Machine Learning',
+        type: 'Python',
+        difficulty: 'Hard',
+        description: 'Dive deep into advanced machine learning algorithms and implementations.',
+      },
+    ],
+    python: [
       {
         _id: '1',
         quizName: 'Basic Data Analysis',
@@ -129,11 +152,50 @@ const TestSeriesMcqHome = () => {
     }
   }, []);
 
+  useEffect(() => {
+    validateSubject();
+  }, [subject]); // Added subject as a dependency
+
+  const validateSubject = () => {
+    const validSubjects = ['mysql', 'python', 'tableau', 'excel', 'powerbi'];
+    
+    if (!subject) {
+      showPopup('URL is malformed. Subject is missing.');
+      redirectToHomePage();
+    } else if (!validSubjects.includes(subject.toLowerCase())) {
+      showPopup('URL is malformed. Invalid subject.');
+      redirectToHomePage();
+    } else if (subject.toLowerCase() === 'mysql' || subject.toLowerCase() === 'python') {
+      fetchQuizzes();
+    } else {
+      showPopup('Questions will be available soon');
+      redirectToHomePage();
+    }
+  };
+  
+
+  const showPopup = (message) => {
+    alert(message);
+  };
+
+  const redirectToHomePage = () => {
+    window.location.href = 'https://vibrant-attributes-210567.framer.app/page-2';
+  };
+
+
 
   const handleStartQuiz = (quizID, quizType, difficulty) => {
     if (!isAuthenticated) {
       alert('You need to log in to start the quiz.');
       return;
+    }
+    if(subject == 'mysql' || 'python'){
+    alert('Questions will available soon')
+    window.location.href = 'https://vibrant-attributes-210567.framer.app/page-2';
+    }
+    if(subject != 'mysql' || 'python' ||'tableau' || 'excel' || 'powerbi'){
+      alert('URL is malformed')
+      window.location.href = 'https://vibrant-attributes-210567.framer.app/page-2';
     }
 
     //updateUserProgress(difficulty);

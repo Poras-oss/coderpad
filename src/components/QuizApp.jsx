@@ -4,7 +4,8 @@ import MonacoEditor from './ResizableMonacoEditor' // Assuming you have a Monaco
 import queryString from 'query-string';
 import {useAuth0} from '@auth0/auth0-react'
 import Split from 'react-split';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Video, X } from 'lucide-react';
+import ReactPlayer from 'react-player';
 
 const QuizApp = () => {
   const {loginWithPopup, loginWithRedirect, logout, user, isAuthenticated, getAccessTokenSilently} = useAuth0();
@@ -20,6 +21,7 @@ const QuizApp = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [output, setOutput] = useState(null);
   const [isTesting, setIsTesting] = useState(false);
+  const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
 
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
@@ -38,6 +40,14 @@ const QuizApp = () => {
 
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  const openVideoPopup = () => {
+    setIsVideoPopupOpen(true);
+  };
+
+  const closeVideoPopup = () => {
+    setIsVideoPopupOpen(false);
+  };
  
   useEffect(() => {
     const fetchQuizData = async () => {
@@ -193,12 +203,20 @@ const QuizApp = () => {
     <div className={`min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-black'}`}>
       <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center`}>
         <h1 className="mb-4 text-xl font-bold">SQL Quiz</h1>
-        <button
-          onClick={() => setIsDarkMode(!isDarkMode)}
-          className={`px-4 py-2 rounded-full ${isDarkMode ? 'bg-white text-black' : 'bg-[#262626] text-white'}`}
-        >
-          {isDarkMode ? '☀️' : '🌙'}
-        </button>
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={openVideoPopup}
+            className={`p-2 rounded-full ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-[#262626]'}`}
+          >
+            <Video size={24} />
+          </button>
+          <button
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className={`p-2 rounded-full ${isDarkMode ? 'bg-white text-black' : 'bg-[#262626] text-white'}`}
+          >
+            {isDarkMode ? '☀️' : '🌙'}
+          </button>
+        </div>
       </nav>
       <Split
         className="flex h-[calc(100vh-4rem)]"
@@ -381,11 +399,38 @@ const QuizApp = () => {
           </div>
         )}
       </div>
+
+      
             </div>
           </Split>
         </div>
       </Split>
+
+      {/* Video Popup */}
+      {isVideoPopupOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg relative w-11/12 max-w-4xl">
+            <button
+              onClick={closeVideoPopup}
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white"
+            >
+              <X size={24} />
+            </button>
+            <div className="aspect-w-16 aspect-h-9">
+              <ReactPlayer
+                url="https://www.youtube.com/watch?v=0O0jrTUg3UM"
+                width="100%"
+                height="100%"
+                controls
+                playing
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+
+    
   );
 };
 export default QuizApp;
