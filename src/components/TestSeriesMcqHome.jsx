@@ -170,7 +170,7 @@ const TestSeriesMcqHome = () => {
       showPopup('Questions will be available soon');
       redirectToHomePage();
     } else {
-      fetchQuizzes();
+      //fetchQuizzes();
     }
   };
   
@@ -190,15 +190,6 @@ const TestSeriesMcqHome = () => {
       alert('You need to log in to start the quiz.');
       return;
     }
-    if(subject == 'mysql' || 'python'){
-    alert('Questions will available soon')
-    window.location.href = 'https://vibrant-attributes-210567.framer.app/page-2';
-    }
-    if(subject != 'mysql' || 'python' ||'tableau' || 'excel' || 'powerbi'){
-      alert('URL is malformed')
-      window.location.href = 'https://vibrant-attributes-210567.framer.app/page-2';
-    }
-
     //updateUserProgress(difficulty);
     
   
