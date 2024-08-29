@@ -166,10 +166,11 @@ const TestSeriesMcqHome = () => {
       showPopup('URL is malformed. Invalid subject.');
       redirectToHomePage();
     } else if (subject.toLowerCase() === 'mysql' || subject.toLowerCase() === 'python') {
-      fetchQuizzes();
-    } else {
+      
       showPopup('Questions will be available soon');
       redirectToHomePage();
+    } else {
+      fetchQuizzes();
     }
   };
   
