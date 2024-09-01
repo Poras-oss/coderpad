@@ -28,11 +28,11 @@ const Instructions = () => {
         <div className='flex gap-2 backdrop-blur-lg rounded-lg p-8 shadow-xl border-4 border-dotted border-teal-700'>
           <ol className='text-lg list-decimal font-medium space-y-6'>
             <li>Welcome to the quiz! Please read the following instructions carefully before proceeding:</li>
-            <li>This quiz consists of 20 multiple-choice questions. Each question has 4 possible options, with only one correct answer.</li>
+            <li>This quiz consists of 50 multiple-choice questions. Each question has 4 possible options, with only one correct answer.</li>
             <li>You will have 60 minutes to complete the quiz. The timer will start as soon as you click the "Start" button.</li>
             <li>Once you begin the quiz, you will not be able to pause or stop the timer. Please ensure you have enough time to complete the quiz before starting.</li>
             <li>Each question must be answered before you can proceed to the next question. You cannot skip or return to previous questions.</li>
-            <li>Your score will be displayed at the end of the quiz. To pass the quiz, you must achieve a minimum score of 80%.</li>
+            <li>Your score will be displayed at the end of the quiz. To pass the quiz, you must achieve a minimum score of 70%.</li>
             <li>If you do not pass the quiz on your first attempt, you will be given the opportunity to retake it. However, the questions and answer choices may be rearranged.</li>
             <li>Cheating or sharing answers is strictly prohibited. Doing so may result in disqualification from the quiz and potential disciplinary action.</li>
             <li>By clicking the <span className='font-bold'>START</span> button, you agree to abide by these instructions and the terms and conditions of this quiz. If you do not agree, please exit the quiz now.</li>

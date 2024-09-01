@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sun, Moon, Info, Lock } from 'lucide-react';
 import queryString from 'query-string';
 import { FaSun, FaMoon, FaBars, FaTimes } from 'react-icons/fa';
+import logo from '../assets/dslogo.png'
 
 const TestSeriesMcqHome = () => {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -198,6 +199,10 @@ const TestSeriesMcqHome = () => {
 
   };
 
+  function backToHome(){
+    navigateTo('/');
+  }
+
   const isQuizEnabled = (difficulty) => {
     if (difficulty === 'Easy') return true;
     if (difficulty === 'Medium') return userProgress[`${subject}_easy`];
@@ -218,21 +223,23 @@ const TestSeriesMcqHome = () => {
 
   return (
     <div className={`font-sans min-h-screen flex flex-col ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
-      <header className={`p-4 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-cyan-600 text-gray-800'}`}>
+      <header className={`p-4 ${isDarkMode ? 'bg-oxford-blue text-white' : 'bg-oxford-blue text-gray-800'}`}>
       <div className="container mx-auto flex justify-between items-center relative">
-        <h1 className="text-2xl font-bold text-white">Datasense</h1>
+      <img className="h-auto max-w-lg rounded-lg"  src={logo} height={40} width={60} alt="Datasense" onClick={backToHome}/>
+      {/* <h3 className='text-white'>{(subject).toUpperCase()} Questions</h3> */}
+
         
         <div className="md:hidden z-20">
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-2"
+            className="p-2 text-white"
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
             {isMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
         </div>
 
-        <nav className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex absolute md:relative top-full left-0 right-0 md:top-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'} md:bg-transparent z-10 flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 p-4 md:p-0`}>
+        <nav className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex absolute md:relative top-full left-0 right-0 md:top-auto ${isDarkMode ? 'bg-gray-800' : 'bg-gray-800'} md:bg-transparent z-10 flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 p-4 md:p-0`}>
           <ul className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
             <li>
               <button
@@ -246,14 +253,14 @@ const TestSeriesMcqHome = () => {
             <li className="w-full md:w-auto">
               {isLoaded && isSignedIn ? (
                 <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
-                  <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-700'} md:${isDarkMode ? 'text-white' : 'text-white'}`}>
+                  <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-white'} md:${isDarkMode ? 'text-white' : 'text-white'}`}>
                     Welcome, {user.firstName}
                   </span>
-                  <UserButton afterSignOutUrl="/" />
+                  <UserButton afterSignOutUrl={`/quiz-area?subject=${subject}`} />
                 </div>
               ) : (
-                <SignInButton mode="modal">
-                  <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto">
+                <SignInButton mode="modal" fallbackRedirectUrl={`/quiz-area?subject=${subject}`}>
+                  <button className="bg-custom-cyan hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto">
                     Log In
                   </button>
                 </SignInButton>

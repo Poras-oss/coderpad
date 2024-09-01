@@ -20,7 +20,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        { <Route path="/" element={<Redirect />} /> }
+        {  <Route path="/" element={<iframe src="/index.html" style={{ width: '100%', height: '100vh', border: 'none' }} title="External Page" />} /> }
         <Route path="/dash" element={<DataSkillsDashboard />} />
         <Route path="/quiz" element={<QuizApp />} />
         <Route path="/pyQuiz" element={<PythonQuizApp />} />

@@ -6,6 +6,7 @@ import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import { Video, FileText, ChevronDown, X } from 'lucide-react';
 import { FaSun, FaMoon, FaBars, FaTimes } from 'react-icons/fa';
 import ReactPlayer from 'react-player/youtube';
+import logo from '../assets/dslogo.png'
 
 const TestSeriesCoderpadHome = () => {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -15,7 +16,7 @@ const TestSeriesCoderpadHome = () => {
   const [selectedDifficulty, setSelectedDifficulty] = useState(null);
   const [expandedQuestions, setExpandedQuestions] = useState({});
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const difficulties = ['Easy', 'Medium', 'Hard'];
+  const difficulties = ['Easy', 'Medium', 'Advance'];
 
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
@@ -91,6 +92,10 @@ const TestSeriesCoderpadHome = () => {
     navigateTo(`/quiz?questionID=${quizID}&userID=${userID}`);
   };
 
+  function currentPageRedirect(){
+    navigateTo(`/quiz?questionID=${quizID}&userID=${userID}`);
+  }
+
   const determineButtonLabel = (quiz) => {
     const lowerCaseQuizName = quiz.quizName.toLowerCase();
     const now = new Date();
@@ -105,6 +110,10 @@ const TestSeriesCoderpadHome = () => {
       return lowerCaseQuizName.includes('mcq:') ? 'Results' : 'Ended';
     }
   };
+
+  function backToHome(){
+    navigateTo('/');
+  }
 
   const determineButtonColor = (quiz) => {
     const lowerCaseQuizName = quiz.quizName.toLowerCase();
@@ -136,21 +145,23 @@ const TestSeriesCoderpadHome = () => {
 
   return (
     <div className={`font-sans min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-gray-100 text-black'}`}>
-    <header className={`p-4 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-cyan-600 text-gray-800'}`}>
+    <header className={`p-4 ${isDarkMode ? 'bg-oxford-blue text-white' : 'bg-oxford-blue text-gray-800'}`}>
       <div className="container mx-auto flex justify-between items-center relative">
-        <h1 className="text-2xl font-bold text-white">Datasense</h1>
+        
+      <img className="h-auto max-w-lg rounded-lg"  src={logo} height={40} width={60} alt="Datasense" onClick={backToHome}/>
+      <h3 className='text-white'>{(subject).toUpperCase()} Questions</h3>
         
         <div className="md:hidden z-20">
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-2"
+            className="p-2 text-white"
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
             {isMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
         </div>
 
-        <nav className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex absolute md:relative top-full left-0 right-0 md:top-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'} md:bg-transparent z-10 flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 p-4 md:p-0`}>
+        <nav className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex absolute md:relative top-full left-0 right-0 md:top-auto ${isDarkMode ? 'bg-gray-800' : 'bg-gray-800'} md:bg-transparent z-10 flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 p-4 md:p-0`}>
           <ul className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
             <li>
               <button
@@ -164,13 +175,13 @@ const TestSeriesCoderpadHome = () => {
             <li className="w-full md:w-auto">
               {isLoaded && isSignedIn ? (
                 <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
-                  <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-700'} md:${isDarkMode ? 'text-white' : 'text-white'}`}>
+                 <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-white'} md:${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     Welcome, {user.firstName}
                   </span>
-                  <UserButton afterSignOutUrl="/" />
+                  <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
                 </div>
               ) : (
-                <SignInButton mode="modal">
+                <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`} >
                   <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto">
                     Log In
                   </button>
@@ -184,18 +195,22 @@ const TestSeriesCoderpadHome = () => {
       <main className="container mx-auto p-4">
         <div className="flex flex-wrap justify-center gap-2 my-6">
           {difficulties.map((difficulty) => (
-            <button
-              key={difficulty}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 
-                ${selectedDifficulty === difficulty 
-                  ? 'bg-cyan-600 text-white' 
-                  : isDarkMode
-                    ? 'bg-[#403f3f] text-white border border-gray-600 hover:bg-[#4a4a4a]'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'}`}
-              onClick={() => setSelectedDifficulty(difficulty === selectedDifficulty ? null : difficulty)}
-            >
-              {difficulty}
-            </button>
+             <button
+             key={difficulty}
+             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 flex items-center justify-center
+               ${selectedDifficulty === difficulty
+                 ? 'bg-cyan-600 text-white'
+                 : isDarkMode
+                   ? 'bg-[#403f3f] text-white border border-gray-600 hover:bg-[#4a4a4a]'
+                   : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
+               }`}
+             onClick={() => setSelectedDifficulty(difficulty === selectedDifficulty ? null : difficulty)}
+           >
+             <span>{difficulty}</span>
+             {selectedDifficulty === difficulty && (
+               <X size={16} className="ml-2" />
+             )}
+           </button>
           ))}
         </div>
 
