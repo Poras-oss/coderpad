@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import queryString from 'query-string';
 import img from '../assets/bgimg.jpg';
 import img1 from '../assets/dslogo1.png';
-import queryString from 'query-string';
 
 const Instructions = () => {
   const navigate = useNavigate();
@@ -10,33 +10,28 @@ const Instructions = () => {
   const subject = parsed.subject;
 
   const navigateToDash = () => {
-    navigate('/quiz-area?subject='+subject);
+    navigate('/quiz-area?subject=' + subject);
   };
+
   const navigateToHome = () => {
-    navigate('/');
+    window.location.href = 'https://practice.datasenseai.com/';
   };
 
   useEffect(() => {
-
     checkAndBreakOutOfIframe();
   }, []);
-
 
   const checkAndBreakOutOfIframe = () => {
     if (window.self !== window.top) {
       // The page is in an iframe
       const currentUrl = window.location.href;
-      const storageKey = 'iframeBreakoutAttempt';
-      const breakoutAttempt = sessionStorage.getItem(storageKey);
-
-      if (!breakoutAttempt) {
-        // Set a flag in sessionStorage to prevent infinite redirects
-        sessionStorage.setItem(storageKey, 'true');
-        // Break out of the iframe
+      try {
+        // Attempt to break out of the iframe
         window.top.location.href = currentUrl;
-      } else {
-        // Clear the flag if we've already attempted to break out
-        sessionStorage.removeItem(storageKey);
+      } catch (e) {
+        // If we can't access window.top due to same-origin policy,
+        // we can try to break out using window.open
+        window.open(currentUrl, '_top');
       }
     }
   };
