@@ -181,7 +181,7 @@ const TestSeriesMcqHome = () => {
   };
 
   const redirectToHomePage = () => {
-    window.location.href = 'https://vibrant-attributes-210567.framer.app/page-2';
+    window.location.href = 'https://practice.datasenseai.com/';
   };
 
 
