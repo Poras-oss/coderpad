@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import img from '../assets/bgimg.jpg';
 import img1 from '../assets/dslogo1.png';
@@ -14,6 +14,31 @@ const Instructions = () => {
   };
   const navigateToHome = () => {
     navigate('/');
+  };
+
+  useEffect(() => {
+
+    checkAndBreakOutOfIframe();
+  }, []);
+
+
+  const checkAndBreakOutOfIframe = () => {
+    if (window.self !== window.top) {
+      // The page is in an iframe
+      const currentUrl = window.location.href;
+      const storageKey = 'iframeBreakoutAttempt';
+      const breakoutAttempt = sessionStorage.getItem(storageKey);
+
+      if (!breakoutAttempt) {
+        // Set a flag in sessionStorage to prevent infinite redirects
+        sessionStorage.setItem(storageKey, 'true');
+        // Break out of the iframe
+        window.top.location.href = currentUrl;
+      } else {
+        // Clear the flag if we've already attempted to break out
+        sessionStorage.removeItem(storageKey);
+      }
+    }
   };
 
   return (

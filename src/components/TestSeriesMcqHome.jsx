@@ -155,28 +155,10 @@ const TestSeriesMcqHome = () => {
 
   useEffect(() => {
     validateSubject();
-    checkAndBreakOutOfIframe();
   }, [subject]); // Added subject as a dependency
 
   
-  const checkAndBreakOutOfIframe = () => {
-    if (window.self !== window.top) {
-      // The page is in an iframe
-      const currentUrl = window.location.href;
-      const storageKey = 'iframeBreakoutAttempt';
-      const breakoutAttempt = sessionStorage.getItem(storageKey);
 
-      if (!breakoutAttempt) {
-        // Set a flag in sessionStorage to prevent infinite redirects
-        sessionStorage.setItem(storageKey, 'true');
-        // Break out of the iframe
-        window.top.location.href = currentUrl;
-      } else {
-        // Clear the flag if we've already attempted to break out
-        sessionStorage.removeItem(storageKey);
-      }
-    }
-  };
 
   const validateSubject = () => {
     const validSubjects = ['mysql', 'python', 'tableau', 'excel', 'powerbi'];
