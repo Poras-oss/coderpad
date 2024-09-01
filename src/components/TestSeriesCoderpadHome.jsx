@@ -61,7 +61,7 @@ const TestSeriesCoderpadHome = () => {
   };
 
   const redirectToHomePage = () => {
-    window.location.href = 'https://practice.datasenseai.com/';
+    window.top.location.href = 'https://practice.datasenseai.com/';
   };
 
   const removeQuizTypePrefix = (quizName) => {
@@ -181,7 +181,8 @@ const TestSeriesCoderpadHome = () => {
                   <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
                 </div>
               ) : (
-                <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`} >
+                <SignInButton   mode="redirect" redirectUrl={`/practice-area?subject=${subject}`} 
+                fallbackRedirectUrl={`/practice-area?subject=${subject}`} >
                   <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto">
                     Log In
                   </button>

@@ -181,9 +181,8 @@ const TestSeriesMcqHome = () => {
   };
 
   const redirectToHomePage = () => {
-    window.location.href = 'https://practice.datasenseai.com/';
+    window.top.location.href = 'https://practice.datasenseai.com/';
   };
-
 
 
   const handleStartQuiz = (quizID, quizType, difficulty) => {
@@ -259,7 +258,8 @@ const TestSeriesMcqHome = () => {
                   <UserButton afterSignOutUrl={`/quiz-area?subject=${subject}`} />
                 </div>
               ) : (
-                <SignInButton mode="modal" fallbackRedirectUrl={`/quiz-area?subject=${subject}`}>
+                <SignInButton   mode="redirect" redirectUrl={`/practice-area?subject=${subject}`} 
+                fallbackRedirectUrl={`/practice-area?subject=${subject}`} >
                   <button className="bg-custom-cyan hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto">
                     Log In
                   </button>
