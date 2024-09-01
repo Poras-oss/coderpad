@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
-import { Sun, Moon, Info, Lock } from 'lucide-react';
+import { Sun, Moon, Info, Lock, ArrowLeft } from 'lucide-react';
 import queryString from 'query-string';
 import { FaSun, FaMoon, FaBars, FaTimes } from 'react-icons/fa';
 import logo from '../assets/dslogo.png'
@@ -155,7 +155,28 @@ const TestSeriesMcqHome = () => {
 
   useEffect(() => {
     validateSubject();
+    checkAndBreakOutOfIframe();
   }, [subject]); // Added subject as a dependency
+
+  
+  const checkAndBreakOutOfIframe = () => {
+    if (window.self !== window.top) {
+      // The page is in an iframe
+      const currentUrl = window.location.href;
+      const storageKey = 'iframeBreakoutAttempt';
+      const breakoutAttempt = sessionStorage.getItem(storageKey);
+
+      if (!breakoutAttempt) {
+        // Set a flag in sessionStorage to prevent infinite redirects
+        sessionStorage.setItem(storageKey, 'true');
+        // Break out of the iframe
+        window.top.location.href = currentUrl;
+      } else {
+        // Clear the flag if we've already attempted to break out
+        sessionStorage.removeItem(storageKey);
+      }
+    }
+  };
 
   const validateSubject = () => {
     const validSubjects = ['mysql', 'python', 'tableau', 'excel', 'powerbi'];
@@ -199,7 +220,7 @@ const TestSeriesMcqHome = () => {
   };
 
   function backToHome(){
-    window.top.location.href = 'https://practice.datasenseai.com/test';
+    window.top.location.href = 'https://practice.datasenseai.com/';
   }
 
   const isQuizEnabled = (difficulty) => {
@@ -224,7 +245,21 @@ const TestSeriesMcqHome = () => {
     <div className={`font-sans min-h-screen flex flex-col ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
       <header className={`p-4 ${isDarkMode ? 'bg-oxford-blue text-white' : 'bg-oxford-blue text-gray-800'}`}>
       <div className="container mx-auto flex justify-between items-center relative">
-      <img className="h-auto max-w-lg rounded-lg"  src={logo} height={40} width={60} alt="Datasense" onClick={backToHome}/>
+      <div className="flex items-center">
+  <button
+    onClick={backToHome}
+    className="mr-2 text-white hover:text-gray-300 transition-colors duration-200"
+    aria-label="Go back"
+  >
+    <ArrowLeft size={24} />
+  </button>
+  <img 
+    className="h-12 w-auto cursor-pointer"
+    src={logo}
+    alt="Datasense"
+    onClick={backToHome}
+  />
+</div>
       {/* <h3 className='text-white'>{(subject).toUpperCase()} Questions</h3> */}
 
         
