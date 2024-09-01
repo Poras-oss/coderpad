@@ -92,9 +92,6 @@ const TestSeriesCoderpadHome = () => {
     navigateTo(`/quiz?questionID=${quizID}&userID=${userID}`);
   };
 
-  function currentPageRedirect(){
-    navigateTo(`/quiz?questionID=${quizID}&userID=${userID}`);
-  }
 
   const determineButtonLabel = (quiz) => {
     const lowerCaseQuizName = quiz.quizName.toLowerCase();
@@ -112,7 +109,7 @@ const TestSeriesCoderpadHome = () => {
   };
 
   function backToHome(){
-    navigateTo('/');
+    window.top.location.href = 'https://practice.datasenseai.com/test';
   }
 
   const determineButtonColor = (quiz) => {
@@ -181,12 +178,11 @@ const TestSeriesCoderpadHome = () => {
                   <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
                 </div>
               ) : (
-                <SignInButton   mode="redirect" redirectUrl={`/practice-area?subject=${subject}`} 
-                fallbackRedirectUrl={`/practice-area?subject=${subject}`} >
-                  <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto">
-                    Log In
-                  </button>
-                </SignInButton>
+                <SignInButton mode="modal" fallbackRedirectUrl={`/quiz-area?subject=${subject}`} >
+                <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto">
+                  Log In
+                </button>
+              </SignInButton>
               )}
             </li>
           </ul>
