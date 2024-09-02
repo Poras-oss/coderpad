@@ -202,7 +202,7 @@ const QuizApp = () => {
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-black'}`}>
       <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center`}>
-        <h1 className="mb-4 text-xl font-bold">SQL Quiz</h1>
+        <h1 className="mb-4 text-xl font-bold">SQL coderpad</h1>
         <div className="flex items-center space-x-4">
           <button
             onClick={openVideoPopup}
@@ -260,7 +260,7 @@ const QuizApp = () => {
             <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
               <div 
                 className="question-text"
-                dangerouslySetInnerHTML={{ __html: currentQuestion.question_text }}
+                dangerouslySetInnerHTML={{ __html: currentQuestion.question_text.replace(/\n/g, '<br>') }}
               />
               <div className="border-t border-gray-300 my-4 w-full"></div>
               <h4 className='text-xl font-bold mb-2'>Table Names: {currentQuestion.table_names.join(', ')}</h4>

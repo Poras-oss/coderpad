@@ -263,7 +263,7 @@ const TestSeriesCoderpadHome = () => {
                   <td className="px-4 py-4 whitespace-nowrap text-sm">{index + 1}</td>
                   <td className="px-4 py-4 text-sm font-medium">
                     <div className="flex items-center">
-                      <span className="flex-grow">{shortenQuestion(removeQuizTypePrefix(quiz.quizName))}</span>
+                      <span className="flex-grow">{shortenQuestion(quiz.quizName)}</span>
                       <button 
                         onClick={() => toggleQuestionExpansion(quiz._id)} 
                         className="ml-2 flex-shrink-0 transition-transform duration-300 ease-in-out"
@@ -277,7 +277,7 @@ const TestSeriesCoderpadHome = () => {
                         expandedQuestions[quiz._id] ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                       }`}
                     >
-                      {removeQuizTypePrefix(quiz.quizName)}
+                      {quiz.quizName}
                     </div>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
