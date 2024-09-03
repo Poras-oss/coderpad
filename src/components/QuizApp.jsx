@@ -59,7 +59,7 @@ const QuizApp = () => {
           response = await axios.get(`https://server.datasenseai.com/sql-quiz/${quizID}/${userID}`);
         } else if (questionID) {
           // Fetch question data if questionID is present
-          response = await axios.get(`https://server.datasenseai.com/test-series-coding/${questionID}`);
+          response = await axios.get(`https://server.datasenseai.com/test-series-coding/mysql/${questionID}`);
         }
 
         if (response) {
@@ -202,7 +202,7 @@ const QuizApp = () => {
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-black'}`}>
       <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center`}>
-        <h1 className="mb-4 text-xl font-bold">SQL coderpad</h1>
+        <h1 className="mb-4 text-xl font-bold">SQL Coderpad</h1>
         <div className="flex items-center space-x-4">
           <button
             onClick={openVideoPopup}

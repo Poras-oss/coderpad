@@ -4,7 +4,8 @@ import MonacoEditor from './ResizableMonacoEditor';
 import queryString from 'query-string';
 import { useAuth0 } from '@auth0/auth0-react';
 import Split from 'react-split';
-
+import ReactPlayer from 'react-player';
+import { Loader2, Video, X } from 'lucide-react';
 
 const PythonQuizApp = () => {
   const { loginWithPopup, loginWithRedirect, logout, user, isAuthenticated, getAccessTokenSilently } = useAuth0();
@@ -19,17 +20,52 @@ const PythonQuizApp = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
   const [userOutput, setUserOutput] = useState(''); // Add state to store user output
+  const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
 
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
   const quizID = parsed.quizID;
+  const questionID = parsed.questionID;
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const openVideoPopup = () => {
+    setIsVideoPopupOpen(true);
+  };
+
+  const closeVideoPopup = () => {
+    setIsVideoPopupOpen(false);
+  };
 
   useEffect(() => {
     const fetchQuizData = async () => {
       try {
-        const response = await axios.get(`https://server.datasenseai.com/python-quiz/${quizID}/${userID}`);
-        setQuizData(response.data);
-        setUserCode(response.data.questions[currentQuestionIndex].boilerplate_code || '');
+        let response;
+        
+        if (quizID) {
+          // Fetch quiz data if quizID is present
+          response = await axios.get(`https://server.datasenseai.com/python-quiz/${quizID}/${userID}`);
+        } else if (questionID) {
+          // Fetch question data if questionID is present
+          response = await axios.get(`https://server.datasenseai.com/test-series-coding/python/${questionID}`);
+        }
+
+        if (response) {
+          setQuizData(response.data);
+          setUserCode(response.data.questions[currentQuestionIndex].boilerplate_code || '');
+        }
+
       } catch (error) {
         console.error('Error fetching quiz data:', error);
       }
@@ -115,19 +151,48 @@ const PythonQuizApp = () => {
     setShowSolution(!showSolution);
   };
 
-  if (!quizData) return <div className='animate-ping w-full h-screen flex items-center justify-center text-7xl font-thin'>STARTING....</div>;
+  if (!quizData) return (
+    <div className="w-full h-screen flex flex-col items-center justify-center">
+      <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
+      <h5 className="mt-4 text-2xl font-thin text-gray-700">Loading...</h5>
+    </div>
+  );
+
 
   const currentQuestion = quizData.questions[currentQuestionIndex];
 
+
+  if (isMobile) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 backdrop-blur-md">
+        <div className="bg-white p-8 rounded-lg shadow-xl text-center">
+          <h2 className="text-2xl font-bold mb-4">Please Use a PC</h2>
+          <h5 className="mb-4">This quiz application is designed for larger screens. For the best experience, please use a PC or tablet.</h5>
+          <button 
+            onClick={() => setIsMobile(false)} 
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
+          >
+            Continue Anyway
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
-      <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-300'} p-4 flex justify-between items-center shadow-md`}>
-        <h1 className="text-2xl font-bold">Python Quiz</h1>
+       <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center`}>
+        <h1 className="mb-4 text-xl font-bold">Python Coderpad</h1>
         <div className="flex items-center space-x-4">
-          <span className="text-sm">Score: {score}</span>
           <button
-            onClick={toggleDarkMode}
-            className={`p-2 rounded-full ${isDarkMode ? 'bg-[#262626] hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} transition-colors duration-200`}
+            onClick={openVideoPopup}
+            className={`p-2 rounded-full ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-[#262626]'}`}
+          >
+            <Video size={24} />
+          </button>
+          <button
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className={`p-2 rounded-full ${isDarkMode ? 'bg-white text-black' : 'bg-[#262626] text-white'}`}
           >
             {isDarkMode ? '☀️' : '🌙'}
           </button>
@@ -216,12 +281,12 @@ const PythonQuizApp = () => {
               >
                 {isSubmitting ? 'Running...' : 'Run Code'}
               </button>
-              <button 
+              {/* <button 
                 onClick={handleSubmitQuiz}
                 className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
               >
                 Submit Quiz
-              </button>
+              </button> */}
             </div>
           </div>
           <Split
@@ -258,6 +323,28 @@ const PythonQuizApp = () => {
           </Split>
         </div>
       </Split>
+       {/* Video Popup */}
+       {isVideoPopupOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg relative w-11/12 max-w-4xl">
+            <button
+              onClick={closeVideoPopup}
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white"
+            >
+              <X size={24} />
+            </button>
+            <div className="aspect-w-16 aspect-h-9">
+              <ReactPlayer
+                url="https://www.youtube.com/watch?v=0O0jrTUg3UM"
+                width="100%"
+                height="100%"
+                controls
+                playing
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

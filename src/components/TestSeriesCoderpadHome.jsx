@@ -69,10 +69,9 @@ const TestSeriesCoderpadHome = () => {
     } else if (!validSubjects.includes(subject.toLowerCase())) {
       showPopup('URL is malformed. Invalid subject.');
       redirectToHomePage();
-    } else if (subject.toLowerCase() !== 'mysql') {
-      showPopup('Questions will be available soon');
-      redirectToHomePage();
-    } else {
+    } else if (subject.toLowerCase() == 'excel' || subject.toLowerCase() == 'powerbi'|| subject.toLowerCase() == 'tableau') {
+      redirectToScenarioPage(subject.toLowerCase());
+    }  else {
       fetchQuizzes();
     }
   };
@@ -83,6 +82,9 @@ const TestSeriesCoderpadHome = () => {
 
   const redirectToHomePage = () => {
     window.top.location.href = 'https://practice.datasenseai.com/';
+  };
+  const redirectToScenarioPage = (subject) => {
+    window.location.href = '/scenario-area?subject='+subject;
   };
 
   const removeQuizTypePrefix = (quizName) => {
@@ -110,7 +112,13 @@ const TestSeriesCoderpadHome = () => {
       alert('You need to log in to start the quiz.');
       return;
     }
-    navigateTo(`/quiz?questionID=${quizID}&userID=${userID}`);
+    
+    let route = '/quiz';
+    if (subject.toLowerCase() === 'python') {
+      route = '/pyQuiz';
+    }
+    
+    navigateTo(`${route}?questionID=${quizID}&userID=${userID}`);
   };
 
 
@@ -159,6 +167,10 @@ const TestSeriesCoderpadHome = () => {
   const shortenQuestion = (question, maxLength = 135) => {
     if (question.length <= maxLength) return question;
     return question.substring(0, maxLength) + '...';
+  };
+
+  const createMarkup = (htmlContent) => {
+    return { __html: htmlContent };
   };
 
   return (
@@ -263,7 +275,7 @@ const TestSeriesCoderpadHome = () => {
                   <td className="px-4 py-4 whitespace-nowrap text-sm">{index + 1}</td>
                   <td className="px-4 py-4 text-sm font-medium">
                     <div className="flex items-center">
-                      <span className="flex-grow">{shortenQuestion(quiz.quizName)}</span>
+                    <div dangerouslySetInnerHTML={createMarkup(shortenQuestion(quiz.quizName))} />
                       <button 
                         onClick={() => toggleQuestionExpansion(quiz._id)} 
                         className="ml-2 flex-shrink-0 transition-transform duration-300 ease-in-out"
