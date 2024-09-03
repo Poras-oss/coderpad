@@ -33,20 +33,22 @@ const TestSeriesCoderpadHome = () => {
   }, [subject]);
 
   const openVideoPopup = (quiz) => {
-    if (quiz.video && quiz.video.url) {
+    if (quiz.video) {
       // Extract video ID from YouTube URL
-      const videoId = extractYoutubeId(quiz.video.url);
+      const videoId = extractYoutubeId(quiz.video);
       if (videoId) {
-        setCurrentVideoId(videoId);
+        setCurrentVideoId(`https://www.youtube.com/watch?v=${videoId}`);
         setIsVideoPopupOpen(true);
       } else {
+        console.error('Invalid YouTube URL:', quiz.video);
         alert('Invalid YouTube URL');
       }
     } else {
-      alert('Coming Soon...');
+      console.log('No video available for this quiz');
+      alert('Video coming soon...');
     }
   };
-
+  
   const extractYoutubeId = (url) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
@@ -361,12 +363,12 @@ const TestSeriesCoderpadHome = () => {
                       <button className="text-blue-400 hover:text-blue-600">
                         <FileText size={20} />
                       </button>
-                                      <button 
+                                      {/* <button 
                     className="text-blue-400 hover:text-blue-600" 
                     onClick={() => openVideoPopup(quiz)}
                   >
                     <Video size={20} />
-                  </button>
+                  </button> */}
                     </div>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
@@ -389,31 +391,36 @@ const TestSeriesCoderpadHome = () => {
             </tbody>
 
                {/* Video Popup */}
-               {isVideoPopupOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-800">Solution Video</h2>
-              <button 
-                onClick={closeVideoPopup}
-                className="text-gray-600 hover:text-gray-800 transition-colors duration-200"
-              >
-                <X size={28} />
-              </button>
-            </div>
-            <div className="relative pt-[56.25%]">
-              <ReactPlayer
-                url={`https://www.youtube.com/watch?v=${currentVideoId}`}
-                width="100%"
-                height="100%"
-                controls
-                playing
-                className="absolute top-0 left-0"
-              />
-            </div>
-          </div>
-        </div>
-      )}
+           {isVideoPopupOpen && (
+  <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold text-gray-800">Solution Video</h2>
+        <button 
+          onClick={closeVideoPopup}
+          className="text-gray-600 hover:text-gray-800 transition-colors duration-200"
+        >
+          <X size={28} />
+        </button>
+      </div>
+      <div className="relative pt-[56.25%]">
+        {currentVideoId ? (
+          <ReactPlayer
+            url={currentVideoId}
+            width="100%"
+            height="100%"
+            controls
+            playing
+            className="absolute top-0 left-0"
+            onError={(e) => console.error('ReactPlayer error:', e)}
+          />
+        ) : (
+          <p>No video URL available</p>
+        )}
+      </div>
+    </div>
+  </div>
+)}
           </table>
         </div>
       </main>

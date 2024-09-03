@@ -44,8 +44,8 @@ const QuizApp = () => {
 
   const openVideoPopup = () => {
     const currentQuestion = quizData.questions[currentQuestionIndex];
-    if (currentQuestion.video && currentQuestion.video.url) {
-      setCurrentVideoUrl(currentQuestion.video.url);
+    if (currentQuestion.video && currentQuestion.video) {
+      setCurrentVideoUrl(currentQuestion.video);
       setIsVideoPopupOpen(true);
     } else {
       alert('No video available for this question right now');
