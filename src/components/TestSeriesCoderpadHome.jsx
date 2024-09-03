@@ -78,6 +78,38 @@ const TestSeriesCoderpadHome = () => {
     }
   };
 
+  const normalizeDifficulty = (difficulty) => {
+    return difficulty ? difficulty.toLowerCase() : 'easy'; // Default to 'easy' if difficulty is undefined
+  };
+  
+  const getDifficultyStyle = (difficulty) => {
+    const normalizedDifficulty = normalizeDifficulty(difficulty);
+    switch (normalizedDifficulty) {
+      case 'easy':
+        return 'bg-green-100 text-green-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'hard':
+      case 'advance':
+        return 'bg-red-100 text-red-800';
+      case 'easy-medium':
+      case 'medium-easy':
+        return 'bg-green-100 text-yellow-800';
+      case 'easy-hard':
+      case 'hard-easy':
+        return 'bg-green-100 text-red-800';
+      case 'medium-hard':
+      case 'hard-medium':
+        return 'bg-yellow-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+  
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  };
+
   const validateSubject = () => {
     const validSubjects = ['mysql', 'python', 'tableau', 'excel', 'powerbi'];
     
@@ -115,7 +147,7 @@ const TestSeriesCoderpadHome = () => {
       const formattedQuizzes = response.data.map(quiz => ({
         _id: quiz._id,
         quizName: quiz.question_text,
-        difficulty: quiz.difficulty,
+        difficulty: quiz.difficulty || quiz.level || 'Easy',
         start: new Date().toISOString(),
         end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       }));
@@ -324,13 +356,11 @@ const TestSeriesCoderpadHome = () => {
                     </div>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                      ${quiz.difficulty === 'easy' ? 'bg-green-100 text-green-800' : 
-                        quiz.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' : 
-                        'bg-red-100 text-red-800'}`}>
-                      {quiz.difficulty || 'Easy'}
-                    </span>
-                  </td>
+            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getDifficultyStyle(quiz.difficulty)}`}>
+              {capitalizeFirstLetter(quiz.difficulty || 'Easy')}
+            </span>
+          </td>
+
                   <td className="px-4 py-4 whitespace-nowrap">
                     <button
                       onClick={() => handleStartQuiz(quiz._id, userID, quiz.quizName)}
