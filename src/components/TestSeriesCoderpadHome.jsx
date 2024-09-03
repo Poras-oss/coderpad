@@ -289,7 +289,7 @@ const TestSeriesCoderpadHome = () => {
                         expandedQuestions[quiz._id] ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                       }`}
                     >
-                      {quiz.quizName}
+                     <div dangerouslySetInnerHTML={createMarkup(quiz.quizName)} />
                     </div>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">

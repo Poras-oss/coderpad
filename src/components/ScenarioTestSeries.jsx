@@ -189,71 +189,73 @@ const ScenarioTestSeries = () => {
     //     );
     // }
 
-    // if (quizCompleted) {
-    //     return (
-    //         <div className="min-h-screen bg-gray-100 py-4 sm:py-8 px-3 sm:px-6 lg:px-8">
-    //             <div className="max-w-3xl mx-auto">
-    //                 <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-    //                     <div className="bg-oxford-blue px-3 sm:px-6 py-3 sm:py-4">
-    //                         <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white text-center">Quiz Completed</h1>
-    //                     </div>
-    //                     <div className="p-3 sm:p-6">
-    //                         <div className="mb-4 sm:mb-6 text-center">
-    //                             <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-800">
-    //                                 Your Score:
-    //                             </h2>
-    //                             <h4 className="text-3xl sm:text-4xl md:text-5xl font-bold text-blue-600 mt-2">
-    //                                 {score} / {questions.length}
-    //                             </h4>
-    //                             <h5 className="text-base sm:text-lg md:text-xl text-gray-600 mt-2">
-    //                                 {((score / questions.length) * 100).toFixed(2)}% Correct
-    //                             </h5>
-    //                         </div>
-    //                         <div className="space-y-4 sm:space-y-6">
-    //                             {questions.map((question, index) => {
-    //                                 const userAnswer = userAnswers[index];
-    //                                 const isCorrect = userAnswer && question.options[userAnswer] === question.correct_answer;
+    if (quizCompleted) {
+        return (
+            <div className="min-h-screen bg-gray-100 py-4 sm:py-8 px-3 sm:px-6 lg:px-8">
+                <div className="max-w-3xl mx-auto">
+                    <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+                        <div className="bg-oxford-blue px-3 sm:px-6 py-3 sm:py-4">
+                            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white text-center">Quiz Completed</h1>
+                        </div>
+                        <div className="p-3 sm:p-6">
+                            <div className="mb-4 sm:mb-6 text-center">
+                                <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-800">
+                                    Your Score:
+                                </h2>
+                                <h4 className="text-3xl sm:text-4xl md:text-5xl font-bold text-blue-600 mt-2">
+                                    {score} / {questions.length}
+                                </h4>
+                                <h5 className="text-base sm:text-lg md:text-xl text-gray-600 mt-2">
+                                    {((score / questions.length) * 100).toFixed(2)}% Correct
+                                </h5>
+                            </div>
+                            <div className="space-y-4 sm:space-y-6">
+                                {questions.map((question, index) => {
+                                    const userAnswer = userAnswers[index];
+                                    const isCorrect = userAnswer && question.options[userAnswer] === question.correct_answer;
                                     
-    //                                 return (
-    //                                     <div key={index} className="border-b border-gray-200 pb-3 sm:pb-4">
-    //                                         <h2 className="text-sm sm:text-base md:text-lg font-medium text-gray-800 mb-2">
-    //                                             Question {index + 1}: {question.question_text}
-    //                                         </h2>
-    //                                         <div className="pl-2 sm:pl-4 border-l-2 sm:border-l-4 border-gray-300">
-    //                                             <div className="flex items-start text-sm sm:text-base mb-1">
-    //                                                 {isCorrect ? (
-    //                                                     <CheckCircle className="text-green-500 mr-2 flex-shrink-0 mt-1" size={18} />
-    //                                                 ) : (
-    //                                                     <XCircle className="text-red-500 mr-2 flex-shrink-0 mt-1" size={18} />
-    //                                                 )}
-    //                                                 <span className={`${isCorrect ? "text-green-700" : "text-red-700"} break-words`}>
-    //                                                     Your answer: {question.options[userAnswer] || "Not answered"}
-    //                                                 </span>
-    //                                             </div>
-    //                                             {!isCorrect && (
-    //                                                 <div className="flex items-start text-sm sm:text-base mt-1">
-    //                                                     <CheckCircle className="text-blue-500 mr-2 flex-shrink-0 mt-1" size={18} />
-    //                                                     <span className="text-blue-700 break-words">Correct answer: {question.correct_answer}</span>
-    //                                                 </div>
-    //                                             )}
-    //                                         </div>
-    //                                     </div>
-    //                                 );
-    //                             })}
-    //                         </div>
-    //                         <button
-    //                             className="mt-6 sm:mt-8 w-full bg-oxford-blue text-white py-2 sm:py-3 px-4 rounded-md hover:bg-blue-700 transition duration-300 flex items-center justify-center text-sm sm:text-base"
-    //                             onClick={resetQuiz}
-    //                         >
-    //                             <ArrowLeft className="mr-2" size={18} />
-    //                             Go Back to Quiz Area
-    //                         </button>
-    //                     </div>
-    //                 </div>
-    //             </div>
-    //         </div>
-    //     );
-    // }
+                                    return (
+                                        <div key={index} className="border-b border-gray-200 pb-3 sm:pb-4">
+                                            <h2 className="text-sm sm:text-base md:text-lg font-medium text-gray-800 mb-2">
+                                                Question {index + 1}: {question.question_text}
+                                            </h2>
+                                            <div className="pl-2 sm:pl-4 border-l-2 sm:border-l-4 border-gray-300">
+                                                <div className="flex items-start text-sm sm:text-base mb-1">
+                                                    {isCorrect ? (
+                                                        <CheckCircle className="text-green-500 mr-2 flex-shrink-0 mt-1" size={18} />
+                                                    ) : (
+                                                        <XCircle className="text-red-500 mr-2 flex-shrink-0 mt-1" size={18} />
+                                                    )}
+                                                    <span className={`${isCorrect ? "text-green-700" : "text-red-700"} break-words`}>
+                                                        Your answer: {question.options[userAnswer] || "Not answered"}
+                                                    </span>
+                                                </div>
+                                                {!isCorrect && (
+                                                    <div className="flex items-start text-sm sm:text-base mt-1">
+                                                        <CheckCircle className="text-blue-500 mr-2 flex-shrink-0 mt-1" size={18} />
+                                                        <span className="text-blue-700 break-words">Correct answer: {question.correct_answer}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <button
+                                className="mt-6 sm:mt-8 w-full bg-oxford-blue text-white py-2 sm:py-3 px-4 rounded-md hover:bg-blue-700 transition duration-300 flex items-center justify-center text-sm sm:text-base"
+                                onClick={resetQuiz}
+                            >
+                                <ArrowLeft className="mr-2" size={18} />
+                                Go Back to Quiz Area
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+
     
     return (
         <div className="min-h-screen bg-gray-100 py-8 px-4">
@@ -314,7 +316,16 @@ const ScenarioTestSeries = () => {
                 <ArrowLeft className="mr-1" size={18} />
                 Back
               </button>
-              <button
+              
+              {currentQuestionIndex === questions.length - 1 ? (
+                            <button
+                                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300"
+                                onClick={submitQuiz}
+                            >
+                                Submit
+                            </button>
+                        ) : (
+                          <button
                 className="flex items-center text-gray-600 hover:text-gray-800"
                 onClick={nextQuestion}
                 disabled={currentQuestionIndex === questions.length - 1}
@@ -322,6 +333,8 @@ const ScenarioTestSeries = () => {
                 Next
                 <ArrowRight className="ml-1" size={18} />
               </button>
+                        )}
+              
             </div>
           </div>
         </div>
