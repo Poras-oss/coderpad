@@ -22,6 +22,7 @@ const QuizApp = () => {
   const [output, setOutput] = useState(null);
   const [isTesting, setIsTesting] = useState(false);
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState('');
 
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
@@ -42,11 +43,18 @@ const QuizApp = () => {
   }, []);
 
   const openVideoPopup = () => {
-    setIsVideoPopupOpen(true);
+    const currentQuestion = quizData.questions[currentQuestionIndex];
+    if (currentQuestion.video && currentQuestion.video.url) {
+      setCurrentVideoUrl(currentQuestion.video.url);
+      setIsVideoPopupOpen(true);
+    } else {
+      alert('No video available for this question right now');
+    }
   };
 
   const closeVideoPopup = () => {
     setIsVideoPopupOpen(false);
+    setCurrentVideoUrl('');
   };
  
   useEffect(() => {
@@ -417,13 +425,13 @@ const QuizApp = () => {
               <X size={24} />
             </button>
             <div className="aspect-w-16 aspect-h-9">
-              <ReactPlayer
-                url="https://www.youtube.com/watch?v=0O0jrTUg3UM"
-                width="100%"
-                height="100%"
-                controls
-                playing
-              />
+                      <ReactPlayer
+            url={currentVideoUrl}
+            width="100%"
+            height="100%"
+            controls
+            playing
+          />
             </div>
           </div>
         </div>

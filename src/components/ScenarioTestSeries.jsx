@@ -5,10 +5,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import queryString from 'query-string';
 import img from '../assets/dslogo1.png'
 import img1 from '../assets/bgimg.jpg'
+import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import { ArrowLeft, CheckCircle, XCircle, Loader2, ArrowRight } from 'lucide-react';
 
 
 const ScenarioTestSeries = () => {
+    const { isLoaded, isSignedIn, user } = useUser();
     const [questions, setQuestions] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedOption, setSelectedOption] = useState(null);
@@ -24,6 +26,19 @@ const ScenarioTestSeries = () => {
     const [userProgress, setUserProgress] = useState({});
     const [shuffledOptions, setShuffledOptions] = useState([]);
     const [showFeedback, setShowFeedback] = useState(false);
+
+
+    useEffect(() => {
+      if (isLoaded && isSignedIn) {
+          const parsed = queryString.parse(window.location.search);
+          const subject = parsed.subject;
+          const difficulty = parsed.difficulty;
+          setSubject(subject);
+          setDifficulty(difficulty);
+          loadQuestions(subject, difficulty);
+      }
+  }, [isLoaded, isSignedIn]);
+
 
     useEffect(() => {
         const parsed = queryString.parse(window.location.search);
@@ -62,6 +77,8 @@ const ScenarioTestSeries = () => {
         return array;
     };
 
+
+
     const loadQuestions = async (subject, difficulty) => {
         try {
             const response = await fetch(`https://server.datasenseai.com/test-series-scenario/${subject}`);
@@ -84,6 +101,31 @@ const ScenarioTestSeries = () => {
             setIsLoading(false);
         }
     };
+
+    if (!isLoaded) {
+      return (
+          <div className="w-full h-screen flex flex-col items-center justify-center">
+              <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
+              <h5 className="mt-4 text-2xl font-thin text-gray-700">Loading...</h5>
+          </div>
+      );
+  }
+
+  if (!isSignedIn) {
+    return (
+        <div className="w-full h-screen flex flex-col items-center justify-center bg-gray-100">
+            <div className="bg-white p-8 rounded-lg shadow-md text-center">
+                <h2 className="text-2xl font-bold mb-4">Login Required</h2>
+                <p className="mb-6">Please sign in to access the Test Series.</p>
+                <SignInButton mode="modal" redirectUrl={window.location.href}>
+                    <button className="bg-oxford-blue text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300">
+                        Sign In
+                    </button>
+                </SignInButton>
+            </div>
+        </div>
+    );
+}
 
     // useEffect(() => {
     //     if (questions.length > 0 && !quizCompleted) {
@@ -260,6 +302,7 @@ const ScenarioTestSeries = () => {
     return (
         <div className="min-h-screen bg-gray-100 py-8 px-4">
           <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+            
             <div className="bg-oxford-blue p-6 text-white">
               <h1 className="text-xl font-semibold mb-2">
                 Question {currentQuestionIndex + 1} of {questions.length}

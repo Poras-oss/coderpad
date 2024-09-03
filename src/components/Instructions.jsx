@@ -40,27 +40,28 @@ const Instructions = () => {
   };
 
   return (
-    <div className='relative h-full w-full'>
+    <div className='relative min-h-screen w-full flex flex-col'>
       <img className="absolute inset-0 w-full h-full object-cover" src={img} alt="Background" />
-
-      <div className='relative p-6 md:p-6 mx-auto bg-white/30 backdrop-blur-sm rounded-lg shadow-lg'>
+      
+      <div className='relative flex-grow p-6 md:p-6 mx-auto bg-white/30 backdrop-blur-sm rounded-lg shadow-lg flex flex-col'>
         <div className='flex justify-between items-center mb-2'>
-          <h1 className='text-3xl p-3 font-bold text-cyan-800'>Instructions</h1>
-          <img src={img1} alt="Logo" className="h-[100px] w-auto" /> {/* Adjusted size and position */}
+        {showRestrictionMessage ? (<h1 className='text-3xl p-3 font-bold text-cyan-800'></h1>):(<h1 className='text-3xl p-3 font-bold text-cyan-800'>Instructions</h1>)}  
+          <img src={img1} alt="Logo" className="h-[100px] w-auto" />
         </div>
-
+        
         {showRestrictionMessage ? (
-          <div className='text-lg font-medium p-8 backdrop-blur-lg rounded-lg shadow-xl border-4 border-dotted border-red-700'>
-            <h2 className='mb-4'><b>“Unlock the Full Experience!</b></h2>
-            <h6>Are you ready to enhance your learning and explore the world of professional quizzes and interview questions? 
-To access the main quiz, you'll need a subscription. Subscriptions will be available starting from <b> 30th 
-September.</b> Get ready to dive deeper, challenge your skills, and take your knowledge to the next level! </h6>
-<h6><b>All the Best for Future Learning!</b></h6> <br />
-            <h6>Best Regards, </h6>
-<h6><b>DataSense</b></h6>
+          <div className='text-lg font-medium p-8 backdrop-blur-lg rounded-lg shadow-xl border-4 border-dotted border-red-700 flex-grow flex flex-col justify-between text-center'>
+            <div>
+              <h2 className='mb-4'><b>"Unlock the Full Experience!</b></h2>
+              <h6>Are you ready to enhance your learning and explore the world of professional quizzes and interview questions?  To access the main quiz, you'll need a subscription. Subscriptions will be available starting from <b> 30th  September.</b> Get ready to dive deeper, challenge your skills, and take your knowledge to the next level! </h6>
+              <h6><b>All the Best for Future Learning!</b></h6>
+              <br />
+              <h6>Best Regards, </h6>
+              <h6><b>DataSense</b></h6>
+            </div>
           </div>
         ) : (
-          <div className='flex gap-2 backdrop-blur-lg rounded-lg p-8 shadow-xl border-4 border-dotted border-teal-700'>
+          <div className='flex gap-2 backdrop-blur-lg rounded-lg p-8 shadow-xl border-4 border-dotted border-teal-700 flex-grow'>
             <ol className='text-lg list-decimal font-medium space-y-6'>
               <li>Welcome to the quiz! Please read the following instructions carefully before proceeding:</li>
               <li>This quiz consists of 50 multiple-choice questions. Each question has 4 possible options, with only one correct answer.</li>
@@ -74,8 +75,8 @@ September.</b> Get ready to dive deeper, challenge your skills, and take your kn
             </ol>
           </div>
         )}
-
-        <div className='flex justify-between mt-6'>
+        
+        <div className={`flex ${showRestrictionMessage ? 'justify-center' : 'justify-between'} mt-6`}>
           <button className='px-8 py-2 text-white rounded-md bg-teal-600 hover:bg-teal-700 transition-colors' onClick={navigateToHome}>« Exit</button>
           {!showRestrictionMessage && (
             <button className='px-8 py-2 text-white rounded-md bg-cyan-600 hover:bg-cyan-700 transition-colors' onClick={handleStartClick}>Start »</button>

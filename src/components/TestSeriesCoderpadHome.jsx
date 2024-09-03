@@ -32,12 +32,30 @@ const TestSeriesCoderpadHome = () => {
     checkAndBreakOutOfIframe();
   }, [subject]);
 
-  const openVideoPopup = () => {
-    setIsVideoPopupOpen(true);
+  const openVideoPopup = (quiz) => {
+    if (quiz.video && quiz.video.url) {
+      // Extract video ID from YouTube URL
+      const videoId = extractYoutubeId(quiz.video.url);
+      if (videoId) {
+        setCurrentVideoId(videoId);
+        setIsVideoPopupOpen(true);
+      } else {
+        alert('Invalid YouTube URL');
+      }
+    } else {
+      alert('Coming Soon...');
+    }
+  };
+
+  const extractYoutubeId = (url) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
   };
 
   const closeVideoPopup = () => {
     setIsVideoPopupOpen(false);
+    setCurrentVideoId('');
   };
 
 
@@ -297,7 +315,10 @@ const TestSeriesCoderpadHome = () => {
                       <button className="text-blue-400 hover:text-blue-600">
                         <FileText size={20} />
                       </button>
-                      <button className="text-blue-400 hover:text-blue-600" onClick={openVideoPopup}>
+                                      <button 
+                    className="text-blue-400 hover:text-blue-600" 
+                    onClick={() => openVideoPopup(quiz)}
+                  >
                     <Video size={20} />
                   </button>
                     </div>
@@ -324,7 +345,7 @@ const TestSeriesCoderpadHome = () => {
             </tbody>
 
                {/* Video Popup */}
-      {isVideoPopupOpen && (
+               {isVideoPopupOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4">
             <div className="flex justify-between items-center mb-4">
@@ -336,9 +357,9 @@ const TestSeriesCoderpadHome = () => {
                 <X size={28} />
               </button>
             </div>
-            <div className="relative pt-[56.25%]"> {/* 16:9 Aspect Ratio */}
+            <div className="relative pt-[56.25%]">
               <ReactPlayer
-                url={`https://www.youtube.com/watch?v=${sampleVideoId}`}
+                url={`https://www.youtube.com/watch?v=${currentVideoId}`}
                 width="100%"
                 height="100%"
                 controls
