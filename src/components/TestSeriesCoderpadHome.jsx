@@ -16,7 +16,7 @@ const TestSeriesCoderpadHome = () => {
   const [selectedDifficulty, setSelectedDifficulty] = useState(null);
   const [expandedQuestions, setExpandedQuestions] = useState({});
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const difficulties = ['Easy', 'Medium', 'Advance'];
+  const [difficulties, setDifficulties] = useState(['Easy', 'Medium', 'Hard']);
 
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
@@ -79,7 +79,11 @@ const TestSeriesCoderpadHome = () => {
   };
 
   const normalizeDifficulty = (difficulty) => {
-    return difficulty ? difficulty.toLowerCase() : 'easy'; // Default to 'easy' if difficulty is undefined
+    const normalized = difficulty.toLowerCase();
+    if (normalized === 'advance' || normalized === 'advanced') {
+      return 'hard';
+    }
+    return normalized;
   };
   
   const getDifficultyStyle = (difficulty) => {
@@ -104,6 +108,16 @@ const TestSeriesCoderpadHome = () => {
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const updateAvailableDifficulties = (quizzes) => {
+    const availableDifficulties = new Set(['Easy', 'Medium']);
+    quizzes.forEach(quiz => {
+      if (quiz.difficulty === 'hard' || quiz.difficulty === 'advance') {
+        availableDifficulties.add('Hard');
+      }
+    });
+    setDifficulties(Array.from(availableDifficulties));
   };
   
   const capitalizeFirstLetter = (string) => {
@@ -207,7 +221,7 @@ const TestSeriesCoderpadHome = () => {
   };
 
   const filteredQuizzes = selectedDifficulty
-    ? quizzes.filter(quiz => quiz.difficulty.toLowerCase() === selectedDifficulty.toLowerCase())
+    ? quizzes.filter(quiz => normalizeDifficulty(quiz.difficulty) === selectedDifficulty.toLowerCase())
     : quizzes;
 
   const toggleQuestionExpansion = (quizId) => {
@@ -357,7 +371,7 @@ const TestSeriesCoderpadHome = () => {
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getDifficultyStyle(quiz.difficulty)}`}>
-              {capitalizeFirstLetter(quiz.difficulty || 'Easy')}
+            {quiz.difficulty === 'hard' || quiz.difficulty === 'advance' ? 'Hard' : capitalizeFirstLetter(quiz.difficulty)}
             </span>
           </td>
 
