@@ -154,6 +154,9 @@ const TestSeriesMcqHome = () => {
   }, []);
 
   useEffect(() => {
+    showPopup('You cant access this section right now');
+    redirectToHomePage();
+    return;
     validateSubject();
   }, [subject]); // Added subject as a dependency
 
@@ -178,6 +181,8 @@ const TestSeriesMcqHome = () => {
     }
   };
   
+
+ 
 
   const showPopup = (message) => {
     alert(message);
