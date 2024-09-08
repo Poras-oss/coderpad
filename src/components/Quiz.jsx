@@ -6,9 +6,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import queryString from 'query-string';
 import img from '../assets/dslogo1.png'
 import img1 from '../assets/bgimg.jpg'
+import { ArrowLeft, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
-import { Video, FileText, ChevronDown, X, ArrowLeft } from 'lucide-react';
-import { FaSun, FaMoon, FaBars, FaTimes } from 'react-icons/fa';
 
 
 const Quiz = () => {
@@ -31,9 +30,7 @@ const Quiz = () => {
         const userID = parsed.userID;
         const quizID = parsed.quizID;
         
-        console.log('Parsed query string:', parsed);
-        console.log('UserID:', userID);
-        console.log('QuizID:', quizID);
+
 
         if (!userID || !quizID) {
             alert('User ID or Quiz ID is missing in the URL');
@@ -117,7 +114,7 @@ const Quiz = () => {
     };
 
     const submitQuiz = async () => {
-        const { user } = useUser();
+        
         const newAnswers = [...userAnswers];
         newAnswers[currentQuestionIndex] = selectedOption || null;
         setUserAnswers(newAnswers);
@@ -140,7 +137,7 @@ const Quiz = () => {
         // Prepare data for the API call
         const userInfo = {
             quizID: quizID,
-            userID: `${user.primaryEmailAddress?.emailAddress},  ${user.firstName}, ${user.phoneNumbers}`,
+            userID: `${useUser.primaryEmailAddress?.emailAddress},  ${useUser.firstName}, ${useUser.phoneNumbers}`,
             score: calculatedScore,
             duration: durationInSeconds
         };
@@ -182,12 +179,17 @@ const Quiz = () => {
         // setTimer(30);
         // setQuizCompleted(false);
 
-        window.location.href ='/?userID=' + userID;
+        window.location.href ='/?/live-events';
         return;
     };
 
     if (questions.length === 0) {
-        return <div className='animate-ping w-full h-screen flex items-center justify-center text-7xl font-thin'>STARTING....</div>;
+        return (
+            <div className="w-full h-screen flex flex-col items-center justify-center">
+                <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
+                <h5 className="mt-4 text-2xl font-thin text-gray-700">Loading...</h5>
+            </div>
+        );
     }
 
     if (quizCompleted) {
@@ -238,9 +240,7 @@ const Quiz = () => {
                <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-4xl">
                     <div className="flex justify-between items-center mb-6">
                     <img src={img} alt="Data Sense Logo" className="h-20" />
-                        <span className="text-sm text-gray-500">
-                            Question {currentQuestionIndex + 1} of {questions.length}
-                        </span>
+                       
                         <span className="text-sm font-semibold text-[#4B5563]
                         ">Time Remaining  {timer}s</span>
                     </div>
@@ -262,8 +262,20 @@ const Quiz = () => {
                             </div>
                         ))}
                     </div>
-                    <div className="flex justify-end">
-                        
+                    <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">
+                        Question {currentQuestionIndex + 1} of {questions.length}
+                    </span>
+
+                    <div className="flex space-x-2">
+                        {/* <button
+                            className="bg-cyan-500 text-white px-4 py-2 rounded hover:bg-cyan-600 transition duration-300"
+                            onClick={prevQuestion}
+                            disabled={currentQuestionIndex === 0}
+                        >
+                            Back
+                        </button> */}
+
                         {currentQuestionIndex === questions.length - 1 ? (
                             <button
                                 className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300"
@@ -280,6 +292,7 @@ const Quiz = () => {
                             </button>
                         )}
                     </div>
+                </div>
                 </div>
                 <ToastContainer />
             </div>
