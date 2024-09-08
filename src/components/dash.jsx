@@ -234,8 +234,7 @@ const DataSkillsDashboard = () => {
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topic</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solution</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Difficulty</th>
+              {/* <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Difficulty</th> */}
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
             </tr>
           </thead>
@@ -248,17 +247,8 @@ const DataSkillsDashboard = () => {
                 <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
                   {removeQuizTypePrefix(quiz.quizName)}
                 </td>
-                <td className="px-4 py-4 whitespace-nowrap">
-                  <div className="flex space-x-2">
-                    <button className="text-blue-400 hover:text-blue-600">
-                      <FileText size={20} />
-                    </button>
-                    <button className="text-blue-400 hover:text-blue-600">
-                      <Video size={20} />
-                    </button>
-                  </div>
-                </td>
-                <td className="px-4 py-4 whitespace-nowrap">
+           
+                {/* <td className="px-4 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                     ${quiz.difficulty ? 
                       (quiz.difficulty === 'Easy' ? 'bg-green-100 text-green-800' : 
@@ -267,7 +257,7 @@ const DataSkillsDashboard = () => {
                       : 'bg-green-100 text-green-800'}`}>
                     {quiz.difficulty || 'Easy'}
                   </span>
-                </td>
+                </td> */}
                 <td className="px-4 py-4 whitespace-nowrap">
                 <button
                     onClick={() => {
