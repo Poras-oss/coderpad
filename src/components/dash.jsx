@@ -48,7 +48,7 @@ const DataSkillsDashboard = () => {
   };
   
   const handleStartQuiz = (quizID, userID, quizName) => {
-    if (!isAuthenticated) {
+    if (!isSignedIn) {
       alert('You need to log in to start the quiz.');
       return;
     }
@@ -67,7 +67,7 @@ const DataSkillsDashboard = () => {
   };
 
   const handleRegisterQuiz = async (quizID, userID) => {
-    if (!isAuthenticated) {
+    if (!isSignedIn) {
       alert('You need to log in to register for the quiz.');
       return;
     }
@@ -109,7 +109,7 @@ const DataSkillsDashboard = () => {
   };
 
   const handleQuizResults = (quizID, userID, quizName) => {
-    if (!isAuthenticated) {
+    if (!isSignedIn) {
       alert('You need to log in to get the results.');
       return;
     }
