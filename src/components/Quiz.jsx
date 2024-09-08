@@ -14,6 +14,7 @@ const Quiz = () => {
     const parsed = queryString.parse(window.location.search);
     const userID = parsed.userID;
     const quizID = parsed.quizID;
+    const { user } = useUser();
    
 
     const [questions, setQuestions] = useState([]);
@@ -137,7 +138,7 @@ const Quiz = () => {
         // Prepare data for the API call
         const userInfo = {
             quizID: quizID,
-            userID: `${useUser.primaryEmailAddress?.emailAddress},  ${useUser.firstName}, ${useUser.phoneNumbers}`,
+            userID: `${user?.primaryEmailAddress?.emailAddress || 'N/A'}, ${user?.firstName || 'N/A'}, ${user?.phoneNumbers?.[0]?.phoneNumber || 'N/A'}`,
             score: calculatedScore,
             duration: durationInSeconds
         };
