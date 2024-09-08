@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import 'tailwindcss/tailwind.css';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import queryString from 'query-string';
 import img from '../assets/dslogo1.png'
 import img1 from '../assets/bgimg.jpg'
-
+import { useUser } from "@clerk/clerk-react"; 
 
 
 
 const Quiz = () => {
-    const { loginWithPopup, loginWithRedirect, logout, user, isAuthenticated, getAccessTokenSilently } = useAuth0();
     const parsed = queryString.parse(window.location.search);
     const userID = parsed.userID;
     const quizID = parsed.quizID;
@@ -83,7 +82,7 @@ const Quiz = () => {
 
     const loadQuestion = () => {
         setSelectedOption(null);
-        setTimer(80);
+        setTimer(120);
     };
 
     useEffect(() => {
@@ -115,6 +114,7 @@ const Quiz = () => {
     };
 
     const submitQuiz = async () => {
+        const { user } = useUser();
         const newAnswers = [...userAnswers];
         newAnswers[currentQuestionIndex] = selectedOption || null;
         setUserAnswers(newAnswers);
@@ -137,7 +137,7 @@ const Quiz = () => {
         // Prepare data for the API call
         const userInfo = {
             quizID: quizID,
-            userID: `${user.email},  ${user.name}, ${user.phone_number}`,
+            userID: `${user.primaryEmailAddress?.emailAddress},  ${user.firstName}, ${user.phoneNumbers}`,
             score: calculatedScore,
             duration: durationInSeconds
         };

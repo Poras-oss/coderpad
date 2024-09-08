@@ -21,7 +21,7 @@ const App = () => {
     <BrowserRouter>
       <Routes>
         {  <Route path="/" element={<iframe src="/home.html" style={{ width: '100%', height: '100vh', border: 'none' }} title="External Page" />} /> }
-        <Route path="/dash" element={<DataSkillsDashboard />} />
+        <Route path="/live-events" element={<DataSkillsDashboard />} />
         <Route path="/quiz" element={<QuizApp />} />
         <Route path="/pyQuiz" element={<PythonQuizApp />} />
         <Route path="/mcqQuiz" element={<Quiz />} />

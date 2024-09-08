@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import queryString from 'query-string';
 import { useNavigate } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import { Video, FileText, Sun, Moon } from 'lucide-react';
 
 const skills = ['Excel', 'SQL', 'Python', 'PowerBI', 'Tableau'];
 
 const DataSkillsDashboard = () => {
-  const { isAuthenticated, user, loginWithRedirect, logout } = useAuth0();
   const navigateTo = useNavigate();
   const [quizzes, setQuizzes] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -137,33 +136,65 @@ const DataSkillsDashboard = () => {
 
   return (
     <div className={`font-sans min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-gray-100 text-black'}`}>
-    <header className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-cyan-700'} p-2 flex justify-between items-center`}>
-      <h1 className="text-3xl text-white">Datasense</h1>
+    <header className={`p-4 ${isDarkMode ? 'bg-oxford-blue text-white' : 'bg-oxford-blue text-gray-800'}`}>
+      <div className="container mx-auto flex justify-between items-center relative">
+        
       <div className="flex items-center">
-        <button
-          onClick={() => setIsDarkMode(!isDarkMode)}
-          className={`mr-4 p-2 rounded-full ${isDarkMode ? 'bg-yellow-400 text-[#262626]' : 'bg-[#262626] text-yellow-400'}`}
-        >
-          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
-        {isAuthenticated ? (
-          <div className="flex items-center">
-            <span className="mr-4 text-white">Welcome, {user.name}</span>
-            <button
-              onClick={() => logout({ returnTo: window.location.origin })}
-              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Log Out
-            </button>
-          </div>
-        ) : (
+  <button
+    onClick={backToHome}
+    className="mr-2 text-white hover:text-gray-300 transition-colors duration-200"
+    aria-label="Go back"
+  >
+    <ArrowLeft size={24} />
+  </button>
+  <img 
+    className="h-12 w-auto cursor-pointer"
+    src={logo}
+    alt="Datasense"
+    onClick={backToHome}
+  />
+</div>
+      <h3 className='text-white'>{(subject).toUpperCase()} Questions</h3>
+        
+        <div className="md:hidden z-20">
           <button
-            onClick={() => loginWithRedirect()}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-2 text-white"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
-            Log In
+            {isMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
-        )}
+        </div>
+
+        <nav className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex absolute md:relative top-full left-0 right-0 md:top-auto ${isDarkMode ? 'bg-gray-800' : 'bg-gray-800'} md:bg-transparent z-10 flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 p-4 md:p-0`}>
+          <ul className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
+            <li>
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className={`p-2 rounded-full ${isDarkMode ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-yellow-400'}`}
+                aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+              >
+                {isDarkMode ? <FaSun /> : <FaMoon />}
+              </button>
+            </li>
+            <li className="w-full md:w-auto">
+              {isLoaded && isSignedIn ? (
+                <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
+                 <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-white'} md:${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Welcome, {user.firstName}
+                  </span>
+                  <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
+                </div>
+              ) : (
+                <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`} signUpForceRedirectUrl={`/practice-area?subject=${subject}`}  >
+                <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto">
+                  Log In
+                </button>
+              </SignInButton>
+              )}
+            </li>
+          </ul>
+        </nav>
       </div>
     </header>
 
