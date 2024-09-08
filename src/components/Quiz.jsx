@@ -41,7 +41,7 @@ const Quiz = () => {
         const quizCompletionStatus = localStorage.getItem(`quizCompleted_${quizID}`);
         if (quizCompletionStatus) {
             alert('You already attempted this quiz');
-            window.location.href = '/?userID=' + userID;
+            window.location.href = '/live-events';
             return;
         }
 
@@ -179,7 +179,7 @@ const Quiz = () => {
         // setTimer(30);
         // setQuizCompleted(false);
 
-        window.location.href ='/?/live-events';
+        window.location.href ='/live-events';
         return;
     };
 
@@ -197,15 +197,15 @@ const Quiz = () => {
                 <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
                     <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
                         <h1 className="text-3xl font-semibold mb-6 text-gray-800">Quiz Completed</h1>
-                        <p className="text-2xl mb-6 text-gray-700">
+                        <h3 className="text-2xl mb-6 text-gray-700">
                             Your Score: <span className="font-semibold">{score}</span> / {questions.length}
-                        </p>
+                        </h3>
                         <div className="mb-6 space-y-4">
                           
                             {questions.map((question, index) => (
                                 <div key={index} className="border-b pb-4">
                                     <h2 className="text-lg font-medium mb-2 text-gray-800">{question.question}</h2>
-                                    <p
+                                    <h5
                                         className={`p-2 rounded ${
                                             userAnswers[index] &&
                                             questions[index].options[userAnswers[index]] === questions[index].answer
@@ -214,10 +214,10 @@ const Quiz = () => {
                                         }`}
                                     >
                                         Your answer: {questions[index].options[userAnswers[index]] || 'Not answered'}
-                                    </p>
-                                    <p className="p-2 rounded bg-blue-100 text-blue-800 mt-2">
+                                    </h5>
+                                    <h5 className="p-2 rounded bg-blue-100 text-blue-800 mt-2">
                                         Correct answer: {questions[index].answer}
-                                    </p>
+                                    </h5>
                                 </div>
                             ))}
                         </div>
