@@ -3,17 +3,24 @@ import axios from 'axios';
 import queryString from 'query-string';
 import { useNavigate } from 'react-router-dom';
 import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
-import { Video, FileText, Sun, Moon } from 'lucide-react';
+import logo from '../assets/dslogo.png'
+
 
 const skills = ['Excel', 'SQL', 'Python', 'PowerBI', 'Tableau'];
 
+import { Video, FileText, ChevronDown, X, ArrowLeft } from 'lucide-react';
+import { FaSun, FaMoon, FaBars, FaTimes } from 'react-icons/fa';
+
+
 const DataSkillsDashboard = () => {
+  const { isLoaded, isSignedIn, user } = useUser();
   const navigateTo = useNavigate();
   const [quizzes, setQuizzes] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState(null);
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     fetchQuizzes();
@@ -110,6 +117,11 @@ const DataSkillsDashboard = () => {
     navigateTo(`/leaderboard?quizID=${quizID}&userID=${userID}&quizName=${quizName}`);
   }
 
+  function backToHome(){
+    window.top.location.href = 'https://practice.datasenseai.com';
+  }
+
+
 
   const determineButtonColor = (quiz) => {
     const lowerCaseQuizName = quiz.quizName.toLowerCase();
@@ -154,7 +166,7 @@ const DataSkillsDashboard = () => {
     onClick={backToHome}
   />
 </div>
-      <h3 className='text-white'>{(subject).toUpperCase()} Questions</h3>
+   
         
         <div className="md:hidden z-20">
           <button
@@ -183,10 +195,10 @@ const DataSkillsDashboard = () => {
                  <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-white'} md:${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     Welcome, {user.firstName}
                   </span>
-                  <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
+                  <UserButton afterSignOutUrl={`/live-events`} />
                 </div>
               ) : (
-                <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`} signUpForceRedirectUrl={`/practice-area?subject=${subject}`}  >
+                <SignInButton mode="modal" fallbackRedirectUrl={`/live-events`} signUpForceRedirectUrl={`/live-events`}  >
                 <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto">
                   Log In
                 </button>

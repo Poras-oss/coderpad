@@ -6,8 +6,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import queryString from 'query-string';
 import img from '../assets/dslogo1.png'
 import img1 from '../assets/bgimg.jpg'
-import { useUser } from "@clerk/clerk-react"; 
 
+import { Video, FileText, ChevronDown, X, ArrowLeft } from 'lucide-react';
+import { FaSun, FaMoon, FaBars, FaTimes } from 'react-icons/fa';
 
 
 const Quiz = () => {
@@ -102,6 +103,8 @@ const Quiz = () => {
         }
     };
 
+
+
     const nextQuestion = () => {
         const newAnswers = [...userAnswers];
         newAnswers[currentQuestionIndex] = selectedOption || null;
@@ -166,6 +169,8 @@ const Quiz = () => {
          // Show attempt popup
          showQuizAttemptedPopup();
     };
+
+  
 
 
 
