@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import MonacoEditor from './ResizableMonacoEditor'; 
 import queryString from 'query-string';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import Split from 'react-split';
 import ReactPlayer from 'react-player';
 import { Loader2, Video, X } from 'lucide-react';
 
 const PythonQuizApp = () => {
-  const { loginWithPopup, loginWithRedirect, logout, user, isAuthenticated, getAccessTokenSilently } = useAuth0();
+  const { user } = useUser();
+
 
   const [quizData, setQuizData] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -16,7 +17,7 @@ const PythonQuizApp = () => {
   const [feedback, setFeedback] = useState('');
   const [showFeedback, setShowFeedback] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [score, setScore] = useState(0);
+
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
   const [userOutput, setUserOutput] = useState(''); // Add state to store user output
@@ -26,6 +27,8 @@ const PythonQuizApp = () => {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [scores, setScores] = useState({});
   const [canSubmit, setCanSubmit] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
+ 
 
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
@@ -33,6 +36,16 @@ const PythonQuizApp = () => {
   const questionID = parsed.questionID;
 
   const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if ( user) {
+      setUserInfo({
+        email: user.primaryEmailAddress?.emailAddress || 'N/A',
+        firstName: user.firstName || 'N/A',
+        phone: user.phoneNumbers?.[0]?.phoneNumber || 'N/A'
+      });
+    }
+  }, [ user]);
 
   useEffect(() => {
     if (quizID) {
@@ -189,50 +202,40 @@ const PythonQuizApp = () => {
       alert("You can't submit the quiz at this time.");
       return;
     }
-  
+
     setIsTimerRunning(false);
     const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const timeTaken = 3600 - timeRemaining; // in seconds
-  
-    // Check if quiz has already been completed for this quizID
-    const quizCompletionStatus = localStorage.getItem(`quizCompleted_${quizID}`);
-    if (quizCompletionStatus) {
-      alert('You already attempted this quiz');
-      window.location.href = '/live-events';
-      return;
-    }
-  
-    const userInfo = {
+
+    const uf = {
       quizID: quizID,
-      userID: `${user?.primaryEmailAddress?.emailAddress || 'N/A'}, ${user?.firstName || 'N/A'}, ${user?.phoneNumbers?.[0]?.phoneNumber || 'N/A'}`,
+      userID: `${userInfo.email}, ${userInfo.firstName}, ${userInfo.phone}`,
       score: totalScore,
       duration: timeTaken
-    };
-  
+  };
+
     try {
       const response = await fetch('https://server.datasenseai.com/quizadmin/update-scores', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userInfo),
-      });
-  
-      if (response.ok) {
-        console.log('Score updated successfully!');
-        // Mark the quiz as completed in localStorage
-        localStorage.setItem(`quizCompleted_${quizID}`, 'true');
-        // Redirect to results page or show success message
-        alert('Quiz submitted successfully!');
-        window.location.href = '/live-events';
-      } else {
-        console.error('Failed to update score:', response.statusText);
-        alert('Failed to submit quiz. Please try again.');
-      }
+        body: JSON.stringify(uf),
+    });
+
+    if (response.ok) {
+      console.log('Score updated successfully!');
+  } else {
+      console.error('Failed to update score:', response.statusText);
+  }
+     
+     
     } catch (error) {
-      console.error('Error updating score:', error.message);
-      alert('An error occurred while submitting the quiz. Please try again.');
+      console.error('Error submitting quiz:', error);
+      alert('Failed to submit quiz. Please try again.');
     }
+
+    // window.location.href = `/live-events`;
   };
 
   const toggleDarkMode = () => {
