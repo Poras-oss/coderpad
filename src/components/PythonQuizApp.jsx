@@ -215,7 +215,7 @@ const PythonQuizApp = () => {
   };
 
     try {
-      const response = await fetch('https://server.datasenseai.com/quizadmin/update-scores', {
+      const response = await fetch('https://server.datasenseai.com/quizadmin/update-scores-coding', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
