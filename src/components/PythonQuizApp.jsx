@@ -235,7 +235,7 @@ const PythonQuizApp = () => {
       alert('Failed to submit quiz. Please try again.');
     }
 
-    // window.location.href = `/live-events`;
+    window.location.href = `/live-events`;
   };
 
   const toggleDarkMode = () => {
