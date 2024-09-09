@@ -214,6 +214,13 @@ const PythonQuizApp = () => {
       duration: timeTaken
   };
 
+  const quizCompletionStatus = localStorage.getItem(`quizCompleted_${quizID}`);
+          if (quizCompletionStatus) {
+              alert('You already attempted this quiz');
+              window.location.href = '/live-events';
+              return;
+          }else{
+
     try {
       const response = await fetch('https://server.datasenseai.com/quizadmin/update-scores-coding', {
         method: 'POST',
@@ -234,6 +241,10 @@ const PythonQuizApp = () => {
       console.error('Error submitting quiz:', error);
       alert('Failed to submit quiz. Please try again.');
     }
+  }
+
+        // Save quiz completion status for this quizID
+        localStorage.setItem(`quizCompleted_${quizID}`, true);
 
     window.location.href = `/live-events`;
   };
