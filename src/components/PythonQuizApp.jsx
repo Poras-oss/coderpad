@@ -22,6 +22,10 @@ const PythonQuizApp = () => {
   const [userOutput, setUserOutput] = useState(''); // Add state to store user output
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
+  const [timeRemaining, setTimeRemaining] = useState(60 * 60); // 60 minutes in seconds
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [scores, setScores] = useState({});
+  const [canSubmit, setCanSubmit] = useState(false);
 
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
@@ -29,6 +33,32 @@ const PythonQuizApp = () => {
   const questionID = parsed.questionID;
 
   const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (quizID) {
+      setIsTimerRunning(true);
+      setCanSubmit(true);
+    }
+  }, [quizID]);
+
+  useEffect(() => {
+    let timer;
+    if (isTimerRunning && timeRemaining > 0) {
+      timer = setInterval(() => {
+        setTimeRemaining((prevTime) => prevTime - 1);
+      }, 1000);
+    } else if (timeRemaining === 0) {
+      handleSubmitQuiz();
+    }
+
+    return () => clearInterval(timer);
+  }, [isTimerRunning, timeRemaining]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     const checkMobile = () => {
@@ -129,9 +159,16 @@ const PythonQuizApp = () => {
     if (allTestCasesPassed) {
       setUserOutput('');
       setFeedback('All test cases passed!');
-      setScore(score + 1);
+      setScores(prevScores => ({
+        ...prevScores,
+        [currentQuestionIndex]: 1
+      }));
     } else {
       setFeedback('Some test cases failed.');
+      setScores(prevScores => ({
+        ...prevScores,
+        [currentQuestionIndex]: 0
+      }));
     }
 
     setShowFeedback(true);
@@ -147,8 +184,55 @@ const PythonQuizApp = () => {
     setShowSolution(false);
   };
 
-  const handleSubmitQuiz = () => {
-    window.location.href = '/?userID=' + userID;
+  const handleSubmitQuiz = async () => {
+    if (!canSubmit || timeRemaining === 0) {
+      alert("You can't submit the quiz at this time.");
+      return;
+    }
+  
+    setIsTimerRunning(false);
+    const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
+    const timeTaken = 3600 - timeRemaining; // in seconds
+  
+    // Check if quiz has already been completed for this quizID
+    const quizCompletionStatus = localStorage.getItem(`quizCompleted_${quizID}`);
+    if (quizCompletionStatus) {
+      alert('You already attempted this quiz');
+      window.location.href = '/live-events';
+      return;
+    }
+  
+    const userInfo = {
+      quizID: quizID,
+      userID: `${user?.primaryEmailAddress?.emailAddress || 'N/A'}, ${user?.firstName || 'N/A'}, ${user?.phoneNumbers?.[0]?.phoneNumber || 'N/A'}`,
+      score: totalScore,
+      duration: timeTaken
+    };
+  
+    try {
+      const response = await fetch('https://server.datasenseai.com/quizadmin/update-scores', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userInfo),
+      });
+  
+      if (response.ok) {
+        console.log('Score updated successfully!');
+        // Mark the quiz as completed in localStorage
+        localStorage.setItem(`quizCompleted_${quizID}`, 'true');
+        // Redirect to results page or show success message
+        alert('Quiz submitted successfully!');
+        window.location.href = '/live-events';
+      } else {
+        console.error('Failed to update score:', response.statusText);
+        alert('Failed to submit quiz. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error updating score:', error.message);
+      alert('An error occurred while submitting the quiz. Please try again.');
+    }
   };
 
   const toggleDarkMode = () => {
@@ -192,6 +276,11 @@ const PythonQuizApp = () => {
        <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center`}>
         <h1 className="mb-4 text-xl font-bold">Python Coderpad</h1>
         <div className="flex items-center space-x-4">
+        {isTimerRunning && (
+            <div className="text-lg font-semibold">
+              Time remaining: {formatTime(timeRemaining)}
+            </div>
+          )}
           <button
             onClick={openVideoPopup}
             className={`p-2 rounded-full ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-[#262626]'}`}
@@ -282,19 +371,21 @@ const PythonQuizApp = () => {
           <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} rounded-t-lg p-2 flex justify-between items-center`}>
             <span className="text-lg font-semibold">Python</span>
             <div className="flex space-x-2">
-              <button
-                className={`px-3 py-1 rounded text-white ${isSubmitting ? 'bg-gray-500' : 'bg-cyan-600 hover:bg-cyan-700'} focus:outline-none transition-colors duration-200`}
-                onClick={handleRunCode}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Running...' : 'Run Code'}
-              </button>
-              {/* <button 
-                onClick={handleSubmitQuiz}
-                className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
-              >
-                Submit Quiz
-              </button> */}
+            <button
+            className={`px-3 py-1 rounded text-white ${isSubmitting ? 'bg-gray-500' : 'bg-cyan-600 hover:bg-cyan-700'} focus:outline-none transition-colors duration-200`}
+            onClick={handleRunCode}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Running...' : 'Run Code'}
+          </button>
+          {quizID && timeRemaining > 0 && (
+            <button 
+              onClick={handleSubmitQuiz}
+              className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
+            >
+              Submit Quiz
+            </button>
+          )}
             </div>
           </div>
           <Split
