@@ -126,38 +126,46 @@ const PythonQuizApp = () => {
   }, [quizID, userID, currentQuestionIndex]);
 
   const checkAllTestCases = async (userCode, testCases) => {
-    for (let testCase of testCases) {
-      const fullCode = `${userCode}\nprint(${testCase.input})`;
-      try {
-        const response = await axios.post(
-          'https://emkc.org/api/v2/piston/execute',
-          {
-            language: 'python',
-            version: '3.10',
-            files: [
-              {
-                name: 'main.py',
-                content: fullCode
-              }
-            ]
-          },
-          { headers: { 'Content-Type': 'application/json' } }
-        );
-        
-        let userOutput = response.data.run.output;
-        userOutput = userOutput.trim();
+    // Create a combined code to run all test cases in one API call
+    const combinedCode = testCases.map(
+      testCase => `print(${testCase.input})`
+    ).join('\n');
   
-        if (userOutput !== testCase.expected_output) {
-          setUserOutput(userOutput); // Update user output state
+    const fullCode = `${userCode}\n${combinedCode}`;
+  
+    try {
+      const response = await axios.post(
+        'https://emkc.org/api/v2/piston/execute',
+        {
+          language: 'python',
+          version: '3.10',
+          files: [
+            {
+              name: 'main.py',
+              content: fullCode
+            }
+          ]
+        },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+  
+      const outputs = response.data.run.output.split('\n').map(output => output.trim());
+  
+      // Check each output against the expected output
+      for (let i = 0; i < testCases.length; i++) {
+        if (outputs[i] !== testCases[i].expected_output) {
+          setUserOutput(outputs[i]); // Update user output state with the first failing test case output
           return false;
         }
-      } catch (error) {
-        console.error('Error executing test case:', error);
-        return false;
       }
+  
+      return true; // All test cases passed
+    } catch (error) {
+      console.error('Error executing test cases:', error);
+      return false;
     }
-    return true;
   };
+  
 
   const handleRunCode = async () => {
     
