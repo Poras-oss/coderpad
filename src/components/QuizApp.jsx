@@ -245,7 +245,7 @@ const QuizApp = () => {
           }else{
 
     try {
-      const response = await fetch('https://server.datasenseai.com/quizadmin/update-scores-coding', {
+      const response = await fetch('https://server.datasenseai.com/quizadmin/update-scores-coding-sql', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

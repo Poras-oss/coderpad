@@ -230,7 +230,7 @@ const PythonQuizApp = () => {
           }else{
 
     try {
-      const response = await fetch('https://server.datasenseai.com/quizadmin/update-scores-coding', {
+      const response = await fetch('https://server.datasenseai.com/quizadmin/update-scores-coding-python', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
