@@ -8,7 +8,7 @@ import ReactPlayer from 'react-player';
 import { Loader2, Video, X } from 'lucide-react';
 
 const PythonQuizApp = () => {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
 
 
   const [quizData, setQuizData] = useState(null);

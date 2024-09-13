@@ -3,12 +3,13 @@ import axios from 'axios';
 import MonacoEditor from './ResizableMonacoEditor' // Assuming you have a Monaco Editor wrapper component
 import queryString from 'query-string';
 import {useAuth0} from '@auth0/auth0-react'
+import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import Split from 'react-split';
 import { Loader2, Video, X } from 'lucide-react';
 import ReactPlayer from 'react-player';
 
 const QuizApp = () => {
-  const {loginWithPopup, loginWithRedirect, logout, user, isAuthenticated, getAccessTokenSilently} = useAuth0();
+  const { user, isLoaded } = useUser();
 
   const [quizData, setQuizData] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -24,12 +25,55 @@ const QuizApp = () => {
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
 
+  const [timeRemaining, setTimeRemaining] = useState(60 * 60); // 60 minutes in seconds
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [scores, setScores] = useState({});
+  const [canSubmit, setCanSubmit] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
+
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
   const quizID = parsed.quizID;
   const questionID = parsed.questionID;
 
   const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if ( user) {
+      setUserInfo({
+        email: user.primaryEmailAddress?.emailAddress || 'N/A',
+        firstName: user.firstName || 'N/A',
+        phone: user.phoneNumbers?.[0]?.phoneNumber || 'N/A'
+      });
+    }
+  }, [ user]);
+
+  useEffect(() => {
+    if (quizID) {
+      setIsTimerRunning(true);
+      setCanSubmit(true);
+    }
+  }, [quizID]);
+
+  useEffect(() => {
+    let timer;
+    if (isTimerRunning && timeRemaining > 0) {
+      timer = setInterval(() => {
+        setTimeRemaining((prevTime) => prevTime - 1);
+      }, 1000);
+    } else if (timeRemaining === 0) {
+      handleSubmitQuiz();
+    }
+
+    return () => clearInterval(timer);
+  }, [isTimerRunning, timeRemaining]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
 
   useEffect(() => {
     const checkMobile = () => {
@@ -122,7 +166,15 @@ const QuizApp = () => {
   
       if (isCorrect) {
         setFeedback({ text: 'Correct!', isCorrect: true, userAnswer: userAnswer });
+        setScores(prevScores => ({
+          ...prevScores,
+          [currentQuestionIndex]: 1
+        }));
       } else {
+        setScores(prevScores => ({
+          ...prevScores,
+          [currentQuestionIndex]: 0
+        }));
         setFeedback({
           isCorrect: false,
           expected: expectedOutput.map(row => Object.values(row).join(', ')).join(' | '),
@@ -168,25 +220,56 @@ const QuizApp = () => {
 
   const currentQuestion = quizData.questions[currentQuestionIndex];
 
-  const handleSaveResults = async () =>{
-    try{
-      setButtonText('Submitting...');
-      const response = await axios.post('https://server.datasenseai.com/sql-quiz/update-scores',{
-        quizID: parsed.quizID,
-        userID: parsed.userID,
-        score : 1 
-      });
-
-      console.log('Results saved successfully:', response.data);
-      setSaveStatus('Results saved successfully!');
-      setButtonText('Submitted');
-      window.location.href = '/?userID=' + userID;
-    } catch(error) {
-      window.location.href = '/?userID=' + userID;
-      console.error('Error saving quiz results:', error);
-      setSaveStatus('Failed to save results. Please try again.');
-      setButtonText('Submitted');
+  const handleSubmitQuiz = async () => {
+    if (!canSubmit || timeRemaining === 0) {
+      alert("You can't submit the quiz at this time.");
+      return;
     }
+
+    setIsTimerRunning(false);
+    const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
+    const timeTaken = 3600 - timeRemaining; // in seconds
+
+    const uf = {
+      quizID: quizID,
+      userID: `${userInfo.email}, ${userInfo.firstName}, ${userInfo.phone}`,
+      score: totalScore,
+      duration: timeTaken
+  };
+
+  const quizCompletionStatus = localStorage.getItem(`quizCompleted_${quizID}`);
+          if (quizCompletionStatus) {
+              alert('You already attempted this quiz');
+              window.location.href = '/live-events';
+              return;
+          }else{
+
+    try {
+      const response = await fetch('https://server.datasenseai.com/quizadmin/update-scores-coding', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(uf),
+    });
+
+    if (response.ok) {
+      console.log('Score updated successfully!');
+  } else {
+      console.error('Failed to update score:', response.statusText);
+  }
+     
+     
+    } catch (error) {
+      console.error('Error submitting quiz:', error);
+      alert('Failed to submit quiz. Please try again.');
+    }
+  }
+
+        // Save quiz completion status for this quizID
+        localStorage.setItem(`quizCompleted_${quizID}`, true);
+
+    window.location.href = `/live-events`;
   };
 
   if (isMobile) {
@@ -212,6 +295,11 @@ const QuizApp = () => {
       <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center`}>
         <h1 className="mb-4 text-xl font-bold">SQL Coderpad</h1>
         <div className="flex items-center space-x-4">
+        {isTimerRunning && (
+            <div className="text-lg font-semibold">
+              Time remaining: {formatTime(timeRemaining)}
+            </div>
+          )}
           <button
             onClick={openVideoPopup}
             className={`p-2 rounded-full ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-[#262626]'}`}
@@ -353,6 +441,14 @@ const QuizApp = () => {
             </>
           ) : 'Run Code'}
         </button>
+        {quizID && timeRemaining > 0 && (
+            <button 
+              onClick={handleSubmitQuiz}
+              className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
+            >
+              Submit Quiz
+            </button>
+          )}
         <button
           className={`flex-1 ${isTesting ? 'bg-blue-500' : 'bg-blue-600'} text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none flex items-center justify-center`}
           onClick={handleTestCode}
