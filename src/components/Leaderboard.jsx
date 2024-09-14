@@ -12,10 +12,25 @@ const Leaderboard = ({ quizId }) => {
   const quizID = parsed.quizID;
   const quizName = parsed.quizName;
 
+  const getQuizType = (quizName) => {
+    const parts = quizName.split(':');
+    return parts.length > 1 ? parts[0].trim().toLowerCase() : 'mcq'; // Default to 'mcq'
+  };
+
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const response = await axios.get(`https://server.datasenseai.com/leaderboard/${quizID}`);
+        let response;
+         // Fetch leaderboard based on quiz type
+         const quizType = getQuizType(quizName);
+         if (quizType === 'mcq') {
+           response = await axios.get(`https://server.datasenseai.com/leaderboard/${quizID}`);
+         } else if (quizType === 'python') {
+           response = await axios.get(`https://server.datasenseai.com/leaderboard/python/${quizID}`);
+         } else if (quizType === 'sql') {
+           response = await axios.get(`https://server.datasenseai.com/leaderboard/sql/${quizID}`);
+         }
+        
         setLeaderboard(response.data.leaderboard);
         setLoading(false);
       } catch (err) {
@@ -40,6 +55,8 @@ const Leaderboard = ({ quizId }) => {
     const parts = userId.split(',');
     return parts.length > 1 ? parts[1].trim() : userId;
   };
+
+
 
   if (loading) {
     return (
@@ -80,26 +97,26 @@ const Leaderboard = ({ quizId }) => {
                   <th className="px-3 py-3 sm:px-5 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Score
                   </th>
-                  {/* <th className="px-3 py-3 sm:px-5 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="px-3 py-3 sm:px-5 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Duration
-                  </th> */}
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {leaderboard.users.map((user) => (
                   <tr key={user.userId}>
                     <td className="px-3 py-4 sm:px-5 border-b border-gray-200 bg-white text-sm">
-                      <p className="text-gray-900 whitespace-no-wrap">{user.rank}</p>
+                      <h4 className="text-gray-900 whitespace-no-wrap">{user.rank}</h4>
                     </td>
                     <td className="px-3 py-4 sm:px-5 border-b border-gray-200 bg-white text-sm">
-                      <p className="text-gray-900 whitespace-no-wrap">{getUserName(user.userId)}</p>
+                      <h4 className="text-gray-900 whitespace-no-wrap">{getUserName(user.userId)}</h4>
                     </td>
                     <td className="px-3 py-4 sm:px-5 border-b border-gray-200 bg-white text-sm">
-                      <p className="text-gray-900 whitespace-no-wrap">{user.score}</p>
+                      <h4 className="text-gray-900 whitespace-no-wrap">{user.score}</h4>
                     </td>
-                    {/* <td className="px-3 py-4 sm:px-5 border-b border-gray-200 bg-white text-sm">
-                      <p className="text-gray-900 whitespace-no-wrap">{formatDuration(user.duration)}</p>
-                    </td> */}
+                    <td className="px-3 py-4 sm:px-5 border-b border-gray-200 bg-white text-sm">
+                      <h4 className="text-gray-900 whitespace-no-wrap">{formatDuration(user.duration)}</h4>
+                    </td>
                   </tr>
                 ))}
               </tbody>
