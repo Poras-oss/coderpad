@@ -233,8 +233,7 @@ const QuizApp = () => {
 
     setIsTimerRunning(false);
     const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
-    const endTime = Date.now();
-    const timeTaken = Math.floor((endTime - startTime) / 1000);  // Calculate time taken in seconds
+    const timeTaken = 3600 - timeRemaining; // in seconds
 
     const uf = {
       quizID: quizID,
