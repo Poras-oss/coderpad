@@ -29,7 +29,7 @@ const QuizApp = () => {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [scores, setScores] = useState({});
   const [canSubmit, setCanSubmit] = useState(false);
-  const [userInfo, setUserInfo] = useState(null);
+  const [userInfo, setUserInfo] = useState('');
 
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
@@ -140,9 +140,8 @@ const QuizApp = () => {
 
       setScores(prevScores => ({
         ...prevScores,
-        [currentQuestionIndex]: isCorrect ? 1 : prevScores[currentQuestionIndex] || 0
+        [currentQuestionIndex]: isCorrect ? 1 : 0
       }));
-
   
       if (isCorrect) {
         setFeedback({ text: 'Correct!', isCorrect: true });
@@ -175,7 +174,7 @@ const QuizApp = () => {
   
       setScores(prevScores => ({
         ...prevScores,
-        [currentQuestionIndex]: isCorrect ? 1 : prevScores[currentQuestionIndex] || 0
+        [currentQuestionIndex]: isCorrect ? 1 : 0
       }));
 
       if (isCorrect) {
@@ -235,11 +234,11 @@ const QuizApp = () => {
     setIsTimerRunning(false);
     const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const endTime = Date.now();
-    const timeTaken = 3600 - timeRemaining;  // Calculate time taken in seconds
+    const timeTaken = Math.floor((endTime - startTime) / 1000);  // Calculate time taken in seconds
 
     const uf = {
       quizID: quizID,
-      userID: `${userInfo.email}, ${userInfo.firstName}, ${userInfo.phone}`,
+      userID: `${userInfo.email || ' '}, ${userInfo.firstName || ' '}, ${userInfo.phone || ' '}`,
       score: totalScore,
       duration: timeTaken
     };
