@@ -38,6 +38,8 @@ const QuizApp = () => {
 
   const [isMobile, setIsMobile] = useState(false);
 
+  const [startTime, setStartTime] = useState(null);
+
   useEffect(() => {
     if ( user) {
       setUserInfo({
@@ -52,6 +54,7 @@ const QuizApp = () => {
     if (quizID) {
       setIsTimerRunning(true);
       setCanSubmit(true);
+      // setStartTime(Date.now());
     }
   }, [quizID]);
 
@@ -164,17 +167,14 @@ const QuizApp = () => {
       const expectedOutput = quizData.questions[currentQuestionIndex].expected_output;
       const isCorrect = compareResults(userAnswer, expectedOutput);
   
+      setScores(prevScores => ({
+        ...prevScores,
+        [currentQuestionIndex]: isCorrect ? 1 : prevScores[currentQuestionIndex] || 0
+      }));
+
       if (isCorrect) {
         setFeedback({ text: 'Correct!', isCorrect: true, userAnswer: userAnswer });
-        setScores(prevScores => ({
-          ...prevScores,
-          [currentQuestionIndex]: 1
-        }));
       } else {
-        setScores(prevScores => ({
-          ...prevScores,
-          [currentQuestionIndex]: 0
-        }));
         setFeedback({
           isCorrect: false,
           expected: expectedOutput.map(row => Object.values(row).join(', ')).join(' | '),
@@ -228,21 +228,22 @@ const QuizApp = () => {
 
     setIsTimerRunning(false);
     const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
-    const timeTaken = 3600 - timeRemaining; // in seconds
+    const endTime = Date.now();
+    const timeTaken = Math.floor((endTime - startTime) / 1000); // Calculate time taken in seconds
 
     const uf = {
       quizID: quizID,
       userID: `${userInfo.email}, ${userInfo.firstName}, ${userInfo.phone}`,
       score: totalScore,
       duration: timeTaken
-  };
+    };
 
-  const quizCompletionStatus = localStorage.getItem(`quizCompleted_${quizID}`);
-          if (quizCompletionStatus) {
-              alert('You already attempted this quiz');
-              window.location.href = '/live-events';
-              return;
-          }else{
+    const quizCompletionStatus = localStorage.getItem(`quizCompleted_${quizID}`);
+    if (quizCompletionStatus) {
+        alert('You already attempted this quiz');
+        window.location.href = '/live-events';
+        return;
+    }
 
     try {
       const response = await fetch('https://server.datasenseai.com/quizadmin/update-scores-coding-sql', {
@@ -251,24 +252,19 @@ const QuizApp = () => {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(uf),
-    });
+      });
 
-    if (response.ok) {
-      console.log('Score updated successfully!');
-  } else {
-      console.error('Failed to update score:', response.statusText);
-  }
-     
-     
+      if (response.ok) {
+        console.log('Score updated successfully!');
+      } else {
+        console.error('Failed to update score:', response.statusText);
+      }
     } catch (error) {
       console.error('Error submitting quiz:', error);
       alert('Failed to submit quiz. Please try again.');
     }
-  }
 
-        // Save quiz completion status for this quizID
-        localStorage.setItem(`quizCompleted_${quizID}`, true);
-
+    localStorage.setItem(`quizCompleted_${quizID}`, true);
     window.location.href = `/live-events`;
   };
 
