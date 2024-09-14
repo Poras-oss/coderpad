@@ -137,6 +137,12 @@ const QuizApp = () => {
   
       const expectedOutput = quizData.questions[currentQuestionIndex].expected_output;
       const isCorrect = compareResults(userAnswer, expectedOutput);
+
+      setScores(prevScores => ({
+        ...prevScores,
+        [currentQuestionIndex]: isCorrect ? 1 : prevScores[currentQuestionIndex] || 0
+      }));
+
   
       if (isCorrect) {
         setFeedback({ text: 'Correct!', isCorrect: true });
@@ -229,7 +235,7 @@ const QuizApp = () => {
     setIsTimerRunning(false);
     const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const endTime = Date.now();
-    const timeTaken = Math.floor((endTime - startTime) / 1000); // Calculate time taken in seconds
+    const timeTaken = 3600 - timeRemaining;  // Calculate time taken in seconds
 
     const uf = {
       quizID: quizID,
