@@ -52,9 +52,14 @@ const Leaderboard = ({ quizId }) => {
   };
 
   const getUserName = (userId) => {
+    if (!userId) return 'Unknown';
     const parts = userId.split(',');
-    return parts.length > 1 ? parts[1].trim() : userId;
-  };
+    const email = parts[0].trim(); // Email is the first part
+    const name = parts[1]?.trim(); // Name is the second part
+  
+    // Return name if it's available and not "N/A", otherwise return email
+    return name && name !== "N/A" ? name : email;
+  }
 
 
 
