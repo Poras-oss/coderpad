@@ -48,10 +48,10 @@ const DataSkillsDashboard = () => {
   };
   
   const handleStartQuiz = (quizID, userID, quizName) => {
-    if (!isSignedIn) {
+   /* if (!isSignedIn) {
       alert('You need to log in to start the quiz.');
       return;
-    }
+    } */
   
     const lowerCaseQuizName = quizName.toLowerCase();
   
@@ -99,12 +99,7 @@ const DataSkillsDashboard = () => {
     } else if (now >= startDate && now <= endDate) {
       return 'Start';
     } else {
-      if(lowerCaseQuizName.includes('mcq:')){
-        return 'Results';
-      }else{
-        return 'Ended'
-      }
-     
+       return 'Results';
     }
   };
 
@@ -134,11 +129,7 @@ const DataSkillsDashboard = () => {
     } else if (now >= startDate && now <= endDate) {
       return 'bg-cyan-600 hover:bg-gray-800';
     } else {
-      if(lowerCaseQuizName.includes('mcq:')){
-        return 'bg-green-600 hover:bg-green-700';
-      }else{
-        return 'bg-gray-600 hover:bg-gray-700';
-      }
+       return 'bg-green-600 hover:bg-green-700';
     }
   };
 
