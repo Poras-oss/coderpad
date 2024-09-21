@@ -263,12 +263,7 @@ const QuizApp = () => {
       duration: timeTaken
     };
 
-    const quizCompletionStatus = localStorage.getItem(`quizCompleted_${quizID}`);
-    if (quizCompletionStatus) {
-        alert('You already attempted this quiz');
-        window.location.href = '/live-events';
-        return;
-    }
+ 
 
     console.log(JSON.stringify(uf));
 
