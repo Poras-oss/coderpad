@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import MonacoEditor from './ResizableMonacoEditor' // Assuming you have a Monaco Editor wrapper component
+import MonacoEditor from './ResizableMonacoEditor' 
 import queryString from 'query-string';
 import {useAuth0} from '@auth0/auth0-react'
 import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
@@ -88,6 +88,12 @@ const QuizApp = () => {
 
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  if (quizCompletionStatus) {
+    alert('You already attempted this quiz');
+    window.location.href = '/live-events';
+    return;
+}
 
   const openVideoPopup = () => {
     const currentQuestion = quizData.questions[currentQuestionIndex];

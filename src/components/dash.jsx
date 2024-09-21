@@ -48,22 +48,34 @@ const DataSkillsDashboard = () => {
   };
   
   const handleStartQuiz = (quizID, userID, quizName) => {
-   /* if (!isSignedIn) {
+    if (!isSignedIn) {
       alert('You need to log in to start the quiz.');
       return;
-    } */
-  
-    const lowerCaseQuizName = quizName.toLowerCase();
-  
-    if (lowerCaseQuizName.includes('sql:')) {
-      navigateTo(`/quiz?quizID=${quizID}&userID=${userID}`);
-    } else if (lowerCaseQuizName.includes('python:')) {
-      navigateTo(`/pyQuiz?quizID=${quizID}&userID=${userID}`);
-    } else if (lowerCaseQuizName.includes('mcq:')) {
-      navigateTo(`/mcqQuiz?quizID=${quizID}&userID=${userID}`);
-    } else {
-      alert('Unknown quiz type.');
     }
+  
+    const confirmStart = () => {
+      const lowerCaseQuizName = quizName.toLowerCase();
+  
+      if (lowerCaseQuizName.includes('sql:')) {
+        navigateTo(`/quiz?quizID=${quizID}&userID=${userID}`);
+      } else if (lowerCaseQuizName.includes('python:')) {
+        navigateTo(`/pyQuiz?quizID=${quizID}&userID=${userID}`);
+      } else if (lowerCaseQuizName.includes('mcq:')) {
+        navigateTo(`/mcqQuiz?quizID=${quizID}&userID=${userID}`);
+      } else {
+        alert('Unknown quiz type.');
+      }
+    };
+  
+    const showConfirmationPopup = () => {
+      if (confirm("Important: You can only open this quiz once. Are you sure you want to start?")) {
+        confirmStart();
+      } else {
+        // User clicked Cancel, do nothing or handle as needed
+      }
+    };
+  
+    showConfirmationPopup();
   };
 
   const handleRegisterQuiz = async (quizID, userID) => {
