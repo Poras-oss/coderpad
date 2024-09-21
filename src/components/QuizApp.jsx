@@ -89,6 +89,7 @@ const QuizApp = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  const quizCompletionStatus = localStorage.getItem(`quizCompleted_${quizID}`);
   if (quizCompletionStatus) {
     alert('You already attempted this quiz');
     window.location.href = '/live-events';
