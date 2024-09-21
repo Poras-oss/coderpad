@@ -286,7 +286,7 @@ const QuizApp = () => {
       alert('Failed to submit quiz. Please try again.');
     }
 
-    localStorage.setItem(`quizCompleted_${quizID}`, true);
+    
     window.location.href = `/live-events`;
   };
 

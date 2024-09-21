@@ -267,8 +267,7 @@ const PythonQuizApp = () => {
     }
   
 
-        // Save quiz completion status for this quizID
-        localStorage.setItem(`quizCompleted_${quizID}`, true);
+        
 
     window.location.href = `/live-events`;
   };
