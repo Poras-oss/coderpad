@@ -57,13 +57,10 @@ const DataSkillsDashboard = () => {
       const lowerCaseQuizName = quizName.toLowerCase();
   
       if (lowerCaseQuizName.includes('sql:')) {
-        localStorage.setItem(`quizCompleted_${quizID}`, true);
         navigateTo(`/quiz?quizID=${quizID}&userID=${userID}`);
       } else if (lowerCaseQuizName.includes('python:')) {
-        localStorage.setItem(`quizCompleted_${quizID}`, true);
         navigateTo(`/pyQuiz?quizID=${quizID}&userID=${userID}`);
       } else if (lowerCaseQuizName.includes('mcq:')) {
-        localStorage.setItem(`quizCompleted_${quizID}`, true);
         navigateTo(`/mcqQuiz?quizID=${quizID}&userID=${userID}`);
       } else {
         alert('Unknown quiz type.');
