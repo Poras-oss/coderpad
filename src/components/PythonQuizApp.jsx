@@ -114,7 +114,7 @@ const PythonQuizApp = () => {
         if (quizID) {
           // Fetch quiz data if quizID is present
           response = await axios.get(`https://server.datasenseai.com/python-quiz/${quizID}/${userID}`);
-          localStorage.setItem(`quizCompleted_${quizID}`, true);
+         
         } else if (questionID) {
           // Fetch question data if questionID is present
           response = await axios.get(`https://server.datasenseai.com/test-series-coding/python/${questionID}`);
