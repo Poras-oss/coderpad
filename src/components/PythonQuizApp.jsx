@@ -73,12 +73,12 @@ const PythonQuizApp = () => {
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const quizCompletionStatus = localStorage.getItem(`quizCompleted_${quizID}`);
-  if (quizCompletionStatus) {
-    alert('You already attempted this quiz');
-    window.location.href = '/live-events';
-    return;
-}
+//   const quizCompletionStatus = localStorage.getItem(`quizCompleted_${quizID}`);
+//   if (quizCompletionStatus) {
+//     alert('You already attempted this quiz');
+//     window.location.href = '/live-events';
+//     return;
+// }
 
   useEffect(() => {
     const checkMobile = () => {
