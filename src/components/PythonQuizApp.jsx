@@ -51,11 +51,11 @@ const PythonQuizApp = () => {
   useEffect(() => {
     if (quizID) {
       const quizCompletionStatus = localStorage.getItem(`quizCompleted_${quizID}`);
-      if (quizCompletionStatus) {
-        alert('You have already attempted this quiz. Redirecting to live events.');
-        window.location.href = '/live-events';
-        return;
-      }
+      // if (quizCompletionStatus) {
+      //   alert('You have already attempted this quiz. Redirecting to live events.');
+      //   window.location.href = '/live-events';
+      //   return;
+      // }
 
       // If the quiz hasn't been attempted, set it as completed now
       localStorage.setItem(`quizCompleted_${quizID}`, 'true');
