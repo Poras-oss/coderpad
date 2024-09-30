@@ -116,7 +116,7 @@ const ScenarioTestSeries = () => {
         <div className="w-full h-screen flex flex-col items-center justify-center bg-gray-100">
             <div className="bg-white p-8 rounded-lg shadow-md text-center">
                 <h2 className="text-2xl font-bold mb-4">Login Required</h2>
-                <p className="mb-6">Please sign in to access the Test Series.</p>
+                <h4 className="mb-6">Please sign in to access the Test Series.</h4>
                 <SignInButton mode="modal" redirectUrl={window.location.href}>
                     <button className="bg-oxford-blue text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300">
                         Sign In
