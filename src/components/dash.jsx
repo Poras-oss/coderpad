@@ -47,11 +47,11 @@ const DataSkillsDashboard = () => {
     }
   };
   
-  // const handleStartQuiz = (quizID, userID, quizName) => {
-  //   if (!isSignedIn) {
-  //     alert('You need to log in to start the quiz.');
-  //     return;
-  //   }
+  const handleStartQuiz = (quizID, userID, quizName) => {
+    // if (!isSignedIn) {
+    //   alert('You need to log in to start the quiz.');
+    //   return;
+    // }
   
     const confirmStart = () => {
       const lowerCaseQuizName = quizName.toLowerCase();
