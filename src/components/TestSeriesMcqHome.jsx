@@ -194,10 +194,10 @@ const TestSeriesMcqHome = () => {
 
 
   const handleStartQuiz = (quizID, quizType, difficulty) => {
-    if (!isSignedIn) {
-      alert('You need to log in to start the quiz.');
-      return;
-    }
+    // if (!isSignedIn) {
+    //   alert('You need to log in to start the quiz.');
+    //   return;
+    // }
     //updateUserProgress(difficulty);
     
   

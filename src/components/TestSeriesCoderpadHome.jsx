@@ -174,10 +174,10 @@ const TestSeriesCoderpadHome = () => {
   };
 
   const handleStartQuiz = (quizID, userID, quizName) => {
-    if (!isSignedIn) {
-      alert('You need to log in to start the quiz.');
-      return;
-    }
+    // if (!isSignedIn) {
+    //   alert('You need to log in to start the quiz.');
+    //   return;
+    // }
     
     let route = '/quiz';
     if (subject.toLowerCase() === 'python') {
