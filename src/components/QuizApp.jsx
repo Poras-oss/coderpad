@@ -8,7 +8,7 @@ import Split from 'react-split';
 import { Loader2, Video, X } from 'lucide-react';
 import ReactPlayer from 'react-player';
 
-const QuizApp = () => {
+export default function QuizApp() {
   const { user, isLoaded } = useUser();
 
   const [quizData, setQuizData] = useState(null);
@@ -40,39 +40,32 @@ const QuizApp = () => {
 
   const [startTime, setStartTime] = useState(null);
 
+  const [activeTab, setActiveTab] = useState('questions');
+  const [discussionText, setDiscussionText] = useState('');
+
   useEffect(() => {
-    if ( user) {
+    if (user) {
       setUserInfo({
         email: user.primaryEmailAddress?.emailAddress || 'N/A',
         firstName: user.firstName || 'N/A',
         phone: user.phoneNumbers?.[0]?.phoneNumber || 'N/A'
       });
     }
-  }, [ user]);
+  }, [user]);
 
-  
   useEffect(() => {
     if (quizID) {
       const quizCompletionStatus = localStorage.getItem(`quizCompleted_${quizID}`);
-      // if (quizCompletionStatus) {
-      //   alert('You have already attempted this quiz. Redirecting to live events.');
-      //   window.location.href = '/live-events';
-      //   return;
-      // }
-
-      // If the quiz hasn't been attempted, set it as completed now
       localStorage.setItem(`quizCompleted_${quizID}`, 'true');
       setIsTimerRunning(true);
       setCanSubmit(true);
     }
   }, [quizID]);
 
-
   useEffect(() => {
     if (quizID) {
       setIsTimerRunning(true);
       setCanSubmit(true);
-      // setStartTime(Date.now());
     }
   }, [quizID]);
 
@@ -95,7 +88,6 @@ const QuizApp = () => {
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -106,8 +98,6 @@ const QuizApp = () => {
 
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-
 
   const openVideoPopup = () => {
     const currentQuestion = quizData.questions[currentQuestionIndex];
@@ -130,11 +120,8 @@ const QuizApp = () => {
         let response;
         
         if (quizID) {
-          // Fetch quiz data if quizID is present
           response = await axios.get(`https://server.datasenseai.com/sql-quiz/${quizID}/${userID}`);
-          
         } else if (questionID) {
-          // Fetch question data if questionID is present
           response = await axios.get(`https://server.datasenseai.com/test-series-coding/mysql/${questionID}`);
         }
 
@@ -237,15 +224,6 @@ const QuizApp = () => {
     setShowFeedback(false);
   };
 
-  if (!quizData) return (
-    <div className="w-full h-screen flex flex-col items-center justify-center">
-      <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
-      <h5 className="mt-4 text-2xl font-thin text-gray-700">Loading...</h5>
-    </div>
-  );
-
-  const currentQuestion = quizData.questions[currentQuestionIndex];
-
   const handleSubmitQuiz = async () => {
     if (!canSubmit || timeRemaining === 0) {
       alert("You can't submit the quiz at this time.");
@@ -262,8 +240,6 @@ const QuizApp = () => {
       score: totalScore,
       duration: timeTaken
     };
-
- 
 
     console.log(JSON.stringify(uf));
 
@@ -285,10 +261,23 @@ const QuizApp = () => {
       console.error('Error submitting quiz:', error);
       alert('Failed to submit quiz. Please try again.');
     }
-
     
     window.location.href = `/live-events`;
   };
+
+  const handleDiscussionSubmit = () => {
+    console.log('Submitted discussion:', discussionText);
+    setDiscussionText('');
+  };
+
+  if (!quizData) return (
+    <div className="w-full h-screen flex flex-col items-center justify-center">
+      <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
+      <h5 className="mt-4 text-2xl font-thin text-gray-700">Loading...</h5>
+    </div>
+  );
+
+  const currentQuestion = quizData.questions[currentQuestionIndex];
 
   if (isMobile) {
     return (
@@ -307,13 +296,12 @@ const QuizApp = () => {
     );
   }
 
-
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-black'}`}>
       <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center`}>
         <h1 className="mb-4 text-xl font-bold">SQL Coderpad</h1>
         <div className="flex items-center space-x-4">
-        {isTimerRunning && (
+          {isTimerRunning && (
             <div className="text-lg font-semibold">
               Time remaining: {formatTime(timeRemaining)}
             </div>
@@ -337,7 +325,7 @@ const QuizApp = () => {
         sizes={[50, 50]}
         minSize={300}
         expandToMin={false}
-        gutterSize={15}
+        gutterSize={10}
         gutterAlign="center"
         snapOffset={30}
         dragInterval={1}
@@ -368,57 +356,142 @@ const QuizApp = () => {
               </ul>
             </div>
           </div>
+
+          {/* Tabs */}
+          <div className={`flex ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4`}>
+            {['Question', 'Tables' ,'Discussion', 'Solution', 'Submission', 'AI Help'].map((tab) => <button
+                key={tab}
+                className={`py-2 px-4 ${activeTab === tab.toLowerCase() ? 'border-b-2 border-teal-500' : ''}`}
+                onClick={() => setActiveTab(tab.toLowerCase())}
+              >
+                {tab}
+              </button>
+            )}
+          </div>
   
           {/* Question Details */}
           <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-100'} p-4 flex-grow overflow-y-auto`}>
-            <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-              <div 
-                className="question-text"
-                dangerouslySetInnerHTML={{ __html: currentQuestion.question_text.replace(/\n/g, '<br>') }}
-              />
-              <div className="border-t border-gray-300 my-4 w-full"></div>
-              <h4 className='text-xl font-bold mb-2'>Table Names: {currentQuestion.table_names.join(', ')}</h4>
-              <h4 className='text-xl font-bold mb-2'>Table Data:</h4>
-              {currentQuestion.table_data.map((table, tableIndex) => (
-                <div key={tableIndex} className="table-container mb-4">
-                  <h5 className='text-lg font-bold mb-2'>Table Name: {table.table_name}</h5>
+            {activeTab === 'question' && (
+              <>
+                <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                  <div 
+                    className="question-text"
+                    dangerouslySetInnerHTML={{ __html: currentQuestion.question_text.replace(/\n/g, '<br>') }}
+                  />
+                  </div>
+              </>
+            )}
+
+{activeTab === 'tables' && (
+              <>
+                <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                
+                  <h4 className='text-xl font-bold mb-2'>Table Names: {currentQuestion.table_names.join(', ')}</h4>
+                  <h4 className='text-xl font-bold mb-2'>Table Data:</h4>
+                  {currentQuestion.table_data.map((table, tableIndex) => (
+                    <div key={tableIndex} className="table-container mb-4">
+                      <h5 className='text-lg font-bold mb-2'>Table Name: {table.table_name}</h5>
+                      <table className="w-full mb-2">
+                        <thead>
+                          <tr className={isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}>
+                            {table.columns.map((column, columnIndex) => (
+                              <th key={columnIndex} className="border px-4 py-2">{column}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {table.rows.map((row, rowIndex) => (
+                            <tr key={rowIndex} className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
+                              {row.map((cell, cellIndex) => (
+                                <td key={cellIndex} className="border px-4 py-2">
+                                  {typeof cell === 'object' ? JSON.stringify(cell) : cell}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ))}
+                </div>
+                <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                  <h3 className="text-lg font-bold mb-2">Expected Answer</h3>
                   <table className="w-full mb-2">
-                    <thead>
-                      <tr className={isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}>
-                        {table.columns.map((column, columnIndex) => (
-                          <th key={columnIndex} className="border px-4 py-2">{column}</th>
-                        ))}
-                      </tr>
-                    </thead>
                     <tbody>
-                      {table.rows.map((row, rowIndex) => (
+                      {currentQuestion.expected_output.map((row, rowIndex) => (
                         <tr key={rowIndex} className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
-                          {row.map((cell, cellIndex) => (
-                            <td key={cellIndex} className="border px-4 py-2">
-                              {typeof cell === 'object' ? JSON.stringify(cell) : cell}
-                            </td>
+                          {row.map((value, cellIndex) => (
+                            <td key={cellIndex} className="border px-4 py-2">{value}</td>
                           ))}
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-              ))}
-            </div>
-            <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-              <h3 className="text-lg font-bold mb-2">Expected Answer</h3>
-              <table className="w-full mb-2">
-                <tbody>
-                  {currentQuestion.expected_output.map((row, rowIndex) => (
-                    <tr key={rowIndex} className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
-                      {row.map((value, cellIndex) => (
-                        <td key={cellIndex} className="border px-4 py-2">{value}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+              </>
+            )}
+           
+            {activeTab === 'discussion' && (
+              <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                <h3 className="text-lg font-bold mb-4">Discussion</h3>
+                <div className="mb-4 max-h-60 overflow-y-auto">
+                  <p>User1: This SQL question is quite challenging!</p>
+                  <p>User2: I agree, especially the part about joining multiple tables.</p>
+                  <p>User3: Has anyone figured out how to optimize the query for large datasets?</p>
+                </div>
+                <textarea
+                  className={`w-full p-2 rounded ${isDarkMode ? 'bg-[#403f3f] text-white' : 'bg-gray-100 text-black'}`}
+                  rows="3"
+                  placeholder="Add to the discussion..."
+                  value={discussionText}
+                  onChange={(e) => setDiscussionText(e.target.value)}
+                ></textarea>
+                <button
+                  className="mt-2 bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600"
+                  onClick={handleDiscussionSubmit}
+                >
+                  Send
+                </button>
+              </div>
+            )}
+            {activeTab === 'solution' && (
+              <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                <h3 className="text-lg font-bold mb-2">Solution</h3>
+                <pre className={`p-2 rounded ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}`}>
+                  <code>{currentQuestion.solution || 'Solution not available for this question.'}</code>
+                </pre>
+              </div>
+            )}
+            {activeTab === 'submission' && (
+              <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                <h3 className="text-lg font-bold mb-4">Submission</h3>
+                <pre className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-100'} p-4 rounded overflow-x-auto`}>
+                  {`SELECT column1, column2
+FROM table1
+JOIN table2 ON table1.id = table2.id
+WHERE condition = 'value'
+GROUP BY column1
+HAVING COUNT(*) > 1
+ORDER BY column2 DESC
+LIMIT 10;`}
+                </pre>
+              </div>
+            )}
+            {activeTab === 'ai help' && (
+              <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                <h3 className="text-lg font-bold mb-4">AI Help</h3>
+                <p>AI: To solve this SQL problem, consider the following steps:</p>
+                <ol className="list-decimal list-inside space-y-2">
+                  <li>Identify the tables you need to query from.</li>
+                  <li>Determine which columns you need to select.</li>
+                  <li>If you need data from multiple tables, use appropriate JOINs.</li>
+                  <li>Apply filtering conditions using the WHERE clause.</li>
+                  <li>If you need to group data, use GROUP BY and potentially HAVING for group-level filtering.</li>
+                  <li>Order your results using ORDER BY if necessary.</li>
+                  <li>Use LIMIT if you need to restrict the number of rows returned.</li>
+                </ol>
+              </div>
+            )}
           </div>
         </div>
         {/* Right side: Code Editor and Results */}
@@ -431,7 +504,7 @@ const QuizApp = () => {
             direction="vertical"
             sizes={[70, 30]}
             minSize={100}
-            gutterSize={15}
+            gutterSize={10}
             gutterAlign="center">
   
             <MonacoEditor
@@ -443,86 +516,84 @@ const QuizApp = () => {
               onChange={setUserQuery}
             />
             <div className="flex flex-col">
-            <div className="flex mt-2 space-x-2">
-        <button
-          className={`flex-1 ${isRunning ? 'bg-teal-500' : 'bg-teal-600'} text-white px-4 py-2 rounded hover:bg-teal-700 focus:outline-none flex items-center justify-center`}
-          onClick={handleRunCode}
-          disabled={isRunning || isTesting}
-        >
-          {isRunning ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Running...
-            </>
-          ) : 'Run Code'}
-        </button>
-        {quizID && timeRemaining > 0 && (
-            <button 
-              onClick={handleSubmitQuiz}
-              className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
-            >
-              Submit Quiz
-            </button>
-          )}
-        <button
-          className={`flex-1 ${isTesting ? 'bg-blue-500' : 'bg-blue-600'} text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none flex items-center justify-center`}
-          onClick={handleTestCode}
-          disabled={isRunning || isTesting}
-        >
-          {isTesting ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Testing...
-            </>
-          ) : 'Test Code'}
-        </button>
-      </div>
-      <div className={`mt-4 ${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded p-4 flex-grow overflow-y-auto`}>
-        {feedback && (
-          <div className={`mb-4 p-2 rounded ${feedback.isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-            {feedback.text}
-          </div>
-        )}
-        {output !== null && (
-          <div className="mt-2 flex flex-col space-y-4">
-            <div className='font-semibold'>OUTPUT</div>
-            <div className="overflow-x-auto">
-              {Array.isArray(output) && output.length > 0 ? (
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className={isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}>
-                      {Object.keys(output[0]).map((header, index) => (
-                        <th key={index} className="border px-4 py-2">{header}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {output.map((row, rowIndex) => (
-                      <tr key={rowIndex} className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
-                        {Object.values(row).map((cell, cellIndex) => (
-                          <td key={cellIndex} className="border px-4 py-2 whitespace-nowrap">
-                            {typeof cell === 'object' ? JSON.stringify(cell) : cell}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p>{output}</p>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      
+              <div className="flex mt-2 space-x-2">
+                <button
+                  className={`flex-1 ${isRunning ? 'bg-teal-500' : 'bg-teal-600'} text-white px-4 py-2 rounded hover:bg-teal-700 focus:outline-none flex items-center justify-center`}
+                  onClick={handleRunCode}
+                  disabled={isRunning || isTesting}
+                >
+                  {isRunning ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Running...
+                    </>
+                  ) : 'Run Code'}
+                </button>
+                {quizID && timeRemaining > 0 && (
+                  <button 
+                    onClick={handleSubmitQuiz}
+                    className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
+                  >
+                    Submit Quiz
+                  </button>
+                )}
+                <button
+                  className={`flex-1 ${isTesting ? 'bg-blue-500' : 'bg-blue-600'} text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none flex items-center justify-center`}
+                  onClick={handleTestCode}
+                  disabled={isRunning || isTesting}
+                >
+                  {isTesting ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Testing...
+                    </>
+                  ) : 'Test Code'}
+                </button>
+              </div>
+              <div className={`mt-4 ${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded p-4 flex-grow overflow-y-auto`}>
+                {feedback && (
+                  <div className={`mb-4 p-2 rounded ${feedback.isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {feedback.text}
+                  </div>
+                )}
+                {output !== null && (
+                  <div className="mt-2 flex flex-col space-y-4">
+                    <div className='font-semibold'>OUTPUT</div>
+                    <div className="overflow-x-auto">
+                      {Array.isArray(output) && output.length > 0 ? (
+                        <table className="w-full border-collapse">
+                          <thead>
+                            <tr className={isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}>
+                              {Object.keys(output[0]).map((header, index) => (
+                                <th key={index} className="border px-4 py-2">{header}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {output.map((row, rowIndex) => (
+                              <tr key={rowIndex} className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
+                                {Object.values(row).map((cell, cellIndex) => (
+                                  <td key={cellIndex} className="border px-4 py-2 whitespace-nowrap">
+                                    {typeof cell === 'object' ? JSON.stringify(cell) : cell}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <p>{output}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </Split>
         </div>
@@ -539,20 +610,17 @@ const QuizApp = () => {
               <X size={24} />
             </button>
             <div className="aspect-w-16 aspect-h-9">
-                      <ReactPlayer
-            url={currentVideoUrl}
-            width="100%"
-            height="100%"
-            controls
-            playing
-          />
+              <ReactPlayer
+                url={currentVideoUrl}
+                width="100%"
+                height="100%"
+                controls
+                playing
+              />
             </div>
           </div>
         </div>
       )}
     </div>
-
-    
   );
-};
-export default QuizApp;
+}
