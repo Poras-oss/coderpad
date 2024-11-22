@@ -576,7 +576,7 @@ export default function Component() {
                         <div className="flex justify-between items-start">
                           <CardTitle 
                             className="text-lg"
-                            dangerouslySetInnerHTML={{ __html: `${(paginationInfo.currentPage - 1) * itemsPerPage + index + 1}. ${quiz.question_text}` }}
+                            dangerouslySetInnerHTML={{ __html: `${(paginationInfo.currentPage - 1) * itemsPerPage + index + 1}. ${shortenQuestion(quiz.question_text)}` }}
                           />
                           <div className="flex items-center space-x-2">
                             <Button
@@ -604,7 +604,7 @@ export default function Component() {
                       </div>
                       <Button
                         onClick={() => handleStartQuiz(quiz._id, user?.id, quiz.question_text)}
-                        className="ml-4"
+                        className="bg-blue-500 hover:bg-blue-600 text-white"
                       >
                         Start Quiz
                       </Button>
