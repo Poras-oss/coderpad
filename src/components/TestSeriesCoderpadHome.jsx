@@ -25,6 +25,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "./ui/sheet"
 
 export default function Component() {
   const { isLoaded, isSignedIn, user } = useUser()
@@ -406,309 +414,334 @@ export default function Component() {
 
 
 
+  const FilterContent = () => (
+    <>
+    <Card className="mb-4">
+    <CardHeader className="bg-primary/10 rounded-t-lg">
+      <CardTitle className="text-primary">Search</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <Input
+        type="text"
+        placeholder="Search questions..."
+        value={filters.search}
+        onChange={(e) => updateFilters('search', e.target.value)}
+        className="mb-4"
+      />
+      <div className="flex items-center space-x-2 mb-4">
+        <Checkbox
+          id="show-bookmarked"
+          checked={filters.bookmarked}
+          onCheckedChange={(checked) => updateFilters('bookmarked', checked)}
+        />
+        <label
+          htmlFor="show-bookmarked"
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
+          Show Bookmarked Only
+        </label>
+      </div>
+    </CardContent>
+  </Card>
 
+  <Card className="mb-4">
+    <CardHeader className="bg-primary/10 rounded-t-lg">
+      <CardTitle className="text-primary">Difficulty</CardTitle>
+    </CardHeader>
+    <CardContent>
+      {['Easy', 'Medium', 'Advance'].map((difficulty) => (
+        <div key={difficulty} className="flex items-center space-x-2 mb-2">
+          <Checkbox
+            id={`difficulty-${difficulty}`}
+            checked={filters.difficulties.includes(difficulty.toLowerCase())}
+            onCheckedChange={(checked) => {
+              updateFilters('difficulties', checked
+                ? [...filters.difficulties, difficulty.toLowerCase()]
+                : filters.difficulties.filter(d => d !== difficulty.toLowerCase())
+              )
+            }}
+          />
+          <label
+            htmlFor={`difficulty-${difficulty}`}
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            {difficulty}
+          </label>
+        </div>
+      ))}
+    </CardContent>
+  </Card>
+
+  <Card className="mb-4">
+    <CardHeader className="bg-primary/10 rounded-t-lg">
+      <CardTitle className="text-primary">Subtopics</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <ScrollArea className="h-[200px]">
+        {availableSubtopics.map((subtopic) => (
+          <div key={subtopic} className="flex items-center space-x-2 mb-2">
+            <Checkbox
+              id={`subtopic-${subtopic}`}
+              checked={filters.subtopics.includes(subtopic)}
+              onCheckedChange={(checked) => {
+                updateFilters('subtopics', checked
+                  ? [...filters.subtopics, subtopic]
+                  : filters.subtopics.filter(s => s !== subtopic)
+                )
+              }}
+            />
+            <label
+              htmlFor={`subtopic-${subtopic}`}
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              {subtopic}
+            </label>
+          </div>
+        ))}
+      </ScrollArea>
+    </CardContent>
+  </Card>
+
+  <Card>
+    <CardHeader className="bg-primary/10 rounded-t-lg">
+      <CardTitle className="text-primary">Companies</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <ScrollArea className="h-[200px]">
+        {availableCompanies.map((company) => (
+          <div key={company} className="flex items-center space-x-2 mb-2">
+            <Checkbox
+              id={`company-${company}`}
+              checked={filters.companies.includes(company)}
+              onCheckedChange={(checked) => {
+                updateFilters('companies', checked
+                  ? [...filters.companies, company]
+                  : filters.companies.filter(c => c !== company)
+                )
+              }}
+            />
+            <label
+              htmlFor={`company-${company}`}
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              {company}
+            </label>
+          </div>
+        ))}
+      </ScrollArea>
+    </CardContent>
+  </Card>
+</>
+  )
 
 
   return (
-    <div className={`flex flex-col h-screen ${isDarkMode ? 'dark' : ''}`}>
-      <header className="bg-white dark:bg-gray-800 shadow-md">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Button variant="ghost" onClick={() => window.top.location.href = 'https://practice.datasenseai.com'}>
-            <ArrowLeft className="mr-2" size={16} />
-            Back to Home
+    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark' : 'light'}`}>
+    <header className="bg-white dark:bg-gray-800 shadow-md">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <Button variant="ghost" onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} className="md:hidden">
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <Button variant="ghost" onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} className="hidden md:flex">
+          <ArrowLeft className="mr-2" size={16} />
+          Back to Home
+        </Button>
+        {/* <h1 className="text-xl md:text-2xl font-bold text-center flex-1">{subject.toUpperCase()} Coding Platform</h1> */}
+        <img src="../assets/" alt="Quiz App Logo" className="h-8" />
+        <div className="flex items-center space-x-2 md:space-x-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
-          <h1 className="text-2xl font-bold text-center flex-1">{subject.toUpperCase()} Coding Platform</h1>
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-            >
-              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </Button>
-            {isLoaded && isSignedIn ? (
-              <div className="flex items-center space-x-2">
-                <span className="text-sm">Welcome, {user?.firstName}</span>
-                <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
-              </div>
-            ) : (
-              <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`} signUpForceRedirectUrl={`/practice-area?subject=${subject}`}>
-                <Button>Log In</Button>
-              </SignInButton>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <main className="flex-1 flex overflow-hidden">
-        <ScrollArea className="w-1/4 p-4">
-          <Card className="mb-4">
-            <CardHeader>
-              <CardTitle>Search and Filters</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Input
-                type="text"
-                placeholder="Search questions..."
-                value={filters.search}
-                onChange={(e) => updateFilters('search', e.target.value)}
-                className="mb-4"
-              />
-              <div className="flex items-center space-x-2 mb-4">
-                <Checkbox
-                  id="show-bookmarked"
-                  checked={filters.bookmarked}
-                  onCheckedChange={(checked) => updateFilters('bookmarked', checked)}
-                />
-                <label
-                  htmlFor="show-bookmarked"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Show Bookmarked Only
-                </label>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="mb-4">
-            <CardHeader>
-              <CardTitle>Difficulty</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {['Easy', 'Medium', 'Advance'].map((difficulty) => (
-                <div key={difficulty} className="flex items-center space-x-2 mb-2">
-                  <Checkbox
-                    id={`difficulty-${difficulty}`}
-                    checked={filters.difficulties.includes(difficulty.toLowerCase())}
-                    onCheckedChange={(checked) => {
-                      updateFilters('difficulties', checked
-                        ? [...filters.difficulties, difficulty.toLowerCase()]
-                        : filters.difficulties.filter(d => d !== difficulty.toLowerCase())
-                      )
-                    }}
-                  />
-                  <label
-                    htmlFor={`difficulty-${difficulty}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {difficulty}
-                  </label>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="mb-4">
-            <CardHeader>
-              <CardTitle>Subtopics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[200px]">
-                {availableSubtopics.map((subtopic) => (
-                  <div key={subtopic} className="flex items-center space-x-2 mb-2">
-                    <Checkbox
-                      id={`subtopic-${subtopic}`}
-                      checked={filters.subtopics.includes(subtopic)}
-                      onCheckedChange={(checked) => {
-                        updateFilters('subtopics', checked
-                          ? [...filters.subtopics, subtopic]
-                          : filters.subtopics.filter(s => s !== subtopic)
-                        )
-                      }}
-                    />
-                    <label
-                      htmlFor={`subtopic-${subtopic}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      {subtopic}
-                    </label>
-                  </div>
-                ))}
-              </ScrollArea>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Companies</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[200px]">
-                {availableCompanies.map((company) => (
-                  <div key={company} className="flex items-center space-x-2 mb-2">
-                    <Checkbox
-                      id={`company-${company}`}
-                      checked={filters.companies.includes(company)}
-                      onCheckedChange={(checked) => {
-                        updateFilters('companies', checked
-                          ? [...filters.companies, company]
-                          : filters.companies.filter(c => c !== company)
-                        )
-                      }}
-                    />
-                    <label
-                      htmlFor={`company-${company}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      {company}
-                    </label>
-                  </div>
-                ))}
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </ScrollArea>
-
-        <ScrollArea className="w-3/4 p-4">
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center h-full">
-              <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-              <p className="text-lg font-medium text-muted-foreground">Loading questions...</p>
-            </div>
+          {isLoaded && isSignedIn ? (
+            <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
           ) : (
-            <>
-              {quizzes.map((quiz, index) => (
-                <Card key={quiz._id} className="mb-4">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div className="flex-grow">
-                        <div className="flex justify-between items-start">
-                          <CardTitle 
-                            className="text-lg"
-                            dangerouslySetInnerHTML={{ __html: `${(paginationInfo.currentPage - 1) * itemsPerPage + index + 1}. ${shortenQuestion(quiz.question_text)}` }}
-                          />
-                          <div className="flex items-center space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => toggleBookmark(quiz._id, e)}
-                              className="hover:bg-transparent p-1 relative"
-                            >
-                              {bookmarkedQuizzes.has(quiz._id) ? (
-                                <BookmarkCheck className="h-5 w-5 text-blue-500" />
-                              ) : (
-                                <Bookmark className="h-5 w-5" />
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          <Badge variant="secondary" className={getDifficultyStyle(quiz.difficulty)}>
-                            {quiz.difficulty}
-                          </Badge>
-                          {quiz.table_names && quiz.table_names.map(table => (
-                            <Badge key={table} variant="outline">{table}</Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() => handleStartQuiz(quiz._id, user?.id, quiz.question_text)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white"
-                      >
-                        Start Quiz
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <Tabs defaultValue="scenario" className="w-full">
-                      <TabsList>
-                        <TabsTrigger value="scenario">Scenario</TabsTrigger>
-                        <TabsTrigger value="solution">Solution</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="scenario">
-                        <div
-                          className={`mt-2 text-sm ${expandedQuestions[quiz._id] ? '' : 'line-clamp-3'}`}
-                          dangerouslySetInnerHTML={{ __html: quiz.scenario }}
+            <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`} signUpForceRedirectUrl={`/practice-area?subject=${subject}`}>
+              <Button>Log In</Button>
+            </SignInButton>
+          )}
+        </div>
+      </div>
+    </header>
+
+    <main className="flex-1 flex flex-col md:flex-row overflow-hidden ">
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="outline" className="md:hidden m-4">
+            <Filter className="mr-2 h-4 w-4" />
+            Filters
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+          <SheetHeader>
+            <SheetTitle>Filters</SheetTitle>
+            <SheetDescription>
+              Apply filters to narrow down the questions.
+            </SheetDescription>
+          </SheetHeader>
+          <ScrollArea className="h-[calc(100vh-120px)] mt-4">
+            <FilterContent />
+          </ScrollArea>
+        </SheetContent>
+      </Sheet>
+
+      <ScrollArea className="hidden md:block w-1/4 p-4">
+        <FilterContent />
+      </ScrollArea>
+
+      <ScrollArea className="flex-1 p-4">
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center h-full">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+            <p className="text-lg font-medium text-muted-foreground">Loading questions...</p>
+          </div>
+        ) : (
+          <>
+            {quizzes.map((quiz, index) => (
+              <Card key={quiz._id} className="mb-4">
+                <CardHeader>
+                  <div className="flex flex-col md:flex-row justify-between items-start">
+                    <div className="flex-grow w-full md:w-auto">
+                      <div className="flex justify-between items-start">
+                        <CardTitle 
+                          className="text-base md:text-lg"
+                          dangerouslySetInnerHTML={{ __html: `${(paginationInfo.currentPage - 1) * itemsPerPage + index + 1}. ${shortenQuestion(quiz.question_text)}` }}
                         />
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleQuestionExpansion(quiz._id)}
-                          className="mt-2"
-                        >
-                          {expandedQuestions[quiz._id] ? 'Show Less' : 'Show More'}
-                        </Button>
-                      </TabsContent>
-                      <TabsContent value="solution">
-                        <div className="flex space-x-4 mt-2">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm">
-                                <FileText size={16} className="mr-2" />
-                                Text Solution
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Text Solution</DialogTitle>
-                                <DialogDescription>
-                                  {quiz.query}
-                                </DialogDescription>
-                              </DialogHeader>
-                            </DialogContent>
-                          </Dialog>
-                          <Button variant="outline" size="sm" onClick={() => openVideoPopup(quiz)}>
-                            <Video size={16} className="mr-2" />
-                            Video Solution
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => toggleBookmark(quiz._id, e)}
+                            className="hover:bg-transparent p-1 relative"
+                          >
+                            {bookmarkedQuizzes.has(quiz._id) ? (
+                              <BookmarkCheck className="h-5 w-5 text-blue-500" />
+                            ) : (
+                              <Bookmark className="h-5 w-5" />
+                            )}
                           </Button>
                         </div>
-                      </TabsContent>
-                    </Tabs>
-                  </CardContent>
-                </Card>
-              ))}
-              <div className="flex justify-center items-center mt-4 space-x-2">
-                <Button
-                  onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.max(prev.currentPage - 1, 1) }))}
-                  disabled={paginationInfo.currentPage === 1}
-                  variant="outline"
-                  size="sm"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Previous
-                </Button>
-                <span className="text-sm font-medium">
-                  Page {paginationInfo.currentPage} of {paginationInfo.totalPages}
-                </span>
-                <Button
-                  onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.min(prev.currentPage + 1, prev.totalPages) }))}
-                  disabled={paginationInfo.currentPage === paginationInfo.totalPages}
-                  variant="outline"
-                  size="sm"
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </>
-          )}
-        </ScrollArea>
-      </main>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <Badge variant="secondary" className={getDifficultyStyle(quiz.difficulty)}>
+                          {quiz.difficulty}
+                        </Badge>
+                        {quiz.table_names && quiz.table_names.map(table => (
+                          <Badge key={table} variant="outline">{table}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => handleStartQuiz(quiz._id, user?.id, quiz.question_text)}
+                      className="bg-blue-500 hover:bg-blue-600 text-white mt-2 md:mt-0"
+                    >
+                      Start Quiz
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Tabs defaultValue="scenario" className="w-full">
+                    <TabsList className="w-full">
+                      <TabsTrigger value="scenario" className="flex-1">Scenario</TabsTrigger>
+                      <TabsTrigger value="solution" className="flex-1">Solution</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="scenario">
+                      <div
+                        className={`mt-2 text-sm ${expandedQuestions[quiz._id] ? '' : 'line-clamp-3'}`}
+                        dangerouslySetInnerHTML={{ __html: quiz.scenario }}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleQuestionExpansion(quiz._id)}
+                        className="mt-2"
+                      >
+                        {expandedQuestions[quiz._id] ? 'Show Less' : 'Show More'}
+                      </Button>
+                    </TabsContent>
+                    <TabsContent value="solution">
+                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mt-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                              <FileText size={16} className="mr-2" />
+                              Text Solution
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                              <DialogTitle>Text Solution</DialogTitle>
+                              <DialogDescription>
+                                {quiz.query}
+                              </DialogDescription>
+                            </DialogHeader>
+                          </DialogContent>
+                        </Dialog>
+                        <Button variant="outline" size="sm" onClick={() => openVideoPopup(quiz)} className="w-full sm:w-auto">
+                          <Video size={16} className="mr-2" />
+                          Video Solution
+                        </Button>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
+            ))}
+            <div className="flex justify-center items-center mt-4 space-x-2">
+              <Button
+                onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.max(prev.currentPage - 1, 1) }))}
+                disabled={paginationInfo.currentPage === 1}
+                variant="outline"
+                size="sm"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span className="hidden sm:inline ml-1">Previous</span>
+              </Button>
+              <span className="text-sm font-medium">
+                Page {paginationInfo.currentPage} of {paginationInfo.totalPages}
+              </span>
+              <Button
+                onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.min(prev.currentPage + 1, prev.totalPages) }))}
+                disabled={paginationInfo.currentPage === paginationInfo.totalPages}
+                variant="outline"
+                size="sm"
+              >
+                <span className="hidden sm:inline mr-1">Next</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </>
+        )}
+      </ScrollArea>
+    </main>
 
-      <Dialog open={isVideoPopupOpen} onOpenChange={setIsVideoPopupOpen}>
-        <DialogContent className="sm:max-w-[800px]">
-          <DialogHeader>
-            <DialogTitle>Solution Video</DialogTitle>
-          </DialogHeader>
-          <div className="relative pt-[56.25%]">
-            {currentVideoId ? (
-              <ReactPlayer
-                url={currentVideoId}
-                width="100%"
-                height="100%"
-                controls
-                playing
-                className="absolute top-0 left-0"
-                onError={(e) => console.error('ReactPlayer error:', e)}
-              />
-            ) : (
-              <p>No video URL available</p>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+    <Dialog open={isVideoPopupOpen} onOpenChange={setIsVideoPopupOpen}>
+      <DialogContent className="sm:max-w-[800px]">
+        <DialogHeader>
+          <DialogTitle>Solution Video</DialogTitle>
+        </DialogHeader>
+        <div className="relative pt-[56.25%]">
+          {currentVideoId ? (
+            <ReactPlayer
+              url={currentVideoId}
+              width="100%"
+              height="100%"
+              controls
+              playing
+              className="absolute top-0 left-0"
+              onError={(e) => console.error('ReactPlayer error:', e)}
+            />
+          ) : (
+            <p>No video URL available</p>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  </div>
   )
 }
 
