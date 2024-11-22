@@ -12,7 +12,15 @@
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",
     "@clerk/clerk-react": "^5.4.5",
+    "@radix-ui/react-checkbox": "^1.1.2",
+    "@radix-ui/react-dialog": "^1.1.2",
+    "@radix-ui/react-scroll-area": "^1.2.0",
+    "@radix-ui/react-select": "^2.1.2",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-tabs": "^1.1.1",
+    "@radix-ui/react-toast": "^1.2.2",
     "axios": "^1.7.2",
+    "class-variance-authority": "^0.7.0",
     "lucide-react": "^0.417.0",
     "monaco-editor": "^0.50.0",
     "query-string": "^9.0.0",
@@ -23,7 +31,8 @@
     "react-resizable": "^3.0.5",
     "react-router-dom": "^6.24.0",
     "react-split": "^2.0.14",
-    "react-toastify": "^10.0.5"
+    "react-toastify": "^10.0.5",
+    "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

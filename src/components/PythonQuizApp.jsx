@@ -27,8 +27,12 @@ const PythonQuizApp = () => {
   const [canSubmit, setCanSubmit] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [activeTab, setActiveTab] = useState('questions');
+  const [activeTab, setActiveTab] = useState('question');
   const [discussionText, setDiscussionText] = useState('');
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [submissions, setSubmissions] = useState([]);
 
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
@@ -44,6 +48,13 @@ const PythonQuizApp = () => {
       });
     }
   }, [user]);
+
+  useEffect(() => {
+    if (activeTab === 'discussion') {
+      // Fetch discussions for the question
+      fetchDiscussions();
+    }
+  }, [activeTab, questionID]);
 
   useEffect(() => {
     if (quizID) {
@@ -94,11 +105,62 @@ const PythonQuizApp = () => {
     fetchQuizData();
   }, [quizID, userID, currentQuestionIndex, questionID]);
 
+
+  useEffect(() => {
+    const fetchSubmissions = async () => {
+      // if (!isLoaded || !user) return; // Ensure the user data is loaded
+      console.log(' function fired! ');
+      if (activeTab === 'submission') {
+        try {
+          const response = await axios.get(
+            `https://server.datasenseai.com/submission-history/get-submissions/${questionID}`,
+            { params: { clerkId: 'user_2moFbI77buL8zq6lnCBQBGXGLlK'} } // Use user.id as clerkId
+          );
+          setSubmissions(response.data.submissions);
+          console.log(response);
+        } catch (error) {
+          console.error('Error fetching submissions:', error);
+        }
+      }
+    };
+
+    fetchSubmissions();
+  }, [activeTab, questionID, isLoaded]);
+
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
+
+  
+  const getRelativeTime = (timestamp) => {
+    const now = new Date();
+    const submissionDate = new Date(timestamp);
+    const diffInSeconds = Math.floor((now - submissionDate) / 1000);
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+  
+    if (diffInSeconds < 60) {
+      return 'just now';
+    } else if (diffInMinutes === 1) {
+      return '1 minute ago';
+    } else if (diffInMinutes < 60) {
+      return `${diffInMinutes} minutes ago`;
+    } else if (diffInHours === 1) {
+      return '1 hour ago';
+    } else if (diffInHours < 24) {
+      return `${diffInHours} hours ago`;
+    } else if (diffInDays === 1) {
+      return 'yesterday';
+    } else if (diffInDays < 7) {
+      return `${diffInDays} days ago`;
+    } else {
+      return submissionDate.toLocaleDateString();
+    }
+  };
+
 
   const openVideoPopup = () => {
     const currentQuestion = quizData.questions[currentQuestionIndex];
@@ -137,9 +199,13 @@ const PythonQuizApp = () => {
           return false;
         }
       }
+
+
       return true;
+    
     } catch (error) {
       console.error('Error executing test cases:', error);
+
       return false;
     }
   };
@@ -166,6 +232,23 @@ const PythonQuizApp = () => {
     }
     setShowFeedback(true);
     setIsSubmitting(false);
+
+     axios.post('https://server.datasenseai.com/submission-history/save-submission', {
+      clerkId: 'user_2moFbI77buL8zq6lnCBQBGXGLlK', // Assuming `userClerkId` is available in the component
+      questionId: questionID,
+      isCorrect: allTestCasesPassed,
+      submittedCode: userCode // Code the user submitted
+    });
+
+    setSubmissions(prevSubmissions => [
+      ...prevSubmissions,
+      {
+        questionId: questionID,
+        isCorrect: allTestCasesPassed,
+        submittedCode: userCode,
+        submittedAt: new Date(),
+      },
+    ]);
   };
 
   const handleQuestionSelect = (index) => {
@@ -216,9 +299,56 @@ const PythonQuizApp = () => {
     setShowSolution(!showSolution);
   };
 
-  const handleDiscussionSubmit = () => {
-    console.log('Submitted discussion:', discussionText);
-    setDiscussionText('');
+  const fetchDiscussions = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(`https://server.datasenseai.com/discussion-route/get-discussions/${questionID}`);
+     // Check if the response contains the "No discussions found" message
+  if (response.data.message === "No discussions found for this question") {
+    setComments([{ text: "No discussions found for this question", isPlaceholder: true }]);
+  } else {
+    setComments(response.data.comments || []);
+  }
+} catch (error) {
+  setError('Failed to load discussions');
+} finally {
+  setLoading(false);
+}
+  
+  };
+
+
+
+  const handleDiscussionSubmit = async () => {
+    if (!discussionText.trim()) return; // Prevent empty submissions
+
+    try {
+      const response = await axios.post('https://server.datasenseai.com/discussion-route/add-discussion', {
+        questionCode: questionID,
+        username: 'sample_username', // Replace with actual user info from Clerk
+        discussionText
+      });
+       // If "No discussions found" placeholder is currently displayed, remove it
+
+       console.log(response);
+    
+
+       
+         // Add the new comment to the comments array with default fields
+         const newComment = {
+           discussionText,
+           username: 'CurrentUsername', // Replace with the actual username
+           createdAt: new Date().toISOString(), // Use the current date and time
+         };
+   
+         setComments((prevComments) => [...prevComments, newComment]);
+         setDiscussionText(''); // Clear the input field
+       
+    } catch (error) {
+      console.error(error);
+      setError('Failed to add comment');
+    }
   };
 
   if (!quizData) return (
@@ -324,7 +454,7 @@ const PythonQuizApp = () => {
 
           {/* Question Details */}
           <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-gray-100'} p-4 flex-grow overflow-y-auto`}>
-            {activeTab === 'questions' && (
+            {activeTab === 'question' && (
               <>
                 <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
                   <h3 className="text-xl font-bold mb-2">{currentQuestion.question_text}</h3>
@@ -343,28 +473,43 @@ const PythonQuizApp = () => {
               </>
             )}
             {activeTab === 'discussion' && (
-              <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                <h3 className="text-lg font-bold mb-4">Discussion</h3>
-                <div className="mb-4 max-h-60 overflow-y-auto">
-                  <p>User1: This Python question is quite challenging!</p>
-                  <p>User2: I agree, especially the part about list comprehensions.</p>
-                  <p>User3: Has anyone figured out how to optimize the solution?</p>
-                </div>
-                <textarea
-                  className={`w-full p-2 rounded ${isDarkMode ? 'bg-[#2f2c2c] text-white' : 'bg-gray-100 text-black'}`}
-                  rows="3"
-                  placeholder="Add to the discussion..."
-                  value={discussionText}
-                  onChange={(e) => setDiscussionText(e.target.value)}
-                ></textarea>
-                <button
-                  className="mt-2 bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700"
-                  onClick={handleDiscussionSubmit}
-                >
-                  Send
-                </button>
-              </div>
-            )}
+  <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+    <h3 className="text-lg font-bold mb-4">Discussion</h3>
+
+    {loading ? (
+      <p>Loading discussions...</p>
+    ) : error ? (
+      <p className="text-red-500">{error}</p>
+    ) : comments.length === 0 ? (
+      <p>{comments[0]?.isPlaceholder ? comments[0].text : "No discussions yet. Be the first to comment!"}</p>
+    ) : (
+      <div className="mb-4 max-h-60 overflow-y-auto space-y-2">
+        {comments.map((comment, index) => (
+          <div key={index} className="p-2 rounded-md border border-gray-300">
+            <p className="font-semibold">{comment.username}:</p>
+            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{comment.discussionText}</p>
+            <p className="text-sm text-gray-500">{new Date(comment.createdAt).toLocaleString()}</p>
+          </div>
+        ))}
+      </div>
+    )}
+
+    <textarea
+      className={`w-full p-2 rounded ${isDarkMode ? 'bg-[#403f3f] text-white' : 'bg-gray-100 text-black'}`}
+      rows="3"
+      placeholder="Add to the discussion..."
+      value={discussionText}
+      onChange={(e) => setDiscussionText(e.target.value)}
+    ></textarea>
+    <button
+      className="mt-2 bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600 disabled:bg-teal-300"
+      onClick={handleDiscussionSubmit}
+      disabled={!discussionText.trim()}
+    >
+      Send
+    </button>
+  </div>
+)}
             {activeTab === 'solution' && (
               <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
                 <h3 className="text-lg font-bold mb-2">Solution</h3>
@@ -373,17 +518,31 @@ const PythonQuizApp = () => {
                 </pre>
               </div>
             )}
-            {activeTab === 'submission' && (
-              <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                <h3 className="text-lg font-bold mb-4">Submission</h3>
-                <pre className={`${isDarkMode ? 'bg-[#2f2c2c]' : 'bg-gray-100'} p-4 rounded overflow-x-auto`}>
-                  {`def solution(n):
-    return [i for i in range(1, n+1) if i % 3 == 0 or i % 5 == 0]
+              {activeTab === 'submission' && (
+      <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+        <h3 className="text-lg font-bold mb-4">Submissions</h3>
 
-print(solution(10))  # Example submission`}
-                </pre>
+        {submissions.length > 0 ? (
+          submissions.slice().reverse().map((submission, index) => (
+            <div key={index} className="mb-4 p-4 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm">
+              <div className="flex justify-between items-center mb-2">
+                <span className={`font-semibold ${submission.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                  {submission.isCorrect ? 'Correct' : 'Incorrect'}
+                </span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                {getRelativeTime(submission.submittedAt)}
+                </span>
               </div>
-            )}
+              <pre className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-100'} p-3 rounded overflow-x-auto`}>
+                {submission.submittedCode}
+              </pre>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500 dark:text-gray-400">No submissions yet.</p>
+        )}
+      </div>
+    )}
             {activeTab === 'ai help' && (
               <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
                 <h3 className="text-lg font-bold mb-4">AI Help</h3>

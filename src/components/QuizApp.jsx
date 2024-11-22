@@ -8,7 +8,7 @@ import Split from 'react-split';
 import { Loader2, Video, X } from 'lucide-react';
 import ReactPlayer from 'react-player';
 
-export default function QuizApp() {
+export default function QuizApp()  {
   const { user, isLoaded } = useUser();
 
   const [quizData, setQuizData] = useState(null);
@@ -35,13 +35,44 @@ export default function QuizApp() {
   const userID = parsed.userID;
   const quizID = parsed.quizID;
   const questionID = parsed.questionID;
+  const [discussionText, setDiscussionText] = useState('');
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [submissions, setSubmissions] = useState([]);
 
   const [isMobile, setIsMobile] = useState(false);
-
   const [startTime, setStartTime] = useState(null);
+  const [activeTab, setActiveTab] = useState('question');
 
-  const [activeTab, setActiveTab] = useState('questions');
-  const [discussionText, setDiscussionText] = useState('');
+
+
+  useEffect(() => {
+    if (activeTab === 'discussion') {
+      // Fetch discussions for the question
+      fetchDiscussions();
+    }
+  }, [activeTab, questionID]);
+ 
+
+  useEffect(() => {
+    const fetchSubmissions = async () => {
+      // if (!isLoaded || !user) return; // Ensure the user data is loaded
+      if (activeTab === 'submission') {
+        try {
+          const response = await axios.get(
+            `https://server.datasenseai.com/submission-history/get-submissions/${questionID}`,
+            { params: { clerkId: 'user_2moFbI77buL8zq6lnCBQBGXGLlK'} } // Use user.id as clerkId
+          );
+          setSubmissions(response.data.submissions);
+        } catch (error) {
+          console.error('Error fetching submissions:', error);
+        }
+      }
+    };
+
+    fetchSubmissions();
+  }, [activeTab, questionID, isLoaded]);
 
   useEffect(() => {
     if (user) {
@@ -137,6 +168,36 @@ export default function QuizApp() {
     fetchQuizData();
   }, []);
 
+
+  const getRelativeTime = (timestamp) => {
+    const now = new Date();
+    const submissionDate = new Date(timestamp);
+    const diffInSeconds = Math.floor((now - submissionDate) / 1000);
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+  
+    if (diffInSeconds < 60) {
+      return 'just now';
+    } else if (diffInMinutes === 1) {
+      return '1 minute ago';
+    } else if (diffInMinutes < 60) {
+      return `${diffInMinutes} minutes ago`;
+    } else if (diffInHours === 1) {
+      return '1 hour ago';
+    } else if (diffInHours < 24) {
+      return `${diffInHours} hours ago`;
+    } else if (diffInDays === 1) {
+      return 'yesterday';
+    } else if (diffInDays < 7) {
+      return `${diffInDays} days ago`;
+    } else {
+      return submissionDate.toLocaleDateString();
+    }
+  };
+
+
+
   const handleTestCode = async () => {
     setIsTesting(true);
     try {
@@ -163,12 +224,37 @@ export default function QuizApp() {
       }
   
       setOutput(userAnswer);
+
+      await axios.post('https://server.datasenseai.com/submission-history/save-submission', {
+        clerkId: 'user_2moFbI77buL8zq6lnCBQBGXGLlK',  // Assuming `userClerkId` is available in the component
+        questionId: questionID,
+        isCorrect,
+        submittedCode: userQuery // Code the user submitted
+      });
+
+      setSubmissions(prevSubmissions => [
+        ...prevSubmissions,
+        {
+          questionId: questionID,
+          isCorrect,
+          submittedCode: userQuery,
+          submittedAt: new Date(),
+        },
+      ]);
+
+
+
+
+
     } catch (error) {
       setFeedback({ text: 'Error testing code', isCorrect: false });
       setOutput('Error executing query');
     } finally {
       setIsTesting(false);
     }
+
+ 
+
   };
 
   const handleRunCode = async () => {
@@ -186,7 +272,7 @@ export default function QuizApp() {
       }));
 
       if (isCorrect) {
-        setFeedback({ text: 'Correct!', isCorrect: true, userAnswer: userAnswer });
+        // setFeedback({ text: 'Correct!', isCorrect: true, userAnswer: userAnswer });
       } else {
         setFeedback({
           isCorrect: false,
@@ -199,6 +285,8 @@ export default function QuizApp() {
   
       setShowFeedback(true);
       setOutput(userAnswer);
+
+
     } catch (error) {
       setFeedback('Your query is incorrect');
       setShowFeedback(true);
@@ -265,10 +353,56 @@ export default function QuizApp() {
     window.location.href = `/live-events`;
   };
 
-  const handleDiscussionSubmit = () => {
-    console.log('Submitted discussion:', discussionText);
-    setDiscussionText('');
-  };
+  
+    const fetchDiscussions = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get(`https://server.datasenseai.com/discussion-route/get-discussions/${questionID}`);
+       // Check if the response contains the "No discussions found" message
+    if (response.data.message === "No discussions found for this question") {
+      setComments([{ text: "No discussions found for this question", isPlaceholder: true }]);
+    } else {
+      setComments(response.data.comments || []);
+    }
+  } catch (error) {
+    setError('Failed to load discussions');
+  } finally {
+    setLoading(false);
+  }
+    
+    };
+
+ 
+  
+    const handleDiscussionSubmit = async () => {
+      if (!discussionText.trim()) return; // Prevent empty submissions
+  
+      try {
+        const response = await axios.post('https://server.datasenseai.com/discussion-route/add-discussion', {
+          questionCode: questionID,
+          username: 'sample_username', // Replace with actual user info from Clerk
+          discussionText
+        });
+         // If "No discussions found" placeholder is currently displayed, remove it
+      
+
+         
+           // Add the new comment to the comments array with default fields
+           const newComment = {
+             discussionText,
+             username: 'CurrentUsername', // Replace with the actual username
+             createdAt: new Date().toISOString(), // Use the current date and time
+           };
+     
+           setComments((prevComments) => [...prevComments, newComment]);
+           setDiscussionText(''); // Clear the input field
+         
+      } catch (error) {
+        console.error(error);
+        setError('Failed to add comment');
+      }
+    };
 
   if (!quizData) return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
@@ -383,27 +517,27 @@ export default function QuizApp() {
             )}
 
 {activeTab === 'tables' && (
-              <>
-                <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                
-                  <h4 className='text-xl font-bold mb-2'>Table Names: {currentQuestion.table_names.join(', ')}</h4>
-                  <h4 className='text-xl font-bold mb-2'>Table Data:</h4>
-                  {currentQuestion.table_data.map((table, tableIndex) => (
-                    <div key={tableIndex} className="table-container mb-4">
-                      <h5 className='text-lg font-bold mb-2'>Table Name: {table.table_name}</h5>
-                      <table className="w-full mb-2">
-                        <thead>
-                          <tr className={isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}>
+              <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                <h3 className="text-lg font-bold mb-2">Tables</h3>
+                {currentQuestion.table_data && currentQuestion.table_data.map((table, tableIndex) => (
+                  <div key={tableIndex} className="mb-4">
+                    <h4 className="text-md font-semibold mb-2">{table.table_name}</h4>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+                          <tr>
                             {table.columns.map((column, columnIndex) => (
-                              <th key={columnIndex} className="border px-4 py-2">{column}</th>
+                              <th key={columnIndex} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                {column}
+                              </th>
                             ))}
                           </tr>
                         </thead>
-                        <tbody>
-                          {table.rows.map((row, rowIndex) => (
-                            <tr key={rowIndex} className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
+                        <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
+                          {table.rows.slice(0,10).map((row, rowIndex) => (
+                            <tr key={rowIndex}>
                               {row.map((cell, cellIndex) => (
-                                <td key={cellIndex} className="border px-4 py-2">
+                                <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
                                   {typeof cell === 'object' ? JSON.stringify(cell) : cell}
                                 </td>
                               ))}
@@ -411,49 +545,73 @@ export default function QuizApp() {
                           ))}
                         </tbody>
                       </table>
-                    </div>
-                  ))}
-                </div>
-                <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                  <h3 className="text-lg font-bold mb-2">Expected Answer</h3>
-                  <table className="w-full mb-2">
-                    <tbody>
-                      {currentQuestion.expected_output.map((row, rowIndex) => (
-                        <tr key={rowIndex} className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
+                       <h3 className="text-lg font-bold mb-2">Expected Answer</h3>
+                  <table className="min-w-full divide-y divide-gray-200">
+                  <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+                          <tr>
+                            {table.columns.map((column, columnIndex) => (
+                              <th key={columnIndex} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                {column}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
+                      {currentQuestion.expected_output.slice(0,10).map((row, rowIndex) => (
+                        <tr key={rowIndex} >
                           {row.map((value, cellIndex) => (
-                            <td key={cellIndex} className="border px-4 py-2">{value}</td>
+                            <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">{value}</td>
                           ))}
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                </div>
-              </>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
             )}
            
-            {activeTab === 'discussion' && (
-              <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                <h3 className="text-lg font-bold mb-4">Discussion</h3>
-                <div className="mb-4 max-h-60 overflow-y-auto">
-                  <p>User1: This SQL question is quite challenging!</p>
-                  <p>User2: I agree, especially the part about joining multiple tables.</p>
-                  <p>User3: Has anyone figured out how to optimize the query for large datasets?</p>
-                </div>
-                <textarea
-                  className={`w-full p-2 rounded ${isDarkMode ? 'bg-[#403f3f] text-white' : 'bg-gray-100 text-black'}`}
-                  rows="3"
-                  placeholder="Add to the discussion..."
-                  value={discussionText}
-                  onChange={(e) => setDiscussionText(e.target.value)}
-                ></textarea>
-                <button
-                  className="mt-2 bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600"
-                  onClick={handleDiscussionSubmit}
-                >
-                  Send
-                </button>
-              </div>
-            )}
+           {activeTab === 'discussion' && (
+  <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+    <h3 className="text-lg font-bold mb-4">Discussion</h3>
+
+    {loading ? (
+      <p>Loading discussions...</p>
+    ) : error ? (
+      <p className="text-red-500">{error}</p>
+    ) : comments.length === 0 ? (
+      <p>{comments[0]?.isPlaceholder ? comments[0].text : "No discussions yet. Be the first to comment!"}</p>
+    ) : (
+      <div className="mb-4 max-h-60 overflow-y-auto space-y-2">
+        {comments.map((comment, index) => (
+          <div key={index} className="p-2 rounded-md border border-gray-300">
+            <p className="font-semibold">{comment.username}:</p>
+            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{comment.discussionText}</p>
+            <p className="text-sm text-gray-500">{new Date(comment.createdAt).toLocaleString()}</p>
+          </div>
+        ))}
+      </div>
+    )}
+
+    <textarea
+      className={`w-full p-2 rounded ${isDarkMode ? 'bg-[#403f3f] text-white' : 'bg-gray-100 text-black'}`}
+      rows="3"
+      placeholder="Add to the discussion..."
+      value={discussionText}
+      onChange={(e) => setDiscussionText(e.target.value)}
+    ></textarea>
+    <button
+      className="mt-2 bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600 disabled:bg-teal-300"
+      onClick={handleDiscussionSubmit}
+      disabled={!discussionText.trim()}
+    >
+      Send
+    </button>
+  </div>
+)}
+
             {activeTab === 'solution' && (
               <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
                 <h3 className="text-lg font-bold mb-2">Solution</h3>
@@ -462,21 +620,32 @@ export default function QuizApp() {
                 </pre>
               </div>
             )}
-            {activeTab === 'submission' && (
-              <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                <h3 className="text-lg font-bold mb-4">Submission</h3>
-                <pre className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-100'} p-4 rounded overflow-x-auto`}>
-                  {`SELECT column1, column2
-FROM table1
-JOIN table2 ON table1.id = table2.id
-WHERE condition = 'value'
-GROUP BY column1
-HAVING COUNT(*) > 1
-ORDER BY column2 DESC
-LIMIT 10;`}
-                </pre>
+         {activeTab === 'submission' && (
+      <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+        <h3 className="text-lg font-bold mb-4">Submissions</h3>
+
+        {submissions.length > 0 ? (
+          submissions.slice().reverse().map((submission, index) => (
+            <div key={index} className="mb-4 p-4 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm">
+              <div className="flex justify-between items-center mb-2">
+                <span className={`font-semibold ${submission.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                  {submission.isCorrect ? 'Correct' : 'Incorrect'}
+                </span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                {getRelativeTime(submission.submittedAt)}
+                </span>
               </div>
-            )}
+              <pre className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-100'} p-3 rounded overflow-x-auto`}>
+                {submission.submittedCode}
+              </pre>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500 dark:text-gray-400">No submissions yet.</p>
+        )}
+      </div>
+    )}
+
             {activeTab === 'ai help' && (
               <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
                 <h3 className="text-lg font-bold mb-4">AI Help</h3>
@@ -553,7 +722,7 @@ LIMIT 10;`}
                       </svg>
                       Testing...
                     </>
-                  ) : 'Test Code'}
+                  ) : 'Submit Code'}
                 </button>
               </div>
               <div className={`mt-4 ${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded p-4 flex-grow overflow-y-auto`}>
