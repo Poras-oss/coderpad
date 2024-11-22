@@ -94,7 +94,7 @@ export default function Component() {
   const fetchQuizzes = useCallback(async () => {
     try {
       setIsLoading(true)
-      const response = await axios.get(`http://localhost:4000/test-series-coding/${subject}`, {
+      const response = await axios.get(`https://server.datasenseai.com/test-series-coding/${subject}`, {
         params: {
           page: paginationInfo.currentPage,
           limit: itemsPerPage,
