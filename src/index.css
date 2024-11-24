@@ -2,6 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
+.karma-light {
+  font-family: "Karma", serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.karma-regular {
+  font-family: "Karma", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.karma-medium {
+  font-family: "Karma", serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.karma-semibold {
+  font-family: "Karma", serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.karma-bold {
+  font-family: "Karma", serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
 /* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
