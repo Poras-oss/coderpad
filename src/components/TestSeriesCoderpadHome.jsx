@@ -512,9 +512,9 @@ export default function QuizApp() {
           <SheetContent side="left" className="w-[300px] sm:w-[400px]">
             <SheetHeader>
               <SheetTitle>Filters</SheetTitle>
-              <SheetDescription>
+              <h3>
                 Apply filters to narrow down the questions.
-              </SheetDescription>
+              </h3>
             </SheetHeader>
             <ScrollArea className="h-[calc(100vh-120px)] mt-4">
               <FilterContent />
