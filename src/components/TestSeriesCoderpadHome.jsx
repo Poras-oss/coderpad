@@ -469,7 +469,7 @@ const normalizeDifficulty = (difficulty) => {
   )
 
   return (
-    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[#2a2a2a] text-white' : 'bg-white text-black'}`}>
+    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[url(./5.jpg)]  text-white' : 'bg-[url(./5.jpg)] text-black'}`}>
       <header className={`${isDarkMode ? 'bg-teal-900' : 'bg-teal-800'} shadow-md`}>
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Button 
@@ -627,7 +627,7 @@ const normalizeDifficulty = (difficulty) => {
                                 Text Solution
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
+                            <DialogContent className="sm:max-w-[425px] bg-white ">
                               <DialogHeader>
                                 <DialogTitle>Text Solution</DialogTitle>
                                 <DialogDescription>
