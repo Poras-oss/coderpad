@@ -461,7 +461,7 @@ export default function QuizApp() {
   )
 
   return (
-    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[#1a1a1a] text-white' : 'bg-slate-100 text-black'}`}>
+    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[#2a2a2a] text-white' : 'bg-white text-black'}`}>
       <header className={`${isDarkMode ? 'bg-teal-900' : 'bg-teal-600'} shadow-md`}>
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Button 
@@ -479,7 +479,7 @@ export default function QuizApp() {
             <ArrowLeft className="mr-2" size={16} />
             Back to Home
           </Button>
-          <img src="../assets/logo.png" alt="Quiz App Logo" className="h-10" />
+          <img src="./7.png" alt="Quiz App Logo" className="h-10" />
           <div className="flex items-center space-x-2 md:space-x-4">
             <Button
               variant="ghost"
@@ -605,7 +605,7 @@ export default function QuizApp() {
                           variant="outline"
                           size="sm"
                           onClick={() => toggleQuestionExpansion(quiz._id)}
-                          className="mt-2"
+                          className="mt-2 border border-teal-700"
                         >
                           {expandedQuestions[quiz._id] ? 'Show Less' : 'Show More'}
                         </Button>
@@ -614,7 +614,7 @@ export default function QuizApp() {
                         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mt-2">
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="w-full bg-blue-100 sm:w-auto px-4 py-2 rounded">
+                              <Button variant="outline" size="sm" className="w-full bg-blue-100 text-black sm:w-auto px-4 py-2 rounded">
                                 <FileText size={16} className="mr-2" />
                                 Text Solution
                               </Button>
@@ -628,7 +628,7 @@ export default function QuizApp() {
                               </DialogHeader>
                             </DialogContent>
                           </Dialog>
-                          <Button variant="outline" size="sm" onClick={() => openVideoPopup(quiz)} className="w-full bg-teal-100 sm:w-auto px-4 py-2 rounded">
+                          <Button variant="outline" size="sm" onClick={() => openVideoPopup(quiz)} className="w-full text-black bg-teal-100 sm:w-auto px-4 py-2 rounded">
                             <Video size={16} className="mr-2" />
                             Video Solution
                           </Button>
