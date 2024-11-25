@@ -33,6 +33,7 @@ const PythonQuizApp = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [submissions, setSubmissions] = useState([]);
+  const [isQuizMode, setIsQuizMode] = useState(false);
 
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
@@ -90,6 +91,7 @@ const PythonQuizApp = () => {
       try {
         let response;
         if (quizID) {
+          setIsQuizMode(true);
           response = await axios.get(`https://server.datasenseai.com/python-quiz/${quizID}/${userID}`);
         } else if (questionID) {
           response = await axios.get(`https://server.datasenseai.com/test-series-coding/python/${questionID}`);
@@ -108,13 +110,12 @@ const PythonQuizApp = () => {
 
   useEffect(() => {
     const fetchSubmissions = async () => {
-      // if (!isLoaded || !user) return; // Ensure the user data is loaded
-      console.log(' function fired! ');
+      if (!isLoaded || !user) return;
       if (activeTab === 'submission') {
         try {
           const response = await axios.get(
             `https://server.datasenseai.com/submission-history/get-submissions/${questionID}`,
-            { params: { clerkId: 'user_2moFbI77buL8zq6lnCBQBGXGLlK'} } // Use user.id as clerkId
+            { params: { clerkId: user.id} } // Use user.id as clerkId
           );
           setSubmissions(response.data.submissions);
           console.log(response);
@@ -234,7 +235,7 @@ const PythonQuizApp = () => {
     setIsSubmitting(false);
 
      axios.post('https://server.datasenseai.com/submission-history/save-submission', {
-      clerkId: 'user_2moFbI77buL8zq6lnCBQBGXGLlK', // Assuming `userClerkId` is available in the component
+      clerkId: user.id, // Assuming `userClerkId` is available in the component
       questionId: questionID,
       isCorrect: allTestCasesPassed,
       submittedCode: userCode // Code the user submitted
@@ -326,7 +327,7 @@ const PythonQuizApp = () => {
     try {
       const response = await axios.post('https://server.datasenseai.com/discussion-route/add-discussion', {
         questionCode: questionID,
-        username: 'sample_username', // Replace with actual user info from Clerk
+        username: user.fullName, // Replace with actual user info from Clerk
         discussionText
       });
        // If "No discussions found" placeholder is currently displayed, remove it
@@ -338,7 +339,7 @@ const PythonQuizApp = () => {
          // Add the new comment to the comments array with default fields
          const newComment = {
            discussionText,
-           username: 'CurrentUsername', // Replace with the actual username
+           username: user.fullName, // Replace with the actual username
            createdAt: new Date().toISOString(), // Use the current date and time
          };
    
@@ -441,15 +442,17 @@ const PythonQuizApp = () => {
 
           {/* Tabs */}
           <div className={`flex ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4`}>
-            {['Question', 'Discussion', 'Solution', 'Submission', 'AI Help'].map((tab) => (
-              <button
-                key={tab}
-                className={`py-2 px-4 ${activeTab === tab.toLowerCase() ? 'border-b-2 border-cyan-500' : ''}`}
-                onClick={() => setActiveTab(tab.toLowerCase())}
-              >
-                {tab}
-              </button>
-            ))}
+
+          {(isQuizMode ? ['Question'] : ['Question', 'Discussion', 'Solution', 'Submission', 'AI Help']).map((tab) => (
+  <button
+    key={tab}
+    className={`py-2 px-4 ${activeTab === tab.toLowerCase() ? 'border-b-2 border-cyan-500' : ''}`}
+    onClick={() => setActiveTab(tab.toLowerCase())}
+  >
+    {tab}
+  </button>
+))}
+
           </div>
 
           {/* Question Details */}
@@ -472,6 +475,8 @@ const PythonQuizApp = () => {
                 </div>
               </>
             )}
+            {!isQuizMode && (
+              <>
             {activeTab === 'discussion' && (
   <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
     <h3 className="text-lg font-bold mb-4">Discussion</h3>
@@ -557,7 +562,10 @@ const PythonQuizApp = () => {
                 </ol>
               </div>
             )}
+            </>
+            )}
           </div>
+          
         </div>
 
         {/* Right side: Code Editor and Results */}

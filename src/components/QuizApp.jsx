@@ -11,6 +11,8 @@ import ReactPlayer from 'react-player';
 export default function QuizApp()  {
   const { user, isLoaded } = useUser();
 
+  // console.log( 'userinfo -> '+ user.emailAddress+' '+user.username+' '+user.clerkId )
+
   const [quizData, setQuizData] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userQuery, setUserQuery] = useState('');
@@ -44,6 +46,7 @@ export default function QuizApp()  {
   const [isMobile, setIsMobile] = useState(false);
   const [startTime, setStartTime] = useState(null);
   const [activeTab, setActiveTab] = useState('question');
+  const [isQuizMode, setIsQuizMode] = useState(false);
 
 
 
@@ -57,12 +60,12 @@ export default function QuizApp()  {
 
   useEffect(() => {
     const fetchSubmissions = async () => {
-      // if (!isLoaded || !user) return; // Ensure the user data is loaded
+      if (!isLoaded || !user) return; // Ensure the user data is loaded
       if (activeTab === 'submission') {
         try {
           const response = await axios.get(
             `https://server.datasenseai.com/submission-history/get-submissions/${questionID}`,
-            { params: { clerkId: 'user_2moFbI77buL8zq6lnCBQBGXGLlK'} } // Use user.id as clerkId
+            { params: { clerkId: user.id} } // Use user.id as clerkId
           );
           setSubmissions(response.data.submissions);
         } catch (error) {
@@ -151,6 +154,7 @@ export default function QuizApp()  {
         let response;
         
         if (quizID) {
+          setIsQuizMode(true);
           response = await axios.get(`https://server.datasenseai.com/sql-quiz/${quizID}/${userID}`);
         } else if (questionID) {
           response = await axios.get(`https://server.datasenseai.com/test-series-coding/mysql/${questionID}`);
@@ -226,7 +230,7 @@ export default function QuizApp()  {
       setOutput(userAnswer);
 
       await axios.post('https://server.datasenseai.com/submission-history/save-submission', {
-        clerkId: 'user_2moFbI77buL8zq6lnCBQBGXGLlK',  // Assuming `userClerkId` is available in the component
+        clerkId: user.id,  // Assuming `userClerkId` is available in the component
         questionId: questionID,
         isCorrect,
         submittedCode: userQuery // Code the user submitted
@@ -381,7 +385,7 @@ export default function QuizApp()  {
       try {
         const response = await axios.post('https://server.datasenseai.com/discussion-route/add-discussion', {
           questionCode: questionID,
-          username: 'sample_username', // Replace with actual user info from Clerk
+          username: user.fullName, // Replace with actual user info from Clerk
           discussionText
         });
          // If "No discussions found" placeholder is currently displayed, remove it
@@ -391,7 +395,7 @@ export default function QuizApp()  {
            // Add the new comment to the comments array with default fields
            const newComment = {
              discussionText,
-             username: 'CurrentUsername', // Replace with the actual username
+             username: user.fullName, // Replace with the actual username
              createdAt: new Date().toISOString(), // Use the current date and time
            };
      
@@ -435,6 +439,17 @@ export default function QuizApp()  {
       <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center`}>
         <h1 className="mb-4 text-xl font-bold">SQL Coderpad</h1>
         <div className="flex items-center space-x-4">
+
+        {quizID && timeRemaining > 0 && (
+          
+                  <button 
+                    onClick={handleSubmitQuiz}
+                    className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
+                  >
+                    Submit Quiz
+                  </button>
+                )}
+
           {isTimerRunning && (
             <div className="text-lg font-semibold">
               Time remaining: {formatTime(timeRemaining)}
@@ -452,6 +467,7 @@ export default function QuizApp()  {
           >
             {isDarkMode ? '☀️' : '🌙'}
           </button>
+        
         </div>
       </nav>
       <Split
@@ -493,7 +509,7 @@ export default function QuizApp()  {
 
           {/* Tabs */}
           <div className={`flex ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4`}>
-            {['Question', 'Tables' ,'Discussion', 'Solution', 'Submission', 'AI Help'].map((tab) => <button
+            {(isQuizMode ? ['Question', 'Tables'] : ['Question', 'Tables' ,'Discussion', 'Solution', 'Submission', 'AI Help']).map((tab) => <button
                 key={tab}
                 className={`py-2 px-4 ${activeTab === tab.toLowerCase() ? 'border-b-2 border-teal-500' : ''}`}
                 onClick={() => setActiveTab(tab.toLowerCase())}
@@ -515,8 +531,7 @@ export default function QuizApp()  {
                   </div>
               </>
             )}
-
-{activeTab === 'tables' && (
+                {activeTab === 'tables' && (
               <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
                 <h3 className="text-lg font-bold mb-2">Tables</h3>
                 {currentQuestion.table_data && currentQuestion.table_data.map((table, tableIndex) => (
@@ -572,6 +587,9 @@ export default function QuizApp()  {
               </div>
               
             )}
+            {!isQuizMode && (
+              <>
+          
            
            {activeTab === 'discussion' && (
   <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
@@ -661,6 +679,10 @@ export default function QuizApp()  {
                 </ol>
               </div>
             )}
+              </>
+            )}
+
+
           </div>
         </div>
         {/* Right side: Code Editor and Results */}
@@ -701,14 +723,7 @@ export default function QuizApp()  {
                     </>
                   ) : 'Run Code'}
                 </button>
-                {quizID && timeRemaining > 0 && (
-                  <button 
-                    onClick={handleSubmitQuiz}
-                    className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
-                  >
-                    Submit Quiz
-                  </button>
-                )}
+             
                 <button
                   className={`flex-1 ${isTesting ? 'bg-blue-500' : 'bg-blue-600'} text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none flex items-center justify-center`}
                   onClick={handleTestCode}

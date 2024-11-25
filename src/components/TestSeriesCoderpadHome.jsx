@@ -35,6 +35,7 @@ import {
 
 export default function QuizApp() {
   const { isLoaded, isSignedIn, user } = useUser()
+  
   const navigateTo = useNavigate()
   const [quizzes, setQuizzes] = useState([])
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -81,7 +82,8 @@ export default function QuizApp() {
   useEffect(() => {
     if (isLoaded && isSignedIn) {
       setUserID(user.id)
-      console.log('user id -> '+user.id)
+      // console.log('user id -> '+user.id)
+      // console.log( 'userinfo -> '+ user.emailAddress+' '+user.fullName+' '+user.id )
     }
   }, [isLoaded, isSignedIn, user])
 
@@ -215,14 +217,20 @@ export default function QuizApp() {
       }
     }
   }
-
-  const normalizeDifficulty = (difficulty) => {
-    const normalized = difficulty.toLowerCase()
-    if (normalized === 'advance' || normalized === 'advanced') {
-      return 'hard'
-    }
-    return normalized
+const normalizeDifficulty = (difficulty) => {
+  if (!difficulty) {
+    // Handle null, undefined, or other falsy values
+    return 'easy'; // Default value
   }
+
+  const normalized = difficulty.toLowerCase();
+  if (normalized === 'advance' || normalized === 'advanced') {
+    return 'hard';
+  }
+
+  return normalized;
+};
+
   
   const getDifficultyStyle = (difficulty) => {
     const normalizedDifficulty = normalizeDifficulty(difficulty)
