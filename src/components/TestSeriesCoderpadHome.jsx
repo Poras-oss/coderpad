@@ -470,7 +470,7 @@ const normalizeDifficulty = (difficulty) => {
 
   return (
     <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[#2a2a2a] text-white' : 'bg-white text-black'}`}>
-      <header className={`${isDarkMode ? 'bg-teal-900' : 'bg-teal-600'} shadow-md`}>
+      <header className={`${isDarkMode ? 'bg-teal-900' : 'bg-teal-800'} shadow-md`}>
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Button 
             variant="ghost" 
@@ -482,7 +482,7 @@ const normalizeDifficulty = (difficulty) => {
           <Button 
             variant="ghost" 
             onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} 
-            className="hidden md:flex text-white hover:bg-teal-700 border border-teal-400 px-4 py-2 rounded"
+            className="hidden md:flex bg-white text-teal-600 hover:bg-teal-100 border border-teal-400 px-4 py-2 rounded"
           >
             <ArrowLeft className="mr-2" size={16} />
             Back to Home
@@ -494,7 +494,7 @@ const normalizeDifficulty = (difficulty) => {
               size="icon"
               onClick={() => setIsDarkMode(!isDarkMode)}
               aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-              className="text-white hover:bg-teal-700 border border-teal-400 p-2 rounded"
+              className="bg-white text-teal-600 hover:bg-teal-100 border border-teal-400 p-2 rounded-full"
             >
               {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
