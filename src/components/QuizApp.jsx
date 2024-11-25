@@ -440,7 +440,7 @@ export default function QuizApp()  {
         <h1 className="mb-4 text-xl font-bold">SQL Coderpad</h1>
         <div className="flex items-center space-x-4">
 
-        {quizID && timeRemaining > 0 && (
+        {/* {quizID && timeRemaining > 0 && (
           
                   <button 
                     onClick={handleSubmitQuiz}
@@ -448,7 +448,7 @@ export default function QuizApp()  {
                   >
                     Submit Quiz
                   </button>
-                )}
+                )} */}
 
           {isTimerRunning && (
             <div className="text-lg font-semibold">
@@ -687,8 +687,19 @@ export default function QuizApp()  {
         </div>
         {/* Right side: Code Editor and Results */}
         <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 flex flex-col`}>
-          <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-t-lg p-2`}>
+          <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-t-lg p-2 flex justify-between items-center`}>
             <span className="font-semibold">SQL</span>
+            <div className="flex space-x-2">
+        
+        {quizID && timeRemaining > 0 && (
+          <button 
+            onClick={handleSubmitQuiz}
+            className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
+          >
+            Submit Quiz
+          </button>
+        )}
+      </div>
           </div>
           <Split
             className="flex-grow h-full"
