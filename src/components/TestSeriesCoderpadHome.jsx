@@ -502,7 +502,7 @@ const normalizeDifficulty = (difficulty) => {
               <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
             ) : (
               <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`} signUpForceRedirectUrl={`/practice-area?subject=${subject}`}>
-                <Button className="bg-white text-teal-600 hover:bg-teal-100 px-1 py-2 rounded">Log In</Button>
+                <Button className="bg-white text-xs text-teal-600 hover:bg-teal-100 px-1 py-2 rounded">Log In</Button>
               </SignInButton>
             )}
           </div>
