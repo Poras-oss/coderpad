@@ -512,7 +512,7 @@ const normalizeDifficulty = (difficulty) => {
       <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" className="md:hidden text-black m-4 w-full">
+            <Button variant="outline" className="md:hidden m-4 w-full">
               <Filter className="mr-2 h-4 w-4 text-black" />
               Filters
             </Button>
