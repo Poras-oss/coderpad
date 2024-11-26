@@ -475,7 +475,7 @@ const normalizeDifficulty = (difficulty) => {
           <Button 
             variant="ghost" 
             onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} 
-            className="md:hidden text-white hover:bg-teal-700 border border-teal-400 px-3 py-2 rounded"
+            className="md:hidden text-white hover:bg-teal-700 border border-teal-400 px-1 py-2 rounded"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
