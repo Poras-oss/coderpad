@@ -200,42 +200,71 @@ export default function QuizApp()  {
     }
   };
 
+  const saveSolvedQuestion = async (clerkId, questionId) => {
+    try {
+      await axios.post('http://localhost:4000/question-attempt/add-solved', {
+        clerkId,
+        questionId,
+      });
+    } catch (error) {
+      console.error('Error saving solved question:', error.message);
+      // Optionally show non-blocking notifications
+    }
+  };
+
+  const saveSubmission = async (clerkId, questionId, isCorrect, submittedCode) => {
+    try {
+      await axios.post('https://server.datasenseai.com/submission-history/save-submission', {
+        clerkId,
+        questionId,
+        isCorrect,
+        submittedCode,
+      });
+    } catch (error) {
+      console.error('Error saving submission history:', error.message);
+      // Optionally show non-blocking notifications
+    }
+  };
+  
 
 
   const handleTestCode = async () => {
     setIsTesting(true);
+  
     try {
+      // Execute user query
       const response = await axios.get(`https://server.datasenseai.com/execute-sql/query?q=${encodeURIComponent(userQuery)}`);
       const userAnswer = response.data;
   
       const expectedOutput = quizData.questions[currentQuestionIndex].expected_output;
       const isCorrect = compareResults(userAnswer, expectedOutput);
-
+  
+      // Update scores
       setScores(prevScores => ({
         ...prevScores,
-        [currentQuestionIndex]: isCorrect ? 1 : 0
+        [currentQuestionIndex]: isCorrect ? 1 : 0,
       }));
   
+      // Provide feedback to the user
       if (isCorrect) {
         setFeedback({ text: 'Correct!', isCorrect: true });
+        saveSolvedQuestion(user.id, questionID); // Save solved question in the background
       } else {
         setFeedback({
           text: 'Incorrect. Please try again.',
           isCorrect: false,
           expected: expectedOutput,
-          userAnswer: userAnswer
+          userAnswer: userAnswer,
         });
       }
   
+      // Set output
       setOutput(userAnswer);
-
-      await axios.post('https://server.datasenseai.com/submission-history/save-submission', {
-        clerkId: user.id,  // Assuming `userClerkId` is available in the component
-        questionId: questionID,
-        isCorrect,
-        submittedCode: userQuery // Code the user submitted
-      });
-
+  
+      // Save submission in the background
+      saveSubmission(user.id, questionID, isCorrect, userQuery);
+  
+      // Add to submissions history
       setSubmissions(prevSubmissions => [
         ...prevSubmissions,
         {
@@ -245,21 +274,15 @@ export default function QuizApp()  {
           submittedAt: new Date(),
         },
       ]);
-
-
-
-
-
     } catch (error) {
+      // Handle query execution errors
       setFeedback({ text: 'Error testing code', isCorrect: false });
       setOutput('Error executing query');
     } finally {
       setIsTesting(false);
     }
-
- 
-
   };
+  
 
   const handleRunCode = async () => {
     setIsRunning(true);

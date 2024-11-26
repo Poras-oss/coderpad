@@ -237,6 +237,33 @@ const PythonQuizApp = () => {
 
   };
 
+  const saveSolvedQuestion = async (clerkId, questionId) => {
+    console.log('clerk.id -> '+ clerkId + ' questionID-> '+questionId)
+    try {
+      await axios.post('http://localhost:4000/question-attempt/add-solved', {
+        clerkId,
+        questionId,
+      });
+    } catch (error) {
+      console.error('Error saving solved question:', error.message);
+      // Optionally show non-blocking notifications
+    }
+  };
+
+  const saveSubmission = async (clerkId, questionId, isCorrect, submittedCode) => {
+    try {
+      await axios.post('http://localhost:4000/submission-history/save-submission', {
+        clerkId,
+        questionId,
+        isCorrect,
+        submittedCode,
+      });
+    } catch (error) {
+      console.error('Error saving submission history:', error.message);
+      // Optionally show non-blocking notifications
+    }
+  };
+
   const handleTestCode = async () => {
     setShowFeedback(false);
     setFeedback('Running test cases...');
@@ -250,6 +277,7 @@ const PythonQuizApp = () => {
         ...prevScores,
         [currentQuestionIndex]: 1
       }));
+      saveSolvedQuestion(user.id, questionID);
     } else {
       setFeedback('Some test cases failed.');
       setScores(prevScores => ({
@@ -260,12 +288,7 @@ const PythonQuizApp = () => {
     setShowFeedback(true);
     setIsTesting(false);
 
-     axios.post('https://server.datasenseai.com/submission-history/save-submission', {
-      clerkId: user.id, // Assuming `userClerkId` is available in the component
-      questionId: questionID,
-      isCorrect: allTestCasesPassed,
-      submittedCode: userCode // Code the user submitted
-    });
+    saveSubmission(user.id, questionID, allTestCasesPassed, userCode);
 
     setSubmissions(prevSubmissions => [
       ...prevSubmissions,
