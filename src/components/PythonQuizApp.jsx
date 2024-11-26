@@ -238,9 +238,8 @@ const PythonQuizApp = () => {
   };
 
   const saveSolvedQuestion = async (clerkId, questionId) => {
-    console.log('clerk.id -> '+ clerkId + ' questionID-> '+questionId)
     try {
-      await axios.post('http://localhost:4000/question-attempt/add-solved', {
+      await axios.post('https://server.datasenseai.com/question-attempt/add-solved', {
         clerkId,
         questionId,
       });
@@ -252,7 +251,7 @@ const PythonQuizApp = () => {
 
   const saveSubmission = async (clerkId, questionId, isCorrect, submittedCode) => {
     try {
-      await axios.post('http://localhost:4000/submission-history/save-submission', {
+      await axios.post('https://server.datasenseai.com/submission-history/save-submission', {
         clerkId,
         questionId,
         isCorrect,

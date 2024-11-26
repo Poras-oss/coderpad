@@ -202,7 +202,7 @@ export default function QuizApp()  {
 
   const saveSolvedQuestion = async (clerkId, questionId) => {
     try {
-      await axios.post('http://localhost:4000/question-attempt/add-solved', {
+      await axios.post('https://server.datasenseai.com/question-attempt/add-solved', {
         clerkId,
         questionId,
       });
