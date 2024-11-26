@@ -349,7 +349,7 @@ const normalizeDifficulty = (difficulty) => {
 
   const FilterContent = () => (
     <>
-      <Card className="mb-4 shadow-md">
+      <Card isDarkMode={isDarkMode} className="mb-4 shadow-md">
         <CardHeader className="bg-primary/10 rounded-t-lg">
           <CardTitle className="text-primary">Search</CardTitle>
         </CardHeader>
@@ -377,7 +377,7 @@ const normalizeDifficulty = (difficulty) => {
         </CardContent>
       </Card>
 
-      <Card className="mb-4 shadow-md ">
+      <Card isDarkMode={isDarkMode} className="mb-4 shadow-md ">
         <CardHeader className="bg-primary/10 rounded-t-lg">
           <CardTitle className="text-primary">Difficulty</CardTitle>
         </CardHeader>
@@ -406,7 +406,7 @@ const normalizeDifficulty = (difficulty) => {
         </CardContent>
       </Card>
 
-      <Card className="shadow-md mb-4">
+      <Card isDarkMode={isDarkMode} className="shadow-md mb-4">
         <CardHeader className="bg-primary/10 rounded-t-lg">
           <CardTitle className="text-primary">Subtopics</CardTitle>
         </CardHeader>
@@ -436,7 +436,7 @@ const normalizeDifficulty = (difficulty) => {
         </CardContent>
       </Card>
 
-      <Card className='shadow-md'>
+      <Card isDarkMode={isDarkMode} className='shadow-md'>
         <CardHeader className="bg-primary/10  rounded-t-lg">
           <CardTitle className="text-primary">Companies</CardTitle>
         </CardHeader>
@@ -469,7 +469,7 @@ const normalizeDifficulty = (difficulty) => {
   )
 
   return (
-    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[#2a2a2a] text-white' : 'bg-white text-black'}`}>
+    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[url(./5.jpg)]  text-white' : 'bg-[url(./5.jpg)] text-black'}`}>
       <header className={`${isDarkMode ? 'bg-teal-900' : 'bg-teal-800'} shadow-md`}>
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Button 
@@ -502,7 +502,7 @@ const normalizeDifficulty = (difficulty) => {
               <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
             ) : (
               <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`} signUpForceRedirectUrl={`/practice-area?subject=${subject}`}>
-                <Button className="bg-white text-teal-600 hover:bg-teal-100 px-4 py-2 rounded">Log In</Button>
+                <Button className="bg-white text-teal-600 hover:bg-teal-100 px-1 py-2 rounded">Log In</Button>
               </SignInButton>
             )}
           </div>
@@ -627,7 +627,7 @@ const normalizeDifficulty = (difficulty) => {
                                 Text Solution
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
+                            <DialogContent className="sm:max-w-[425px] bg-white ">
                               <DialogHeader>
                                 <DialogTitle>Text Solution</DialogTitle>
                                 <DialogDescription>
