@@ -349,7 +349,7 @@ const normalizeDifficulty = (difficulty) => {
 
   const FilterContent = () => (
     <>
-      <Card className="mb-4 shadow-md">
+      <Card isDarkMode={isDarkMode} className="mb-4 shadow-md">
         <CardHeader className="bg-primary/10 rounded-t-lg">
           <CardTitle className="text-primary">Search</CardTitle>
         </CardHeader>
@@ -377,7 +377,7 @@ const normalizeDifficulty = (difficulty) => {
         </CardContent>
       </Card>
 
-      <Card className="mb-4 shadow-md ">
+      <Card isDarkMode={isDarkMode} className="mb-4 shadow-md ">
         <CardHeader className="bg-primary/10 rounded-t-lg">
           <CardTitle className="text-primary">Difficulty</CardTitle>
         </CardHeader>
@@ -406,7 +406,7 @@ const normalizeDifficulty = (difficulty) => {
         </CardContent>
       </Card>
 
-      <Card className="shadow-md mb-4">
+      <Card isDarkMode={isDarkMode} className="shadow-md mb-4">
         <CardHeader className="bg-primary/10 rounded-t-lg">
           <CardTitle className="text-primary">Subtopics</CardTitle>
         </CardHeader>
@@ -436,7 +436,7 @@ const normalizeDifficulty = (difficulty) => {
         </CardContent>
       </Card>
 
-      <Card className='shadow-md'>
+      <Card isDarkMode={isDarkMode} className='shadow-md'>
         <CardHeader className="bg-primary/10  rounded-t-lg">
           <CardTitle className="text-primary">Companies</CardTitle>
         </CardHeader>
