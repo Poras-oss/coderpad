@@ -469,7 +469,7 @@ const normalizeDifficulty = (difficulty) => {
   )
 
   return (
-    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[url(./4.jpg)]  text-white' : 'bg-[url(./5.jpg)] text-black'}`}>
+    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[url(./6.jpg)]  text-white' : 'bg-[url(./6.jpg)] text-black'}`}>
       <header className={`${isDarkMode ? 'bg-teal-900' : 'bg-teal-800'} shadow-md`}>
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Button 
@@ -512,12 +512,12 @@ const normalizeDifficulty = (difficulty) => {
       <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" className="md:hidden m-4 w-full">
-              <Filter className="mr-2 h-4 w-4" />
+            <Button variant="outline" className="md:hidden text-black m-4 w-full">
+              <Filter className="mr-2 h-4 w-4 text-black" />
               Filters
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+          <SheetContent side="left" className="w-[300px] sm:w-[400px] ">
             <SheetHeader>
               <SheetTitle>Filters</SheetTitle>
               <h3>
