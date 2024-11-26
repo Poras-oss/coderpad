@@ -469,7 +469,7 @@ const normalizeDifficulty = (difficulty) => {
   )
 
   return (
-    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[url(./5.jpg)]  text-white' : 'bg-[url(./5.jpg)] text-black'}`}>
+    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[url(./4.jpg)]  text-white' : 'bg-[url(./5.jpg)] text-black'}`}>
       <header className={`${isDarkMode ? 'bg-teal-900' : 'bg-teal-800'} shadow-md`}>
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Button 
@@ -646,7 +646,7 @@ const normalizeDifficulty = (difficulty) => {
                   </CardContent>
                 </Card>
               ))}
-              <div className="flex justify-center items-center mt-4 space-x-2">
+              <div className="flex justify-center bg-teal-800 items-center mt-4 space-x-2">
                 <Button
                   onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.max(prev.currentPage - 1, 1) }))}
                   disabled={paginationInfo.currentPage === 1}
