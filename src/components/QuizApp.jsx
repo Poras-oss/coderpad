@@ -15,7 +15,7 @@ export default function QuizApp()  {
 
   const [quizData, setQuizData] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userQuery, setUserQuery] = useState('');
+  const [userQueries, setUserQueries] = useState([]);
   const [feedback, setFeedback] = useState('');
   const [saveStatus, setSaveStatus] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -164,6 +164,7 @@ export default function QuizApp()  {
           setQuizData(response.data);
         }
 
+
       } catch (error) {
         console.error('Error fetching quiz data:', error);
       }
@@ -171,6 +172,13 @@ export default function QuizApp()  {
 
     fetchQuizData();
   }, []);
+
+  useEffect(() => {
+    if (quizData && quizData.questions) {
+      setUserQueries(quizData.questions.map(() => "")); // Initialize empty queries for each question
+    }
+  }, [quizData]);
+
 
 
   const getRelativeTime = (timestamp) => {
@@ -233,7 +241,7 @@ export default function QuizApp()  {
   
     try {
       // Execute user query
-      const response = await axios.get(`https://server.datasenseai.com/execute-sql/query?q=${encodeURIComponent(userQuery)}`);
+      const response = await axios.get(`https://server.datasenseai.com/execute-sql/query?q=${encodeURIComponent(userQueries[currentQuestionIndex])}`);
       const userAnswer = response.data;
   
       const expectedOutput = quizData.questions[currentQuestionIndex].expected_output;
@@ -250,6 +258,7 @@ export default function QuizApp()  {
         setFeedback({ text: 'Correct!', isCorrect: true });
         saveSolvedQuestion(user.id, questionID); // Save solved question in the background
       } else {
+        console.log(userAnswer)
         setFeedback({
           text: 'Incorrect. Please try again.',
           isCorrect: false,
@@ -262,7 +271,7 @@ export default function QuizApp()  {
       setOutput(userAnswer);
   
       // Save submission in the background
-      saveSubmission(user.id, questionID, isCorrect, userQuery);
+      saveSubmission(user.id, questionID, isCorrect, userQueries[currentQuestionIndex]);
   
       // Add to submissions history
       setSubmissions(prevSubmissions => [
@@ -270,14 +279,14 @@ export default function QuizApp()  {
         {
           questionId: questionID,
           isCorrect,
-          submittedCode: userQuery,
+          submittedCode: userQueries[currentQuestionIndex],
           submittedAt: new Date(),
         },
       ]);
     } catch (error) {
       // Handle query execution errors
       setFeedback({ text: 'Error testing code', isCorrect: false });
-      setOutput('Error executing query');
+      setOutput('Error executing query'+error);
     } finally {
       setIsTesting(false);
     }
@@ -287,7 +296,7 @@ export default function QuizApp()  {
   const handleRunCode = async () => {
     setIsRunning(true);
     try {
-      const response = await axios.get(`https://server.datasenseai.com/execute-sql/query?q=${encodeURIComponent(userQuery)}`);
+      const response = await axios.get(`https://server.datasenseai.com/execute-sql/query?q=${encodeURIComponent(userQueries[currentQuestionIndex])}`);
       const userAnswer = response.data;
   
       const expectedOutput = quizData.questions[currentQuestionIndex].expected_output;
@@ -737,8 +746,17 @@ export default function QuizApp()  {
               height="auto"
               language="sql"
               theme={isDarkMode ? "vs-dark" : "light"}
-              value={userQuery}
-              onChange={setUserQuery}
+              value={userQueries[currentQuestionIndex]}
+              onChange={(value) => {
+                const newQueries = [...userQueries];
+                newQueries[currentQuestionIndex] = value || '';
+                setUserQueries(newQueries);
+              }}
+              options={{
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                fontSize: 14,
+              }}
             />
             <div className="flex flex-col">
               <div className="flex mt-2 space-x-2">

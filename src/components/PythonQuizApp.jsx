@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback  } from 'react';
 import axios from 'axios';
 import MonacoEditor from './ResizableMonacoEditor'; 
 import queryString from 'query-string';
@@ -12,7 +12,8 @@ const PythonQuizApp = () => {
 
   const [quizData, setQuizData] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userCode, setUserCode] = useState('');
+  const [userCodes, setUserCodes] = useState({});
+   const userCodesRef = useRef({});
   const [feedback, setFeedback] = useState('');
   const [showFeedback, setShowFeedback] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -87,26 +88,47 @@ const PythonQuizApp = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  useEffect(() => {
-    const fetchQuizData = async () => {
-      try {
-        let response;
-        if (quizID) {
-          setIsQuizMode(true);
-          response = await axios.get(`https://server.datasenseai.com/python-quiz/${quizID}/${userID}`);
-        } else if (questionID) {
-          response = await axios.get(`https://server.datasenseai.com/test-series-coding/python/${questionID}`);
-        }
-        if (response) {
-          setQuizData(response.data);
-          setUserCode(response.data.questions[currentQuestionIndex].boilerplate_code || '');
-        }
-      } catch (error) {
-        console.error('Error fetching quiz data:', error);
+  const fetchQuizData = useCallback(async () => {
+    try {
+      let response;
+      if (quizID) {
+        setIsQuizMode(true);
+        response = await axios.get(`https://server.datasenseai.com/python-quiz/${quizID}/${userID}`);
+      } else if (questionID) {
+        response = await axios.get(`https://server.datasenseai.com/test-series-coding/python/${questionID}`);
       }
-    };
+      if (response) {
+        setQuizData(response.data);
+        const initialUserCodes = {};
+        response.data.questions.forEach((question, index) => {
+          initialUserCodes[index] = question.boilerplate_code || '';
+        });
+        setUserCodes(initialUserCodes);
+        userCodesRef.current = initialUserCodes;
+      }
+    } catch (error) {
+      console.error('Error fetching quiz data:', error);
+      setError('Failed to fetch quiz data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [quizID, userID, questionID]);
+
+  useEffect(() => {
     fetchQuizData();
-  }, [quizID, userID, currentQuestionIndex, questionID]);
+  }, [fetchQuizData]);
+
+
+  // useEffect(() => {
+  //   if (quizData && quizData.questions) {
+  //     const initialUserCodes = {};
+  //     quizData.questions.forEach((question, index) => {
+  //       initialUserCodes[index] = question.boilerplate_code || '';
+  //     });
+  //     initialCodesRef.current = initialUserCodes;
+  //     setUserCodes(initialUserCodes);
+  //   }
+  // }, [quizData]);
 
 
   useEffect(() => {
@@ -217,7 +239,7 @@ const PythonQuizApp = () => {
     setFeedback('Running test cases...');
     setIsSubmitting(true);
     const currentQuestion = quizData.questions[currentQuestionIndex];
-    const allTestCasesPassed = await checkAllTestCases(userCode, currentQuestion.test_cases);
+    const allTestCasesPassed = await checkAllTestCases(userCodes[currentQuestionIndex], currentQuestion.test_cases);
     if (allTestCasesPassed) {
       setUserOutput('');
       setFeedback('All test cases passed!');
@@ -268,7 +290,7 @@ const PythonQuizApp = () => {
     setFeedback('Running test cases...');
     setIsTesting(true);
     const currentQuestion = quizData.questions[currentQuestionIndex];
-    const allTestCasesPassed = await checkAllTestCases(userCode, currentQuestion.test_cases);
+    const allTestCasesPassed = await checkAllTestCases(userCodes[currentQuestionIndex], currentQuestion.test_cases);
     if (allTestCasesPassed) {
       setUserOutput('');
       setFeedback('All test cases passed!');
@@ -287,26 +309,26 @@ const PythonQuizApp = () => {
     setShowFeedback(true);
     setIsTesting(false);
 
-    saveSubmission(user.id, questionID, allTestCasesPassed, userCode);
+    saveSubmission(user.id, questionID, allTestCasesPassed, userCodes[currentQuestionIndex]);
 
     setSubmissions(prevSubmissions => [
       ...prevSubmissions,
       {
         questionId: questionID,
         isCorrect: allTestCasesPassed,
-        submittedCode: userCode,
+        submittedCode: userCodes[currentQuestionIndex],
         submittedAt: new Date(),
       },
     ]);
   };
 
-  const handleQuestionSelect = (index) => {
+  const handleQuestionSelect = useCallback((index) => {
     setCurrentQuestionIndex(index);
-    setUserCode(quizData.questions[index].boilerplate_code || '');
     setFeedback('');
     setShowFeedback(false);
     setShowSolution(false);
-  };
+    setUserOutput('');
+  }, []);
 
   const handleSubmitQuiz = async () => {
     if (!canSubmit || timeRemaining === 0) {
@@ -643,9 +665,18 @@ const PythonQuizApp = () => {
             <MonacoEditor
               language="python"
               theme={isDarkMode ? "vs-dark" : "vs-light"}
-              value={userCode}
-              onChange={setUserCode}
-              options={{ fontSize: 16 }}
+              value={userCodes[currentQuestionIndex] || ''}
+              onChange={(newValue) => {
+                setUserCodes(prevCodes => ({
+                  ...prevCodes,
+                  [currentQuestionIndex]: newValue
+                }));
+              }}
+              options={{
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                fontSize: 14,
+              }}
             />
             <div className="flex flex-col">
              <div className="flex mt-2 space-x-2">
