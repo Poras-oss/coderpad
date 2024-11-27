@@ -798,37 +798,48 @@ export default function QuizApp()  {
                     {feedback.text}
                   </div>
                 )}
-                {output !== null && (
-                  <div className="mt-2 flex flex-col space-y-4">
-                    <div className='font-semibold'>OUTPUT</div>
-                    <div className="overflow-x-auto">
-                      {Array.isArray(output) && output.length > 0 ? (
-                        <table className="w-full border-collapse">
-                          <thead>
-                            <tr className={isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}>
-                              {Object.keys(output[0]).map((header, index) => (
-                                <th key={index} className="border px-4 py-2">{header}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {output.map((row, rowIndex) => (
-                              <tr key={rowIndex} className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
-                                {Object.values(row).map((cell, cellIndex) => (
-                                  <td key={cellIndex} className="border px-4 py-2 whitespace-nowrap">
-                                    {typeof cell === 'object' ? JSON.stringify(cell) : cell}
-                                  </td>
-                                ))}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      ) : (
-                        <p>{output}</p>
-                      )}
-                    </div>
-                  </div>
-                )}
+               {output !== null && (
+  <div className="mt-2 flex flex-col space-y-4">
+    <div className="font-semibold">OUTPUT</div>
+    <div className="overflow-x-auto">
+      {output.error ? (
+        // Handle error output
+        <div className="text-red-600 bg-white-50 border border-grey-400 rounded-md p-4">
+          <p className="font-bold">Error:</p>
+          <p><strong>Message:</strong> {output.message}</p>
+          <p><strong>Details:</strong> {output.details}</p>
+          <p><strong>Error Code:</strong> {output.code}</p>
+        </div>
+      ) : Array.isArray(output) && output.length > 0 ? (
+        // Handle table output
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className={isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}>
+              {Object.keys(output[0]).map((header, index) => (
+                <th key={index} className="border px-4 py-2">{header}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {output.map((row, rowIndex) => (
+              <tr key={rowIndex} className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
+                {Object.values(row).map((cell, cellIndex) => (
+                  <td key={cellIndex} className="border px-4 py-2 whitespace-nowrap">
+                    {typeof cell === 'object' ? JSON.stringify(cell) : cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        // Handle simple string output
+        <p>{output}</p>
+      )}
+    </div>
+  </div>
+)}
+
               </div>
             </div>
           </Split>
