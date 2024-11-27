@@ -469,13 +469,13 @@ const normalizeDifficulty = (difficulty) => {
   )
 
   return (
-    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[url(./5.jpg)]  text-white' : 'bg-[url(./5.jpg)] text-black'}`}>
+    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[url(/bgimg.jpg)] text-white' : 'bg-[url(/bgimg.jpg)] text-black'}`}>
       <header className={`${isDarkMode ? 'bg-teal-900' : 'bg-teal-800'} shadow-md`}>
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Button 
             variant="ghost" 
             onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} 
-            className="md:hidden text-white hover:bg-teal-700 border border-teal-400 px-3 py-2 rounded"
+            className="md:hidden text-white hover:bg-teal-700 border border-teal-400 px-1 py-2 rounded"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -502,7 +502,7 @@ const normalizeDifficulty = (difficulty) => {
               <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
             ) : (
               <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`} signUpForceRedirectUrl={`/practice-area?subject=${subject}`}>
-                <Button className="bg-white text-teal-600 hover:bg-teal-100 px-1 py-2 rounded">Log In</Button>
+                <Button className="bg-white text-xs text-teal-600 hover:bg-teal-100 px-1 py-2 rounded">Log In</Button>
               </SignInButton>
             )}
           </div>
@@ -513,11 +513,11 @@ const normalizeDifficulty = (difficulty) => {
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" className="md:hidden m-4 w-full">
-              <Filter className="mr-2 h-4 w-4" />
+              <Filter className="mr-2 h-4 w-4 text-black" />
               Filters
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+          <SheetContent side="left" className="w-[300px] sm:w-[400px] ">
             <SheetHeader>
               <SheetTitle>Filters</SheetTitle>
               <h3>
@@ -646,7 +646,7 @@ const normalizeDifficulty = (difficulty) => {
                   </CardContent>
                 </Card>
               ))}
-              <div className="flex justify-center items-center mt-4 space-x-2">
+              <div className="flex justify-center bg-teal-800 items-center mt-4 space-x-2">
                 <Button
                   onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.max(prev.currentPage - 1, 1) }))}
                   disabled={paginationInfo.currentPage === 1}
