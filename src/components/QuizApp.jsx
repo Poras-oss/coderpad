@@ -646,7 +646,7 @@ export default function QuizApp()  {
       <p>{comments[0]?.isPlaceholder ? comments[0].text : "No discussions yet. Be the first to comment!"}</p>
     ) : (
       <div className="mb-4 max-h-60 overflow-y-auto space-y-2">
-        {comments.map((comment, index) => (
+        {comments.slice().reverse().map((comment, index) => (
           <div key={index} className="p-2 rounded-md border border-gray-300">
             <p className="font-semibold">{comment.username}:</p>
             <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{comment.discussionText}</p>
@@ -664,11 +664,11 @@ export default function QuizApp()  {
       onChange={(e) => setDiscussionText(e.target.value)}
     ></textarea>
     <button
-      className="mt-2 bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600 disabled:bg-teal-300"
+      className="mt-2 bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-600 "
       onClick={handleDiscussionSubmit}
       disabled={!discussionText.trim()}
     >
-      Send
+      Submit
     </button>
   </div>
 )}
