@@ -470,236 +470,244 @@ const normalizeDifficulty = (difficulty) => {
   )
 
   return (
-    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[url(/bgimg.jpg)] text-white' : 'bg-[url(/bgimg.jpg)] text-black'}`}>
-      <header className={`${isDarkMode ? 'bg-teal-900' : 'bg-teal-800'} shadow-md`}>
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Button 
-            variant="ghost" 
-            onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} 
-            className="md:hidden text-white hover:bg-teal-700 border border-teal-400 px-1 py-2 rounded"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} 
-            className="hidden md:flex bg-white text-teal-600 hover:bg-teal-100 border border-teal-400 px-4 py-2 rounded"
-          >
-            <ArrowLeft className="mr-2" size={16} />
-            Back to Home
-          </Button>
-          <img src="./7.png" alt="Quiz App Logo" className="h-10" />
-          <div className="flex items-center space-x-2 md:space-x-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-              className="bg-white text-teal-600 hover:bg-teal-100 border border-teal-400 p-2 rounded-full"
-            >
-              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </Button>
-            {isLoaded && isSignedIn ? (
-              <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
-            ) : (
-              <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`} signUpForceRedirectUrl={`/practice-area?subject=${subject}`}>
-                <Button className="bg-white text-xs text-teal-600 hover:bg-teal-100 px-1 py-2 rounded">Log In</Button>
-              </SignInButton>
-            )}
-          </div>
-        </div>
-      </header>
+    // <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[url(/bgimg.jpg)] text-white' : 'bg-[url(/bgimg.jpg)] text-black'}`}>
+    //   <header className={`${isDarkMode ? 'bg-teal-900' : 'bg-teal-800'} shadow-md`}>
+    //     <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+    //       <Button 
+    //         variant="ghost" 
+    //         onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} 
+    //         className="md:hidden text-white hover:bg-teal-700 border border-teal-400 px-1 py-2 rounded"
+    //       >
+    //         <ArrowLeft className="h-5 w-5" />
+    //       </Button>
+    //       <Button 
+    //         variant="ghost" 
+    //         onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} 
+    //         className="hidden md:flex bg-white text-teal-600 hover:bg-teal-100 border border-teal-400 px-4 py-2 rounded"
+    //       >
+    //         <ArrowLeft className="mr-2" size={16} />
+    //         Back to Home
+    //       </Button>
+    //       <img src="./7.png" alt="Quiz App Logo" className="h-10" />
+    //       <div className="flex items-center space-x-2 md:space-x-4">
+    //         <Button
+    //           variant="ghost"
+    //           size="icon"
+    //           onClick={() => setIsDarkMode(!isDarkMode)}
+    //           aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+    //           className="bg-white text-teal-600 hover:bg-teal-100 border border-teal-400 p-2 rounded-full"
+    //         >
+    //           {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+    //         </Button>
+    //         {isLoaded && isSignedIn ? (
+    //           <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
+    //         ) : (
+    //           <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`} signUpForceRedirectUrl={`/practice-area?subject=${subject}`}>
+    //             <Button className="bg-white text-xs text-teal-600 hover:bg-teal-100 px-1 py-2 rounded">Log In</Button>
+    //           </SignInButton>
+    //         )}
+    //       </div>
+    //     </div>
+    //   </header>
 
-      <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" className="md:hidden m-4 w-full">
-              <Filter className="mr-2 h-4 w-4 text-black" />
-              Filters
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] sm:w-[400px] ">
-            <SheetHeader>
-              <SheetTitle>Filters</SheetTitle>
-              <h3>
-                Apply filters to narrow down the questions.
-              </h3>
-            </SheetHeader>
-            <ScrollArea className="h-[calc(100vh-120px)] mt-4">
-              <FilterContent />
-            </ScrollArea>
-          </SheetContent>
-        </Sheet>
+    //   <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
+    //     <Sheet>
+    //       <SheetTrigger asChild>
+    //         <Button variant="outline" className="md:hidden m-4 w-full">
+    //           <Filter className="mr-2 h-4 w-4 text-black" />
+    //           Filters
+    //         </Button>
+    //       </SheetTrigger>
+    //       <SheetContent side="left" className="w-[300px] sm:w-[400px] ">
+    //         <SheetHeader>
+    //           <SheetTitle>Filters</SheetTitle>
+    //           <h3>
+    //             Apply filters to narrow down the questions.
+    //           </h3>
+    //         </SheetHeader>
+    //         <ScrollArea className="h-[calc(100vh-120px)] mt-4">
+    //           <FilterContent />
+    //         </ScrollArea>
+    //       </SheetContent>
+    //     </Sheet>
 
-        <ScrollArea className="hidden md:block w-1/4 p-4">
-          <FilterContent />
-        </ScrollArea>
+    //     <ScrollArea className="hidden md:block w-1/4 p-4">
+    //       <FilterContent />
+    //     </ScrollArea>
 
-        <ScrollArea className="flex-1 p-4">
-          {isLoading ? (
-            <div className="space-y-4">
-              {[...Array(5)].map((_, index) => (
-                <Card key={index} className="mb-4">
-                  <CardHeader>
-                    <Skeleton className="h-4 w-3/4" />
-                    <div className="flex gap-2 mt-2">
-                      <Skeleton className="h-6 w-16" />
-                      <Skeleton className="h-6 w-16" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-full mt-2" />
-                    <Skeleton className="h-4 w-3/4 mt-2" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <>
-              {quizzes.map((quiz, index) => (
-                <Card key={quiz._id} className={`mb-4 ${isDarkMode ? 'bg-[#2a2a2a]' : 'bg-white'}`}>
-                  <CardHeader>
-                    <div className="flex flex-col md:flex-row justify-between items-start">
-                      <div className="flex-grow w-full md:w-auto">
-                        <div className="flex justify-between items-start">
-                          <CardTitle 
-                            className="text-base md:text-lg"
-                            dangerouslySetInnerHTML={{ __html: `${(paginationInfo.currentPage - 1) * itemsPerPage + index + 1}. ${shortenQuestion(quiz.question_text)}` }}
-                          />
-                          <div className="flex items-center space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => toggleBookmark(quiz._id, e)}
-                              className="hover:bg-transparent p-1 relative"
-                            >
-                              {bookmarkedQuizzes.has(quiz._id) ? (
-                                <BookmarkCheck className="h-5 w-5 text-teal-500" />
-                              ) : (
-                                <Bookmark className="h-5 w-5" />
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          <Badge variant="secondary" className={getDifficultyStyle(quiz.difficulty)}>
-                            {quiz.difficulty}
-                          </Badge>
-                          {quiz.table_names && quiz.table_names.map(table => (
-                            <Badge key={table} variant="outline">{table}</Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() => handleStartQuiz(quiz._id, user?.id, quiz.question_text)}
-                        className="bg-teal-600 hover:bg-teal-700 text-white mt-2 md:mt-0 px-6 py-2 rounded"
-                      >
-                        Solve
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <Tabs defaultValue="scenario" className="w-full">
-                      <TabsList className="w-full gap-2">
-                        <TabsTrigger value="scenario" className="flex-1 shadow-sm">Scenario</TabsTrigger>
-                        <TabsTrigger value="solution" className="flex-1 shadow-sm">Solution</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="scenario">
-                        <div
-                          className={`mt-2 text-sm ${expandedQuestions[quiz._id] ? '' : 'line-clamp-3'}`}
-                          dangerouslySetInnerHTML={{ __html: quiz.scenario }}
-                        />
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => toggleQuestionExpansion(quiz._id)}
-                          className="mt-2 border border-teal-700"
-                        >
-                          {expandedQuestions[quiz._id] ? 'Show Less' : 'Show More'}
-                        </Button>
-                      </TabsContent>
-                      <TabsContent value="solution">
-                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mt-2">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="w-full bg-blue-100 text-black sm:w-auto px-4 py-2 rounded">
-                                <FileText size={16} className="mr-2" />
-                                Text Solution
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px] bg-white ">
-                              <DialogHeader>
-                                <DialogTitle>Text Solution</DialogTitle>
-                                <DialogDescription>
-                                  {quiz.query}
-                                </DialogDescription>
-                              </DialogHeader>
-                            </DialogContent>
-                          </Dialog>
-                          <Button variant="outline" size="sm" onClick={() => openVideoPopup(quiz)} className="w-full text-black bg-teal-100 sm:w-auto px-4 py-2 rounded">
-                            <Video size={16} className="mr-2" />
-                            Video Solution
-                          </Button>
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-                  </CardContent>
-                </Card>
-              ))}
-              <div className="flex justify-center bg-teal-800 items-center mt-4 space-x-2">
-                <Button
-                  onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.max(prev.currentPage - 1, 1) }))}
-                  disabled={paginationInfo.currentPage === 1}
-                  variant="outline"
-                  size="sm"
-                  className="px-4 py-2 rounded"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  <span className="hidden sm:inline ml-1">Previous</span>
-                </Button>
-                <span className="text-sm font-medium">
-                  Page {paginationInfo.currentPage} of {paginationInfo.totalPages}
-                </span>
-                <Button
-                  onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.min(prev.currentPage + 1, prev.totalPages) }))}
-                  disabled={paginationInfo.currentPage === paginationInfo.totalPages}
-                  variant="outline"
-                  size="sm"
-                  className="px-4 py-2 rounded"
-                >
-                  <span className="hidden sm:inline mr-1">Next</span>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </>
-          )}
-        </ScrollArea>
-      </main>
+    //     <ScrollArea className="flex-1 p-4">
+    //       {isLoading ? (
+    //         <div className="space-y-4">
+    //           {[...Array(5)].map((_, index) => (
+    //             <Card key={index} className="mb-4">
+    //               <CardHeader>
+    //                 <Skeleton className="h-4 w-3/4" />
+    //                 <div className="flex gap-2 mt-2">
+    //                   <Skeleton className="h-6 w-16" />
+    //                   <Skeleton className="h-6 w-16" />
+    //                 </div>
+    //               </CardHeader>
+    //               <CardContent>
+    //                 <Skeleton className="h-4 w-full" />
+    //                 <Skeleton className="h-4 w-full mt-2" />
+    //                 <Skeleton className="h-4 w-3/4 mt-2" />
+    //               </CardContent>
+    //             </Card>
+    //           ))}
+    //         </div>
+    //       ) : (
+    //         <>
+    //           {quizzes.map((quiz, index) => (
+    //             <Card key={quiz._id} className={`mb-4 ${isDarkMode ? 'bg-[#2a2a2a]' : 'bg-white'}`}>
+    //               <CardHeader>
+    //                 <div className="flex flex-col md:flex-row justify-between items-start">
+    //                   <div className="flex-grow w-full md:w-auto">
+    //                     <div className="flex justify-between items-start">
+    //                       <CardTitle 
+    //                         className="text-base md:text-lg"
+    //                         dangerouslySetInnerHTML={{ __html: `${(paginationInfo.currentPage - 1) * itemsPerPage + index + 1}. ${shortenQuestion(quiz.question_text)}` }}
+    //                       />
+    //                       <div className="flex items-center space-x-2">
+    //                         <Button
+    //                           variant="ghost"
+    //                           size="sm"
+    //                           onClick={(e) => toggleBookmark(quiz._id, e)}
+    //                           className="hover:bg-transparent p-1 relative"
+    //                         >
+    //                           {bookmarkedQuizzes.has(quiz._id) ? (
+    //                             <BookmarkCheck className="h-5 w-5 text-teal-500" />
+    //                           ) : (
+    //                             <Bookmark className="h-5 w-5" />
+    //                           )}
+    //                         </Button>
+    //                       </div>
+    //                     </div>
+    //                     <div className="flex flex-wrap gap-2 mt-2">
+    //                       <Badge variant="secondary" className={getDifficultyStyle(quiz.difficulty)}>
+    //                         {quiz.difficulty}
+    //                       </Badge>
+    //                       {quiz.table_names && quiz.table_names.map(table => (
+    //                         <Badge key={table} variant="outline">{table}</Badge>
+    //                       ))}
+    //                     </div>
+    //                   </div>
+    //                   <Button
+    //                     onClick={() => handleStartQuiz(quiz._id, user?.id, quiz.question_text)}
+    //                     className="bg-teal-600 hover:bg-teal-700 text-white mt-2 md:mt-0 px-6 py-2 rounded"
+    //                   >
+    //                     Solve
+    //                   </Button>
+    //                 </div>
+    //               </CardHeader>
+    //               <CardContent>
+    //                 <Tabs defaultValue="scenario" className="w-full">
+    //                   <TabsList className="w-full gap-2">
+    //                     <TabsTrigger value="scenario" className="flex-1 shadow-sm">Scenario</TabsTrigger>
+    //                     <TabsTrigger value="solution" className="flex-1 shadow-sm">Solution</TabsTrigger>
+    //                   </TabsList>
+    //                   <TabsContent value="scenario">
+    //                     <div
+    //                       className={`mt-2 text-sm ${expandedQuestions[quiz._id] ? '' : 'line-clamp-3'}`}
+    //                       dangerouslySetInnerHTML={{ __html: quiz.scenario }}
+    //                     />
+    //                     <Button
+    //                       variant="outline"
+    //                       size="sm"
+    //                       onClick={() => toggleQuestionExpansion(quiz._id)}
+    //                       className="mt-2 border border-teal-700"
+    //                     >
+    //                       {expandedQuestions[quiz._id] ? 'Show Less' : 'Show More'}
+    //                     </Button>
+    //                   </TabsContent>
+    //                   <TabsContent value="solution">
+    //                     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mt-2">
+    //                       <Dialog>
+    //                         <DialogTrigger asChild>
+    //                           <Button variant="outline" size="sm" className="w-full bg-blue-100 text-black sm:w-auto px-4 py-2 rounded">
+    //                             <FileText size={16} className="mr-2" />
+    //                             Text Solution
+    //                           </Button>
+    //                         </DialogTrigger>
+    //                         <DialogContent className="sm:max-w-[425px] bg-white ">
+    //                           <DialogHeader>
+    //                             <DialogTitle>Text Solution</DialogTitle>
+    //                             <DialogDescription>
+    //                               {quiz.query}
+    //                             </DialogDescription>
+    //                           </DialogHeader>
+    //                         </DialogContent>
+    //                       </Dialog>
+    //                       <Button variant="outline" size="sm" onClick={() => openVideoPopup(quiz)} className="w-full text-black bg-teal-100 sm:w-auto px-4 py-2 rounded">
+    //                         <Video size={16} className="mr-2" />
+    //                         Video Solution
+    //                       </Button>
+    //                     </div>
+    //                   </TabsContent>
+    //                 </Tabs>
+    //               </CardContent>
+    //             </Card>
+    //           ))}
+    //           <div className="flex justify-center bg-teal-800 items-center mt-4 space-x-2">
+    //             <Button
+    //               onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.max(prev.currentPage - 1, 1) }))}
+    //               disabled={paginationInfo.currentPage === 1}
+    //               variant="outline"
+    //               size="sm"
+    //               className="px-4 py-2 rounded"
+    //             >
+    //               <ChevronLeft className="h-4 w-4" />
+    //               <span className="hidden sm:inline ml-1">Previous</span>
+    //             </Button>
+    //             <span className="text-sm font-medium">
+    //               Page {paginationInfo.currentPage} of {paginationInfo.totalPages}
+    //             </span>
+    //             <Button
+    //               onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.min(prev.currentPage + 1, prev.totalPages) }))}
+    //               disabled={paginationInfo.currentPage === paginationInfo.totalPages}
+    //               variant="outline"
+    //               size="sm"
+    //               className="px-4 py-2 rounded"
+    //             >
+    //               <span className="hidden sm:inline mr-1">Next</span>
+    //               <ChevronRight className="h-4 w-4" />
+    //             </Button>
+    //           </div>
+    //         </>
+    //       )}
+    //     </ScrollArea>
+    //   </main>
 
-      <Dialog open={isVideoPopupOpen} onOpenChange={setIsVideoPopupOpen}>
-        <DialogContent className="sm:max-w-[800px]">
-          <DialogHeader>
-            <DialogTitle>Solution Video</DialogTitle>
-          </DialogHeader>
-          <div className="relative pt-[56.25%]">
-            {currentVideoId ? (
-              <ReactPlayer
-                url={currentVideoId}
-                width="100%"
-                height="100%"
-                controls
-                playing
-                className="absolute top-0 left-0"
-                onError={(e) => console.error('ReactPlayer error:', e)}
-              />
-            ) : (
-              <p>No video URL available</p>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+    //   <Dialog open={isVideoPopupOpen} onOpenChange={setIsVideoPopupOpen}>
+    //     <DialogContent className="sm:max-w-[800px]">
+    //       <DialogHeader>
+    //         <DialogTitle>Solution Video</DialogTitle>
+    //       </DialogHeader>
+    //       <div className="relative pt-[56.25%]">
+    //         {currentVideoId ? (
+    //           <ReactPlayer
+    //             url={currentVideoId}
+    //             width="100%"
+    //             height="100%"
+    //             controls
+    //             playing
+    //             className="absolute top-0 left-0"
+    //             onError={(e) => console.error('ReactPlayer error:', e)}
+    //           />
+    //         ) : (
+    //           <p>No video URL available</p>
+    //         )}
+    //       </div>
+    //     </DialogContent>
+    //   </Dialog>
+    // </div>
+<div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-teal-500 text-white">
+      <div className="text-center p-6 max-w-md mx-auto bg-white rounded-lg shadow-lg">
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">Coming Soon</h1>
+        <p className="text-gray-600 mb-6">
+          We're working hard to bring something amazing to you. Stay tuned!
+        </p>
+       
+      </div>
     </div>
-  )
-}
-
+  );
+};

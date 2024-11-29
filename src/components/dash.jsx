@@ -48,10 +48,10 @@ const DataSkillsDashboard = () => {
   };
   
   const handleStartQuiz = (quizID, userID, quizName) => {
-    // if (!isSignedIn) {
-    //   alert('You need to log in to start the quiz.');
-    //   return;
-    // }
+    if (!isSignedIn) {
+      alert('You need to log in to start the quiz.');
+      return;
+    }
   
     const confirmStart = () => {
       const lowerCaseQuizName = quizName.toLowerCase();
@@ -242,7 +242,7 @@ const DataSkillsDashboard = () => {
             </tr>
           </thead>
           <tbody className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
-            {filteredQuizzes.map((quiz, index) => (
+            {filteredQuizzes.slice().reverse().map((quiz, index) => (
               <tr key={quiz._id} className={index % 2 === 0 ? (isDarkMode ? 'bg-[#333333]' : 'bg-gray-50') : (isDarkMode ? 'bg-[#403f3f]' : 'bg-white')}>
                 <td className="px-4 py-4 whitespace-nowrap text-sm">
                   {getQuizType(quiz.quizName)}

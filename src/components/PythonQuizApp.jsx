@@ -242,7 +242,7 @@ const PythonQuizApp = () => {
     const allTestCasesPassed = await checkAllTestCases(userCodes[currentQuestionIndex], currentQuestion.test_cases);
     if (allTestCasesPassed) {
       setUserOutput('');
-      setFeedback('All test cases passed!');
+      setFeedback('All test cases passed! Now submit the question');
       setScores(prevScores => ({
         ...prevScores,
         [currentQuestionIndex]: 1
@@ -293,7 +293,7 @@ const PythonQuizApp = () => {
     const allTestCasesPassed = await checkAllTestCases(userCodes[currentQuestionIndex], currentQuestion.test_cases);
     if (allTestCasesPassed) {
       setUserOutput('');
-      setFeedback('All test cases passed!');
+      setFeedback('Correct answer!');
       setScores(prevScores => ({
         ...prevScores,
         [currentQuestionIndex]: 1
