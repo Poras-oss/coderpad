@@ -5,7 +5,7 @@ import axios from 'axios'
 import queryString from 'query-string'
 import { useNavigate } from 'react-router-dom'
 import { useUser, SignInButton, UserButton } from '@clerk/clerk-react'
-import { Video, FileText, ChevronDown, X, ArrowLeft, Search, Filter, Moon, Sun, Bookmark, BookmarkCheck, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Video, FileText, ChevronDown, X, ArrowLeft, Search, Filter, Moon, Sun, Bookmark, BookmarkCheck, Loader2, ChevronLeft, ChevronRight, Star } from 'lucide-react'
 import ReactPlayer from 'react-player/youtube'
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
@@ -35,7 +35,6 @@ import {
 
 export default function QuizApp() {
   const { isLoaded, isSignedIn, user } = useUser()
-  
   const navigateTo = useNavigate()
   const [quizzes, setQuizzes] = useState([])
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -43,7 +42,7 @@ export default function QuizApp() {
   const [selectedCompanies, setSelectedCompanies] = useState([])
   const [selectedSubtopics, setSelectedSubtopics] = useState([])
   const [expandedQuestions, setExpandedQuestions] = useState({})
-  const [difficulties] = useState(['Easy', 'Medium', 'Hard'])
+  const [difficulties] = useState(['Easy', 'Medium', 'Advamce'])
   const [companies] = useState(['Amazon', 'Google', 'Microsoft', 'Facebook', 'Apple'])
   const [subtopics, setSubtopics] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -82,8 +81,6 @@ export default function QuizApp() {
   useEffect(() => {
     if (isLoaded && isSignedIn) {
       setUserID(user.id)
-      // console.log('user id -> '+user.id)
-      // console.log( 'userinfo -> '+ user.emailAddress+' '+user.fullName+' '+user.id )
     }
   }, [isLoaded, isSignedIn, user])
 
@@ -217,29 +214,28 @@ export default function QuizApp() {
       }
     }
   }
-const normalizeDifficulty = (difficulty) => {
-  if (!difficulty) {
-    // Handle null, undefined, or other falsy values
-    return 'easy'; // Default value
+
+  const normalizeDifficulty = (difficulty) => {
+    if (!difficulty) {
+      return 'easy'
+    }
+
+    const normalized = difficulty.toLowerCase()
+    if (normalized === 'advance' || normalized === 'advanced') {
+      return 'advance'
+    }
+
+    return normalized
   }
 
-  const normalized = difficulty.toLowerCase();
-  if (normalized === 'advance' || normalized === 'advanced') {
-    return 'hard';
-  }
-
-  return normalized;
-};
-
-  
   const getDifficultyStyle = (difficulty) => {
     const normalizedDifficulty = normalizeDifficulty(difficulty)
     switch (normalizedDifficulty) {
       case 'easy':
-        return 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300'
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
       case 'medium':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
-      case 'hard':
+      case 'advance':
       case 'advance':
         return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
       default:
@@ -347,335 +343,327 @@ const normalizeDifficulty = (difficulty) => {
     return question.substring(0, maxLength) + '...'
   }
 
-  const FilterContent = () => (
-    <>
-      <Card isDarkMode={isDarkMode} className="mb-4 shadow-md">
-        <CardHeader className="bg-primary/10 rounded-t-lg">
-          <CardTitle className="text-primary">Search</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Input
-            type="text"
-            placeholder="Search questions..."
-            value={filters.search}
-            onChange={(e) => updateFilters('search', e.target.value)}
-            className="mb-4"
-          />
-          <div className="flex items-center space-x-2 mb-4 ">
-            <Checkbox
-              id="show-bookmarked"
-              checked={filters.bookmarked}
-              onCheckedChange={(checked) => updateFilters('bookmarked', checked)}
-            />
-            <label
-              htmlFor="show-bookmarked"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Show Bookmarked Only
-            </label>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card isDarkMode={isDarkMode} className="mb-4 shadow-md ">
-        <CardHeader className="bg-primary/10 rounded-t-lg">
-          <CardTitle className="text-primary">Difficulty</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {['Easy', 'Medium', 'Advance'].map((difficulty) => (
-            <div key={difficulty} className="flex items-center space-x-2 mb-2">
-              <Checkbox
-                id={`difficulty-${difficulty}`}
-                checked={filters.difficulties.includes(difficulty.toLowerCase())}
-                onCheckedChange={(checked) => {
-                  updateFilters('difficulties', checked
-                    ? [...filters.difficulties, difficulty.toLowerCase()]
-                    : filters.difficulties
-.filter(d => d !== difficulty.toLowerCase())
-                  )
-                }}
-              />
-              <label
-                htmlFor={`difficulty-${difficulty}`}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                {difficulty}
-              </label>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      <Card isDarkMode={isDarkMode} className="shadow-md mb-4">
-        <CardHeader className="bg-primary/10 rounded-t-lg">
-          <CardTitle className="text-primary">Subtopics</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[200px]">
-            {availableSubtopics.map((subtopic) => (
-              <div key={subtopic} className="flex items-center space-x-2 mb-2">
-                <Checkbox
-                  id={`subtopic-${subtopic}`}
-                  checked={filters.subtopics.includes(subtopic)}
-                  onCheckedChange={(checked) => {
-                    updateFilters('subtopics', checked
-                      ? [...filters.subtopics, subtopic]
-                      : filters.subtopics.filter(s => s !== subtopic)
-                    )
-                  }}
-                />
-                <label
-                  htmlFor={`subtopic-${subtopic}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  {subtopic}
-                </label>
-              </div>
-            ))}
-          </ScrollArea>
-        </CardContent>
-      </Card>
-
-      <Card isDarkMode={isDarkMode} className='shadow-md'>
-        <CardHeader className="bg-primary/10  rounded-t-lg">
-          <CardTitle className="text-primary">Companies</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[200px]">
-            {availableCompanies.map((company) => (
-              <div key={company} className="flex items-center space-x-2 mb-2">
-                <Checkbox
-                  id={`company-${company}`}
-                  checked={filters.companies.includes(company)}
-                  onCheckedChange={(checked) => {
-                    updateFilters('companies', checked
-                      ? [...filters.companies, company]
-                      : filters.companies.filter(c => c !== company)
-                    )
-                  }}
-                />
-                <label
-                  htmlFor={`company-${company}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  {company}
-                </label>
-              </div>
-            ))}
-          </ScrollArea>
-        </CardContent>
-      </Card>
-    </>
-  )
-
   return (
-    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[url(/bgimg.jpg)] text-white' : 'bg-[url(/bgimg.jpg)] text-black'}`}>
-      <header className={`${isDarkMode ? 'bg-teal-900' : 'bg-teal-800'} shadow-md`}>
+    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[#141414]' : 'bg-gray-100'}`}>
+      {/* Header */}
+      <header className={`${isDarkMode ? 'bg-[#1d1d1d]' : 'bg-gray-200'} border-b border-[#2f2f2f]`}>
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Button 
-            variant="ghost" 
-            onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} 
-            className="md:hidden text-white hover:bg-teal-700 border border-teal-400 px-1 py-2 rounded"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} 
-            className="hidden md:flex bg-white text-teal-600 hover:bg-teal-100 border border-teal-400 px-4 py-2 rounded"
-          >
-            <ArrowLeft className="mr-2" size={16} />
-            Back to Home
-          </Button>
-          <img src="./7.png" alt="Quiz App Logo" className="h-10" />
-          <div className="flex items-center space-x-2 md:space-x-4">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} 
+              className={`${isDarkMode ? 'text-white hover:bg-[#2f2f2f]' : 'text-gray-700 hover:bg-gray-100'}`}
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <img src="./7.png" alt="Quiz App Logo" className="h-8" />
+          </div>
+          
+          <div className="flex items-center space-x-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsDarkMode(!isDarkMode)}
-              aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-              className="bg-white text-teal-600 hover:bg-teal-100 border border-teal-400 p-2 rounded-full"
+              className={`${isDarkMode ? 'text-white hover:bg-[#2f2f2f]' : 'text-gray-700 hover:bg-gray-100'}`}
             >
               {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
             {isLoaded && isSignedIn ? (
               <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
             ) : (
-              <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`} signUpForceRedirectUrl={`/practice-area?subject=${subject}`}>
-                <Button className="bg-white text-xs text-teal-600 hover:bg-teal-100 px-1 py-2 rounded">Log In</Button>
+              <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`}>
+                <Button size={"sm"} className={`${isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-600 hover:bg-green-700'} text-white`}>
+                  LogIn
+                </Button>
               </SignInButton>
             )}
           </div>
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
+      <main className="flex-1 flex">
+        {/* Sidebar */}
+        <aside className={`w-64 border-r ${isDarkMode ? 'border-[#2f2f2f] bg-[#1d1d1d]' : 'border-gray-200 bg-gray-50'} hidden md:block`}>
+          <div className="p-4">
+            <div className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <h2 className="text-sm font-semibold mb-2">STATUS</h2>
+              <div className="space-y-2">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <Checkbox 
+                    checked={filters.bookmarked} 
+                    onCheckedChange={(checked) => updateFilters('bookmarked', checked)}
+                  />
+                  <span>Solved</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <Checkbox />
+                  <span>Unsolved</span>
+                </label>
+              </div>
+            </div>
+
+            <div className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <h2 className="text-sm font-semibold mb-2">DIFFICULTY</h2>
+              <div className="space-y-2">
+                {['Easy', 'Medium', 'advance'].map((difficulty) => (
+                  <label key={difficulty} className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={filters.difficulties.includes(difficulty.toLowerCase())}
+                      onCheckedChange={(checked) => {
+                        updateFilters('difficulties', checked
+                          ? [...filters.difficulties, difficulty.toLowerCase()]
+                          : filters.difficulties.filter(d => d !== difficulty.toLowerCase())
+                        )
+                      }}
+                    />
+                    <span>{difficulty}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <h2 className="text-sm font-semibold mb-2">SUBTOPICS</h2>
+              <ScrollArea className="h-[200px]">
+                {availableSubtopics.map((subtopic) => (
+                  <label key={subtopic} className="flex items-center space-x-2 cursor-pointer mb-2">
+                    <Checkbox
+                      checked={filters.subtopics.includes(subtopic)}
+                      onCheckedChange={(checked) => {
+                        updateFilters('subtopics', checked
+                          ? [...filters.subtopics, subtopic]
+                          : filters.subtopics.filter(s => s !== subtopic)
+                        )
+                      }}
+                    />
+                    <span>{subtopic}</span>
+                  </label>
+                ))}
+              </ScrollArea>
+            </div>
+
+            <div className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <h2 className="text-sm font-semibold mb-2">COMPANIES</h2>
+              <ScrollArea className="h-[200px]">
+                {availableCompanies.map((company) => (
+                  <label key={company} className="flex items-center space-x-2 cursor-pointer mb-2">
+                    <Checkbox
+                      checked={filters.companies.includes(company)}
+                      onCheckedChange={(checked) => {
+                        updateFilters('companies', checked
+                          ? [...filters.companies, company]
+                          : filters.companies.filter(c => c !== company)
+                        )
+                      }}
+                    />
+                    <span>{company}</span>
+                  </label>
+                ))}
+              </ScrollArea>
+            </div>
+          </div>
+        </aside>
+
+        {/* Mobile Filter Button */}
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" className="md:hidden m-4 w-full">
-              <Filter className="mr-2 h-4 w-4 text-black" />
+            <Button variant="outline" className="md:hidden m-4 fixed  bottom-80 right-4 z-10">
+              <Filter className="mr-2 h-4 w-4" />
               Filters
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] sm:w-[400px] ">
+          <SheetContent side="left" className="w-[300px] sm:w-[400px]">
             <SheetHeader>
               <SheetTitle>Filters</SheetTitle>
-              <h3>
+              <SheetDescription>
                 Apply filters to narrow down the questions.
-              </h3>
+              </SheetDescription>
             </SheetHeader>
             <ScrollArea className="h-[calc(100vh-120px)] mt-4">
-              <FilterContent />
+              <div className="p-4">
+                {/* Mobile filters content - same as sidebar */}
+                <div className="mb-6">
+                  <h2 className="text-sm font-semibold mb-2">STATUS</h2>
+                  <div className="space-y-2">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <Checkbox 
+                        checked={filters.bookmarked} 
+                        onCheckedChange={(checked) => updateFilters('bookmarked', checked)}
+                      />
+                      <span>Solved</span>
+                    </label>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <Checkbox />
+                      <span>Unsolved</span>
+                    </label>
+                  </div>
+                </div>
+                <div className="mb-6">
+                  <h2 className="text-sm font-semibold mb-2">DIFFICULTY</h2>
+                  <div className="space-y-2">
+                    {['Easy', 'Medium', 'advance'].map((difficulty) => (
+                      <label key={difficulty} className="flex items-center space-x-2 cursor-pointer">
+                        <Checkbox
+                          checked={filters.difficulties.includes(difficulty.toLowerCase())}
+                          onCheckedChange={(checked) => {
+                            updateFilters('difficulties', checked
+                              ? [...filters.difficulties, difficulty.toLowerCase()]
+                              : filters.difficulties.filter(d => d !== difficulty.toLowerCase())
+                            )
+                          }}
+                        />
+                        <span>{difficulty}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="mb-6">
+                  <h2 className="text-sm font-semibold mb-2">SUBTOPICS</h2>
+                  <ScrollArea className="h-[200px]">
+                    {availableSubtopics.map((subtopic) => (
+                      <label key={subtopic} className="flex items-center space-x-2 cursor-pointer mb-2">
+                        <Checkbox
+                          checked={filters.subtopics.includes(subtopic)}
+                          onCheckedChange={(checked) => {
+                            updateFilters('subtopics', checked
+                              ? [...filters.subtopics, subtopic]
+                              : filters.subtopics.filter(s => s !== subtopic)
+                            )
+                          }}
+                        />
+                        <span>{subtopic}</span>
+                      </label>
+                    ))}
+                  </ScrollArea>
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold mb-2">COMPANIES</h2>
+                  <ScrollArea className="h-[200px]">
+                    {availableCompanies.map((company) => (
+                      <label key={company} className="flex items-center space-x-2 cursor-pointer mb-2">
+                        <Checkbox
+                          checked={filters.companies.includes(company)}
+                          onCheckedChange={(checked) => {
+                            updateFilters('companies', checked
+                              ? [...filters.companies, company]
+                              : filters.companies.filter(c => c !== company)
+                            )
+                          }}
+                        />
+                        <span>{company}</span>
+                      </label>
+                    ))}
+                  </ScrollArea>
+                </div>
+              </div>
             </ScrollArea>
           </SheetContent>
         </Sheet>
 
-        <ScrollArea className="hidden md:block w-1/4 p-4">
-          <FilterContent />
-        </ScrollArea>
+        {/* Main Content */}
+        <div className="flex-1">
+          {/* Search Bar */}
+          <div className="p-4 border-b border-[#2f2f2f]">
+            <Input
+              type="text"
+              placeholder="Search questions..."
+              value={filters.search}
+              onChange={(e) => updateFilters('search', e.target.value)}
+              className={`max-w ${isDarkMode ? 'bg-[#2f2f2f] border-[#3f3f3f]' : 'bg-white border-gray-200'}`}
+            />
+          </div>
 
-        <ScrollArea className="flex-1 p-4">
-          {isLoading ? (
-            <div className="space-y-4">
-              {[...Array(5)].map((_, index) => (
-                <Card key={index} className="mb-4">
-                  <CardHeader>
-                    <Skeleton className="h-4 w-3/4" />
-                    <div className="flex gap-2 mt-2">
-                      <Skeleton className="h-6 w-16" />
-                      <Skeleton className="h-6 w-16" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-full mt-2" />
-                    <Skeleton className="h-4 w-3/4 mt-2" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <>
-              {quizzes.map((quiz, index) => (
-                <Card key={quiz._id} className={`mb-4 ${isDarkMode ? 'bg-[#2a2a2a]' : 'bg-white'}`}>
-                  <CardHeader>
-                    <div className="flex flex-col md:flex-row justify-between items-start">
-                      <div className="flex-grow w-full md:w-auto">
-                        <div className="flex justify-between items-start">
-                          <CardTitle 
-                            className="text-base md:text-lg"
-                            dangerouslySetInnerHTML={{ __html: `${(paginationInfo.currentPage - 1) * itemsPerPage + index + 1}. ${shortenQuestion(quiz.question_text)}` }}
-                          />
-                          <div className="flex items-center space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => toggleBookmark(quiz._id, e)}
-                              className="hover:bg-transparent p-1 relative"
-                            >
-                              {bookmarkedQuizzes.has(quiz._id) ? (
-                                <BookmarkCheck className="h-5 w-5 text-teal-500" />
-                              ) : (
-                                <Bookmark className="h-5 w-5" />
-                              )}
-                            </Button>
+          {/* Questions List */}
+          <ScrollArea className="h-[calc(100vh-120px)]">
+            <div className="p-4">
+              {isLoading ? (
+                <div className="space-y-4">
+                  {[...Array(5)].map((_, index) => (
+                    <Skeleton key={index} className="h-32" />
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {quizzes.map((quiz, index) => (
+                    <div 
+                      key={quiz._id} 
+                      className={`mb-4 p-4 border ${isDarkMode ? 'border-[#2f2f2f] bg-[#1d1d1d]' : 'border-gray-200 bg-white'} rounded-lg`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {removeQuizTypePrefix(quiz.question_text)}
+                          </h3>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge className={getDifficultyStyle(quiz.difficulty)}>
+                              {quiz.difficulty}
+                            </Badge>
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              Max Score: {quiz.max_score || 10}
+                            </span>
+                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              Success Rate: {quiz.success_rate || '90.00'}%
+                            </span>
                           </div>
                         </div>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          <Badge variant="secondary" className={getDifficultyStyle(quiz.difficulty)}>
-                            {quiz.difficulty}
-                          </Badge>
-                          {quiz.table_names && quiz.table_names.map(table => (
-                            <Badge key={table} variant="outline">{table}</Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() => handleStartQuiz(quiz._id, user?.id, quiz.question_text)}
-                        className="bg-teal-600 hover:bg-teal-700 text-white mt-2 md:mt-0 px-6 py-2 rounded"
-                      >
-                        Start Quiz
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <Tabs defaultValue="scenario" className="w-full">
-                      <TabsList className="w-full gap-2">
-                        <TabsTrigger value="scenario" className="flex-1 shadow-sm">Scenario</TabsTrigger>
-                        <TabsTrigger value="solution" className="flex-1 shadow-sm">Solution</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="scenario">
-                        <div
-                          className={`mt-2 text-sm ${expandedQuestions[quiz._id] ? '' : 'line-clamp-3'}`}
-                          dangerouslySetInnerHTML={{ __html: quiz.scenario }}
-                        />
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => toggleQuestionExpansion(quiz._id)}
-                          className="mt-2 border border-teal-700"
-                        >
-                          {expandedQuestions[quiz._id] ? 'Show Less' : 'Show More'}
-                        </Button>
-                      </TabsContent>
-                      <TabsContent value="solution">
-                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mt-2">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="w-full bg-blue-100 text-black sm:w-auto px-4 py-2 rounded">
-                                <FileText size={16} className="mr-2" />
-                                Text Solution
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px] bg-white ">
-                              <DialogHeader>
-                                <DialogTitle>Text Solution</DialogTitle>
-                                <DialogDescription>
-                                  {quiz.query}
-                                </DialogDescription>
-                              </DialogHeader>
-                            </DialogContent>
-                          </Dialog>
-                          <Button variant="outline" size="sm" onClick={() => openVideoPopup(quiz)} className="w-full text-black bg-teal-100 sm:w-auto px-4 py-2 rounded">
-                            <Video size={16} className="mr-2" />
-                            Video Solution
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => toggleBookmark(quiz._id, e)}
+                            className={isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}
+                          >
+                            {bookmarkedQuizzes.has(quiz._id) ? (
+                              <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                            ) : (
+                              <Star className="h-5 w-5" />
+                            )}
+                          </Button>
+                          <Button
+                            onClick={() => handleStartQuiz(quiz._id, user?.id, quiz.question_text)}
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                          >
+                            Solve
                           </Button>
                         </div>
-                      </TabsContent>
-                    </Tabs>
-                  </CardContent>
-                </Card>
-              ))}
-              <div className="flex justify-center bg-teal-800 items-center mt-4 space-x-2">
-                <Button
-                  onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.max(prev.currentPage - 1, 1) }))}
-                  disabled={paginationInfo.currentPage === 1}
-                  variant="outline"
-                  size="sm"
-                  className="px-4 py-2 rounded"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  <span className="hidden sm:inline ml-1">Previous</span>
-                </Button>
-                <span className="text-sm font-medium">
-                  Page {paginationInfo.currentPage} of {paginationInfo.totalPages}
-                </span>
-                <Button
-                  onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.min(prev.currentPage + 1, prev.totalPages) }))}
-                  disabled={paginationInfo.currentPage === paginationInfo.totalPages}
-                  variant="outline"
-                  size="sm"
-                  className="px-4 py-2 rounded"
-                >
-                  <span className="hidden sm:inline mr-1">Next</span>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </>
-          )}
-        </ScrollArea>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Pagination */}
+                  <div className="flex justify-center items-center mt-4 space-x-2">
+                    <Button
+                      onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.max(prev.currentPage - 1, 1) }))}
+                      disabled={paginationInfo.currentPage === 1}
+                      variant="outline"
+                      size="sm"
+                      className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      <span className="hidden sm:inline ml-1">Previous</span>
+                    </Button>
+                    <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : ''}`}>
+                      Page {paginationInfo.currentPage} of {paginationInfo.totalPages}
+                    </span>
+                    <Button
+                      onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.min(prev.currentPage + 1, prev.totalPages) }))}
+                      disabled={paginationInfo.currentPage === paginationInfo.totalPages}
+                      variant="outline"
+                      size="sm"
+                      className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+                    >
+                      <span className="hidden sm:inline mr-1">Next</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
       </main>
 
+      {/* Video Solution Dialog */}
       <Dialog open={isVideoPopupOpen} onOpenChange={setIsVideoPopupOpen}>
         <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
