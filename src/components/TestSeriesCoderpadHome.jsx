@@ -335,8 +335,7 @@ const normalizeDifficulty = (difficulty) => {
       route = '/pyQuiz'
     }
     
-    window.open(`${route}?questionID=${quizID}&userID=${userID}`, '_blank');
-
+    navigateTo(`${route}?questionID=${quizID}&userID=${userID}`)
   }
 
   const toggleQuestionExpansion = (quizId) => {
@@ -595,7 +594,7 @@ const normalizeDifficulty = (difficulty) => {
                         onClick={() => handleStartQuiz(quiz._id, user?.id, quiz.question_text)}
                         className="bg-teal-600 hover:bg-teal-700 text-white mt-2 md:mt-0 px-6 py-2 rounded"
                       >
-                        Solve
+                        Start Quiz
                       </Button>
                     </div>
                   </CardHeader>
