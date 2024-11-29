@@ -241,7 +241,7 @@ const PythonQuizApp = () => {
     const currentQuestion = quizData.questions[currentQuestionIndex];
     const allTestCasesPassed = await checkAllTestCases(userCodes[currentQuestionIndex], currentQuestion.test_cases);
     if (allTestCasesPassed) {
-      setUserOutput('');
+      // setUserOutput('');
       setFeedback('All test cases passed! Now submit the question');
       setScores(prevScores => ({
         ...prevScores,
@@ -254,7 +254,7 @@ const PythonQuizApp = () => {
         [currentQuestionIndex]: 0
       }));
     }
-    // setShowFeedback(true);
+    setShowFeedback(true);
     setIsSubmitting(false);
 
   };
@@ -715,7 +715,7 @@ const PythonQuizApp = () => {
             <div className={`mt-1 ${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} rounded p-2 flex-grow overflow-y-auto`}>
               <h1 className='text-lg font-semibold'>Output</h1>
               {showFeedback && (
-                <div className={`p-2 rounded mb-2 ${feedback.includes('All test cases passed') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                <div className={`p-2 rounded mb-2 ${feedback.includes('Correct answer!') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                   {feedback}
                 </div>
               )}
