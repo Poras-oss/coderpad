@@ -344,6 +344,7 @@ export default function QuizApp() {
   }
 
   return (
+
     <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[#141414]' : 'bg-gray-100'}`}>
       {/* Header */}
       <header className={`${isDarkMode ? 'bg-[#1d1d1d]' : 'bg-gray-200'} border-b border-[#2f2f2f]`}>
@@ -686,7 +687,16 @@ export default function QuizApp() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  )
-}
 
+/*<div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-teal-500 text-white">
+      <div className="text-center p-6 max-w-md mx-auto bg-white rounded-lg shadow-lg">
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">Coming Soon</h1>
+        <p className="text-gray-600 mb-6">
+          We're working hard to bring something amazing to you. Stay tuned!
+        </p>
+       
+      </div>
+
+    </div> */
+  );
+};
