@@ -77,6 +77,7 @@ export default function QuizApp() {
   const [availableSubtopics, setAvailableSubtopics] = useState([])
   const [availableCompanies, setAvailableCompanies] = useState([])
   const [bookmarkedQuizzes, setBookmarkedQuizzes] = useState(new Set())
+   const [solvedQuestions, setSolvedQuestions] = useState(new Set())
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
@@ -96,6 +97,7 @@ export default function QuizApp() {
   useEffect(() => {
     if (user && user.id) {
       fetchBookmarks()
+      fetchSolvedQuestions()
     }
   }, [user])
 
@@ -162,6 +164,24 @@ export default function QuizApp() {
     } catch (error) {
       console.error("Error fetching bookmarks:", error)
       toast.error("Failed to fetch bookmarks. Please try again later.")
+    }
+  }
+
+  const fetchSolvedQuestions = async () => {
+    if (!user || !user.id) return
+
+    try {
+      const response = await fetch(`https://server.datasenseai.com/question-attempt/solved/${user.id}`)
+      if (response.ok) {
+        const data = await response.json()
+        const solvedSet = new Set(data.solvedQuestions.filter(id => id !== null))
+        setSolvedQuestions(solvedSet)
+      } else {
+        throw new Error("Failed to fetch solved questions")
+      }
+    } catch (error) {
+      console.error("Error fetching solved questions:", error)
+      toast.error("Failed to fetch solved questions. Please try again later.")
     }
   }
 
@@ -346,7 +366,7 @@ export default function QuizApp() {
   return (
     <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[#141414]' : 'bg-gray-100'}`}>
       {/* Header */}
-      <header className={`${isDarkMode ? 'bg-[#1d1d1d]' : 'bg-gray-200'} border-b border-[#2f2f2f]`}>
+      <header className={`${isDarkMode ? 'bg-[#1d1d1d]' : 'bg-teal-600'} `}>
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <Button 
@@ -405,7 +425,7 @@ export default function QuizApp() {
             <div className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               <h2 className="text-sm font-semibold mb-2">DIFFICULTY</h2>
               <div className="space-y-2">
-                {['Easy', 'Medium', 'advance'].map((difficulty) => (
+                {['Easy', 'Medium', 'Advance'].map((difficulty) => (
                   <label key={difficulty} className="flex items-center space-x-2 cursor-pointer">
                     <Checkbox
                       checked={filters.difficulties.includes(difficulty.toLowerCase())}
@@ -467,18 +487,27 @@ export default function QuizApp() {
         {/* Mobile Filter Button */}
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" className="md:hidden m-4 fixed  bottom-80 right-4 z-10">
+          <Button 
+            variant="outline" 
+            className={`md:hidden fixed bottom-4 right-4 z-10 ${
+              isDarkMode 
+                ? 'bg-[#1d1d1d] text-white hover:bg-[#2f2f2f] border-[#2f2f2f]' 
+                : 'bg-white text-gray-800 hover:bg-gray-100'
+            }`}
+          >
               <Filter className="mr-2 h-4 w-4" />
               Filters
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+          <SheetContent side="left" className={`w-[300px] sm:w-[400px] ${
+            isDarkMode ? 'bg-[#1d1d1d] text-white' : 'bg-white text-gray-800'
+          }`}>
             <SheetHeader>
-              <SheetTitle>Filters</SheetTitle>
-              <SheetDescription>
-                Apply filters to narrow down the questions.
-              </SheetDescription>
-            </SheetHeader>
+            <SheetTitle className={isDarkMode ? 'text-white' : 'text-gray-800'}>Filters</SheetTitle>
+            <SheetDescription className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+              Apply filters to narrow down the questions.
+            </SheetDescription>
+          </SheetHeader>
             <ScrollArea className="h-[calc(100vh-120px)] mt-4">
               <div className="p-4">
                 {/* Mobile filters content - same as sidebar */}
@@ -563,7 +592,7 @@ export default function QuizApp() {
         {/* Main Content */}
         <div className="flex-1">
           {/* Search Bar */}
-          <div className="p-4 border-b border-[#2f2f2f]">
+          <div className={`p-4 border-b ${isDarkMode ?  'border-[#2f2f2f]' : 'border-gray-200'}`} >
             <Input
               type="text"
               placeholder="Search questions..."
@@ -584,7 +613,7 @@ export default function QuizApp() {
                 </div>
               ) : (
                 <>
-                  {quizzes.map((quiz, index) => (
+           {quizzes.map((quiz, index) => (
                     <div 
                       key={quiz._id} 
                       className={`mb-4 p-4 border ${isDarkMode ? 'border-[#2f2f2f] bg-[#1d1d1d]' : 'border-gray-200 bg-white'} rounded-lg`}
@@ -595,15 +624,22 @@ export default function QuizApp() {
                             {removeQuizTypePrefix(quiz.question_text)}
                           </h3>
                           <div className="flex items-center gap-2 mt-2">
-                            <Badge className={getDifficultyStyle(quiz.difficulty)}>
-                              {quiz.difficulty}
+                            <Badge className={`px-2 py-1 rounded-full font-semibold text-xs ${getDifficultyStyle(quiz.difficulty)}`}>
+                              {capitalizeFirstLetter(quiz.difficulty)}
                             </Badge>
-                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                              Max Score: {quiz.max_score || 10}
-                            </span>
-                            <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                              Success Rate: {quiz.success_rate || '90.00'}%
-                            </span>
+                            {quiz.subtopics && quiz.subtopics.map((subtopic, index) => (
+                              <Badge key={index} variant="outline">
+                                {subtopic}
+                              </Badge>
+                            ))}
+                            {quiz.companies && quiz.companies.map((company, index) => (
+                              <Badge key={index} variant="secondary">
+                                {company}
+                              </Badge>
+                            ))}
+                            {solvedQuestions.has(quiz._id) && (
+                              <Badge variant="success"><div className={isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}>Solved</div></Badge>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -621,7 +657,7 @@ export default function QuizApp() {
                           </Button>
                           <Button
                             onClick={() => handleStartQuiz(quiz._id, user?.id, quiz.question_text)}
-                            className="bg-green-600 hover:bg-green-700 text-white"
+                            className="bg-cyan-600 hover:bg-cyan-700 text-white"
                           >
                             Solve
                           </Button>
