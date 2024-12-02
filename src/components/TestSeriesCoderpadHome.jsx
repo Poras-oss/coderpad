@@ -727,9 +727,9 @@ export default function QuizApp() {
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-teal-500 text-white">
       <div className="text-center p-6 max-w-md mx-auto bg-white rounded-lg shadow-lg">
         <h1 className="text-4xl font-bold text-gray-800 mb-4">Coming Soon</h1>
-        <p className="text-gray-600 mb-6">
+        <h4 className="text-gray-600 mb-6">
           We're working hard to bring something amazing to you. Stay tuned!
-        </p>
+        </h4>
        
       </div>
 
