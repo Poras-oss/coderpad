@@ -504,9 +504,9 @@ export default function QuizApp() {
           }`}>
             <SheetHeader>
             <SheetTitle className={isDarkMode ? 'text-white' : 'text-gray-800'}>Filters</SheetTitle>
-            <SheetDescription className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
+            <h4 className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
               Apply filters to narrow down the questions.
-            </SheetDescription>
+            </h4>
           </SheetHeader>
             <ScrollArea className="h-[calc(100vh-120px)] mt-4">
               <div className="p-4">
