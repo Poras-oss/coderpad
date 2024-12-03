@@ -440,6 +440,29 @@ export default function QuizApp()  {
       }
     };
 
+
+    function parseDataOverview(inputString) {
+      const resultMap = new Map();
+  
+      // Split the input string by new lines
+      const lines = inputString.split("\n");
+  
+      // Iterate over each line to extract key-value pairs
+      lines.forEach(line => {
+          const colonIndex = line.indexOf(":"); // Find the colon index
+          if (colonIndex !== -1) {
+              // Extract key (trim whitespace) and value (trim whitespace)
+              const key = line.slice(0, colonIndex).trim();
+              const value = line.slice(colonIndex + 1).trim();
+  
+              // Add key-value pair to the map
+              resultMap.set(key, value);
+          }
+      });
+  
+      return resultMap;
+  }
+
   if (!quizData) return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
       <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
@@ -553,16 +576,120 @@ export default function QuizApp()  {
   
           {/* Question Details */}
           <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-100'} p-4 flex-grow overflow-y-auto`}>
-            {activeTab === 'question' && (
-              <>
-                <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                  <div 
-                    className="question-text"
-                    dangerouslySetInnerHTML={{ __html: currentQuestion.question_text.replace(/\n/g, '<br>') }}
-                  />
-                  </div>
-              </>
-            )}
+          {activeTab === 'question' && (
+  <>
+    <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+      {/* Render scenario if it exists */}
+      {currentQuestion.scenario && (
+        <div 
+          className="scenario-text mb-4 text-sm italic"
+          dangerouslySetInnerHTML={{ __html: currentQuestion.scenario.replace(/\n/g, '<br>') }}
+        />
+      )}
+
+{currentQuestion['data-overview'] && (
+  <div className="mt-6">
+    <h4 className="text-lg font-semibold mb-2">Data Overview</h4>
+    <div className={`border rounded-lg overflow-hidden ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+      <table className="min-w-full divide-y divide-gray-200">
+        <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white'}>
+          {(() => {
+            const parsedData = parseDataOverview(currentQuestion['data-overview']);
+            return Array.from(parsedData.entries()).map(([key, value], rowIndex) => (
+              <tr key={rowIndex} className={rowIndex % 2 === 1 ? (isDarkMode ? 'bg-gray-900' : 'bg-gray-50') : ''}>
+                <td 
+                  className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
+                  dangerouslySetInnerHTML={{ __html: key }}
+                ></td>
+                <td 
+                  className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}
+                  dangerouslySetInnerHTML={{
+                    __html: typeof value === 'object' ? JSON.stringify(value) : value,
+                  }}
+                ></td>
+              </tr>
+            ));
+          })()}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}
+
+      {/* Render question text with single teal vertical line */}
+      <div className="mb-6 mt-6">
+        <div className="flex">
+          <div className={`w-1 mr-4 ${isDarkMode ? 'bg-teal-500' : 'bg-teal-600'}`}></div>
+          <div 
+            className="question-text flex-1 p-4"
+            dangerouslySetInnerHTML={{ __html: currentQuestion.question_text.replace(/\n/g, '<br>') }}
+          />
+        </div>
+      </div>
+
+      {/* New section: Additional Information with table-like layout */}
+      {(currentQuestion.common_mistakes || currentQuestion.interview_probability || currentQuestion.ideal_time ||  currentQuestion.roles) && (
+        <div className="mt-6">
+          <h4 className="text-lg font-semibold mb-2">Additional Information</h4>
+          <div className={`border rounded-lg overflow-hidden ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            <table className="min-w-full divide-y divide-gray-200">
+              <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white'}>
+                {currentQuestion.common_mistakes && (
+                  <tr>
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
+                      Common Mistakes
+                    </td>
+                    <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                      {currentQuestion.common_mistakes}
+                    </td>
+                  </tr>
+                )}
+                {currentQuestion.interview_probability && (
+                  <tr className={isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}>
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
+                      Interview Probability
+                    </td>
+                    <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                      {currentQuestion.interview_probability}
+                    </td>
+                  </tr>
+                )}
+                {currentQuestion.ideal_time && (
+                  <tr>
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
+                      Ideal Time
+                    </td>
+                    <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                      {currentQuestion.ideal_time}
+                    </td>
+                  </tr>
+                )}
+
+{currentQuestion.roles && (
+                  <tr className={isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}>
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
+                      Job Roles
+                    </td>
+                    <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                      {currentQuestion.roles}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  </>
+)}
+
+
+
+
+
+
+
                 {activeTab === 'tables' && (
               <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
                 <h3 className="text-lg font-bold mb-2">Tables</h3>
