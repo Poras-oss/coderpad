@@ -608,71 +608,79 @@ export default function QuizApp() {
               {isLoading ? (
                 <div className="space-y-4">
                   {[...Array(5)].map((_, index) => (
-                    <Skeleton key={index} className="h-32" />
+                    <Skeleton key={index} className="h-32"
+                    />
                   ))}
                 </div>
               ) : (
                 <>
-          {quizzes.map((quiz, index) => (
-        <div 
-        key={quiz._id} 
-        className={`mb-4 p-4 border ${isDarkMode ? 'border-[#2f2f2f] bg-[#1d1d1d]' : 'border-gray-200 bg-white'} rounded-lg`}
-      >
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                {quiz.title ?? removeQuizTypePrefix(quiz.question_text)}
-              </h3>
-              <div className="flex flex-wrap items-center gap-2 mt-2">
-                <Badge className={`px-2 py-1 rounded-full font-semibold text-xs ${getDifficultyStyle(quiz.difficulty)}`}>
-                  {capitalizeFirstLetter(quiz.difficulty)}
-                </Badge>
-                {quiz.id && (
-                  <Badge variant="outline" className={`flex items-center gap-1 ${isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-100 text-gray-700'}`}>
-                    <Hash className="h-3 w-3" />
-                    {quiz.id.slice(-6).toUpperCase()}
-                  </Badge>
-                )}
-                {quiz.subtopics && quiz.subtopics.map((subtopic, index) => (
-                  <Badge key={index} variant="outline" className={`flex items-center gap-1 ${isDarkMode ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-700'}`}>
-                    <BookOpen className="h-3 w-3" />
-                    {subtopic}
-                  </Badge>
-                ))}
-                {quiz.company && quiz.company.map((company, index) => (
-                  <Badge key={index} variant="secondary" className={`flex items-center gap-1 ${isDarkMode ? 'bg-purple-900 text-purple-200' : 'bg-purple-100 text-purple-700'}`}>
-                    <Briefcase className="h-3 w-3" />
-                    {company}
-                  </Badge>
-                ))}
-                {solvedQuestions.has(quiz._id) && (
-                  <Badge variant="success" className={isDarkMode ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-700'}>Solved</Badge>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={(e) => toggleBookmark(quiz._id, e)}
-                className={isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}
-              >
-                {bookmarkedQuizzes.has(quiz._id) ? (
-                  <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                ) : (
-                  <Star className="h-5 w-5" />
-                )}
-              </Button>
-              <Button
-                onClick={() => handleStartQuiz(quiz._id, user?.id, quiz.question_text)}
-                className={`${isDarkMode ? 'bg-cyan-700 hover:bg-cyan-600' : 'bg-cyan-600 hover:bg-cyan-700'} text-white`}
-              >
-                Solve
-              </Button>
-            </div>
+        {quizzes.map((quiz, index) => {
+  const questionNumber = (paginationInfo.currentPage - 1) * itemsPerPage + index + 1; // Calculate question number
+  return (
+    <div 
+      key={quiz._id} 
+      className={`mb-4 p-4 border ${isDarkMode ? 'border-[#2f2f2f] bg-[#1d1d1d]' : 'border-gray-200 bg-white'} rounded-lg`}
+    >
+      <div className="flex justify-between items-start">
+        <div>
+          {/* Question number */}
+        
+          {/* Question title */}
+          <h3 className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          {questionNumber}. {quiz.title ?? removeQuizTypePrefix(quiz.question_text)}
+          </h3>
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            <Badge className={`px-2 py-1 rounded-full font-semibold text-xs ${getDifficultyStyle(quiz.difficulty)}`}>
+              {capitalizeFirstLetter(quiz.difficulty)}
+            </Badge>
+            {quiz.id && (
+              <Badge variant="secondary" className={`flex items-center gap-1 ${isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-100 text-gray-700'}`}>
+                <Hash className="h-3 w-3" />
+                {quiz.id.slice(-6).toUpperCase()}
+              </Badge>
+            )}
+            {quiz.subtopics && quiz.subtopics.map((subtopic, subIndex) => (
+              <Badge key={subIndex} variant="secondary" className={`flex items-center gap-1 ${isDarkMode ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-700'}`}>
+                <BookOpen className="h-3 w-3" />
+                {subtopic}
+              </Badge>
+            ))}
+            {quiz.company && quiz.company.map((company, compIndex) => (
+              <Badge key={compIndex} variant="secondary" className={`flex items-center gap-1 ${isDarkMode ? 'bg-purple-900 text-purple-200' : 'bg-purple-100 text-purple-700'}`}>
+                <Briefcase className="h-3 w-3" />
+                {company}
+              </Badge>
+            ))}
+            {solvedQuestions.has(quiz._id) && (
+              <Badge variant="success" className={isDarkMode ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-700'}>Solved</Badge>
+            )}
           </div>
         </div>
-      ))}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => toggleBookmark(quiz._id, e)}
+            className={isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}
+          >
+            {bookmarkedQuizzes.has(quiz._id) ? (
+              <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+            ) : (
+              <Star className="h-5 w-5" />
+            )}
+          </Button>
+          <Button
+            onClick={() => handleStartQuiz(quiz._id, user?.id, quiz.question_text)}
+            className={`${isDarkMode ? 'bg-cyan-700 hover:bg-cyan-600' : 'bg-cyan-600 hover:bg-cyan-700'} text-white`}
+          >
+            Solve
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+})}
+
 
                   {/* Pagination */}
                   <div className="flex justify-center items-center mt-4 space-x-2">
