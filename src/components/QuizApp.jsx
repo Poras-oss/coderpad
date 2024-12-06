@@ -690,7 +690,7 @@ export default function QuizApp()  {
 
 
 
-                {activeTab === 'tables' && (
+{activeTab === 'tables' && (
               <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
                 <h3 className="text-lg font-bold mb-2">Tables</h3>
                 {currentQuestion.table_data && currentQuestion.table_data.map((table, tableIndex) => (
@@ -730,7 +730,7 @@ export default function QuizApp()  {
     <table className="min-w-full divide-y divide-gray-200">
       <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
         <tr>
-          {currentQuestion.table_data[0]?.columns.slice(0,currentQuestion.expected_output[0].length).map((column, columnIndex) => (
+          {currentQuestion.expected_output.columns.map((column, columnIndex) => (
             <th
               key={columnIndex}
               className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
@@ -741,7 +741,7 @@ export default function QuizApp()  {
         </tr>
       </thead>
       <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
-        {currentQuestion.expected_output.slice(0, 10).map((row, rowIndex) => (
+        {currentQuestion.expected_output.rows.slice(0, 10).map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.map((value, cellIndex) => (
               <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
