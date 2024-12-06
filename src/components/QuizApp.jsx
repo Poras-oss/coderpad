@@ -27,7 +27,7 @@ export default function QuizApp()  {
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
 
-  const [timeRemaining, setTimeRemaining] = useState(60 * 60); // 60 minutes in seconds
+  const [timeRemaining, setTimeRemaining] = useState(45 * 60); // 60 minutes in seconds
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [scores, setScores] = useState({});
   const [canSubmit, setCanSubmit] = useState(false);
@@ -582,14 +582,25 @@ export default function QuizApp()  {
       {/* Render scenario if it exists */}
       {currentQuestion.scenario && (
         <div 
-          className="scenario-text mb-4 text-sm italic"
+          className="scenario-text mb-4 text-md"
           dangerouslySetInnerHTML={{ __html: currentQuestion.scenario.replace(/\n/g, '<br>') }}
         />
       )}
 
+        {/* Render question text with single teal vertical line */}
+        <div className="mb-6 mt-6">
+        <div className="flex">
+          <div className={`w-1 mr-4 ${isDarkMode ? 'bg-teal-500' : 'bg-teal-600'}`}></div>
+          <div 
+            className="question-text flex-1 p-4"
+            dangerouslySetInnerHTML={{ __html: currentQuestion.question_text.replace(/\n/g, '<br>') }}
+          />
+        </div>
+      </div>
+
 {currentQuestion['data-overview'] && (
   <div className="mt-6">
-    <h4 className="text-lg font-semibold mb-2">Data Overview</h4>
+    {/* <h4 className="text-md font-semibold mb-2">Data Overview</h4> */}
     <div className={`border rounded-lg overflow-hidden ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
       <table className="min-w-full divide-y divide-gray-200">
         <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white'}>
@@ -616,16 +627,7 @@ export default function QuizApp()  {
   </div>
 )}
 
-      {/* Render question text with single teal vertical line */}
-      <div className="mb-6 mt-6">
-        <div className="flex">
-          <div className={`w-1 mr-4 ${isDarkMode ? 'bg-teal-500' : 'bg-teal-600'}`}></div>
-          <div 
-            className="question-text flex-1 p-4"
-            dangerouslySetInnerHTML={{ __html: currentQuestion.question_text.replace(/\n/g, '<br>') }}
-          />
-        </div>
-      </div>
+    
 
       {/* New section: Additional Information with table-like layout */}
       {(currentQuestion.common_mistakes || currentQuestion.interview_probability || currentQuestion.ideal_time ||  currentQuestion.roles) && (
@@ -685,11 +687,6 @@ export default function QuizApp()  {
 )}
 
 
-
-
-
-
-
                 {activeTab === 'tables' && (
               <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
                 <h3 className="text-lg font-bold mb-2">Tables</h3>
@@ -730,7 +727,7 @@ export default function QuizApp()  {
     <table className="min-w-full divide-y divide-gray-200">
       <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
         <tr>
-          {currentQuestion.table_data[0]?.columns.slice(0,currentQuestion.expected_output[0].length).map((column, columnIndex) => (
+          {currentQuestion.expected_output.columns.map((column, columnIndex) => (
             <th
               key={columnIndex}
               className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
@@ -741,7 +738,7 @@ export default function QuizApp()  {
         </tr>
       </thead>
       <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
-        {currentQuestion.expected_output.slice(0, 10).map((row, rowIndex) => (
+        {currentQuestion.expected_output.rows.slice(0, 10).map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.map((value, cellIndex) => (
               <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
