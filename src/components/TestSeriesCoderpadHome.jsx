@@ -589,18 +589,149 @@ export default function QuizApp() {
           </SheetContent>
         </Sheet>
 
-        {/* Main Content */}
-        <div className="flex-1">
-          {/* Search Bar */}
-          <div className={`p-4 border-b ${isDarkMode ?  'border-[#2f2f2f]' : 'border-gray-200'}`} >
-            <Input
-              type="text"
-              placeholder="Search questions..."
-              value={filters.search}
-              onChange={(e) => updateFilters('search', e.target.value)}
-              className={`max-w ${isDarkMode ? 'bg-[#2f2f2f] border-[#3f3f3f]' : 'bg-white border-gray-200'}`}
-            />
-          </div>
+    //     {/* Main Content */}
+    //     <div className="flex-1">
+    //       {/* Search Bar */}
+    //       <div className={`p-4 border-b ${isDarkMode ?  'border-[#2f2f2f]' : 'border-gray-200'}`} >
+    //         <Input
+    //           type="text"
+    //           placeholder="Search questions..."
+    //           value={filters.search}
+    //           onChange={(e) => updateFilters('search', e.target.value)}
+    //           className={`max-w ${isDarkMode ? 'bg-[#2f2f2f] border-[#3f3f3f]' : 'bg-white border-gray-200'}`}
+    //         />
+    //       </div>
+
+    //       {/* Questions List */}
+    //       <ScrollArea className="h-[calc(100vh-120px)]">
+    //         <div className="p-4">
+    //           {isLoading ? (
+    //             <div className="space-y-4">
+    //               {[...Array(5)].map((_, index) => (
+    //                 <Skeleton key={index} className="h-32" />
+    //               ))}
+    //             </div>
+    //           ) : (
+    //             <>
+    //        {quizzes.map((quiz, index) => (
+    //                 <div 
+    //                   key={quiz._id} 
+    //                   className={`mb-4 p-4 border ${isDarkMode ? 'border-[#2f2f2f] bg-[#1d1d1d]' : 'border-gray-200 bg-white'} rounded-lg`}
+    //                 >
+    //                   <div className="flex justify-between items-start">
+    //                     <div>
+    //                       <h3 className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+    //                         {removeQuizTypePrefix(quiz.question_text)}
+    //                       </h3>
+    //                       <div className="flex items-center gap-2 mt-2">
+    //                         <Badge className={`px-2 py-1 rounded-full font-semibold text-xs ${getDifficultyStyle(quiz.difficulty)}`}>
+    //                           {capitalizeFirstLetter(quiz.difficulty)}
+    //                         </Badge>
+    //                         {quiz.subtopics && quiz.subtopics.map((subtopic, index) => (
+    //                           <Badge key={index} variant="outline">
+    //                             {subtopic}
+    //                           </Badge>
+    //                         ))}
+    //                         {quiz.companies && quiz.companies.map((company, index) => (
+    //                           <Badge key={index} variant="secondary">
+    //                             {company}
+    //                           </Badge>
+    //                         ))}
+    //                         {solvedQuestions.has(quiz._id) && (
+    //                           <Badge variant="success"><div className={isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}>Solved</div></Badge>
+    //                         )}
+    //                       </div>
+    //                     </div>
+    //                     <div className="flex items-center gap-2">
+    //                       <Button
+    //                         variant="ghost"
+    //                         size="icon"
+    //                         onClick={(e) => toggleBookmark(quiz._id, e)}
+    //                         className={isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}
+    //                       >
+    //                         {bookmarkedQuizzes.has(quiz._id) ? (
+    //                           <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+    //                         ) : (
+    //                           <Star className="h-5 w-5" />
+    //                         )}
+    //                       </Button>
+    //                       <Button
+    //                         onClick={() => handleStartQuiz(quiz._id, user?.id, quiz.question_text)}
+    //                         className="bg-cyan-600 hover:bg-cyan-700 text-white"
+    //                       >
+    //                         Solve
+    //                       </Button>
+    //                     </div>
+    //                   </div>
+    //                 </div>
+    //               ))}
+
+    //               {/* Pagination */}
+    //               <div className="flex justify-center items-center mt-4 space-x-2">
+    //                 <Button
+    //                   onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.max(prev.currentPage - 1, 1) }))}
+    //                   disabled={paginationInfo.currentPage === 1}
+    //                   variant="outline"
+    //                   size="sm"
+    //                   className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+    //                 >
+    //                   <ChevronLeft className="h-4 w-4" />
+    //                   <span className="hidden sm:inline ml-1">Previous</span>
+    //                 </Button>
+    //                 <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : ''}`}>
+    //                   Page {paginationInfo.currentPage} of {paginationInfo.totalPages}
+    //                 </span>
+    //                 <Button
+    //                   onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.min(prev.currentPage + 1, prev.totalPages) }))}
+    //                   disabled={paginationInfo.currentPage === paginationInfo.totalPages}
+    //                   variant="outline"
+    //                   size="sm"
+    //                   className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+    //                 >
+    //                   <span className="hidden sm:inline mr-1">Next</span>
+    //                   <ChevronRight className="h-4 w-4" />
+    //                 </Button>
+    //               </div>
+    //             </>
+    //           )}
+    //         </div>
+    //       </ScrollArea>
+    //     </div>
+    //   </main>
+
+    //   {/* Video Solution Dialog */}
+    //   <Dialog open={isVideoPopupOpen} onOpenChange={setIsVideoPopupOpen}>
+    //     <DialogContent className="sm:max-w-[800px]">
+    //       <DialogHeader>
+    //         <DialogTitle>Solution Video</DialogTitle>
+    //       </DialogHeader>
+    //       <div className="relative pt-[56.25%]">
+    //         {currentVideoId ? (
+    //           <ReactPlayer
+    //             url={currentVideoId}
+    //             width="100%"
+    //             height="100%"
+    //             controls
+    //             playing
+    //             className="absolute top-0 left-0"
+    //             onError={(e) => console.error('ReactPlayer error:', e)}
+    //           />
+    //         ) : (
+    //           <p>No video URL available</p>
+    //         )}
+    //       </div>
+    //     </DialogContent>
+    //   </Dialog>
+    // </div>
+
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-teal-500 text-white">
+      <div className="text-center p-6 max-w-md mx-auto bg-white rounded-lg shadow-lg">
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">Coming Soon</h1>
+        <h4 className="text-gray-600 mb-6">
+          We're working hard to bring something amazing to you. Stay tuned!
+        </h4>
+       
+      </div>
 
           {/* Questions List */}
           <ScrollArea className="h-[calc(100vh-120px)]">
