@@ -752,4 +752,3 @@ export default function QuizApp() {
     // </div> 
   )
 }
-
