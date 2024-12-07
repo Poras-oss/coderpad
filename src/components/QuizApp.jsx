@@ -333,12 +333,16 @@ export default function QuizApp()  {
   };
   
   const compareResults = (userResults, expectedOutput) => {
-    if (userResults.length !== expectedOutput.length) {
-      return false;
-    }
+    // if (userResults.length !== expectedOutput.length) {
+    //   console.log('different length')
+    //   return false;
+    // }
   
-    const expectedString = JSON.stringify(expectedOutput.map(row => Object.values(row)));
+    const expectedString = JSON.stringify(expectedOutput.rows.map(row => Object.values(row)));
     const userResultString = JSON.stringify(userResults.map(row => Object.values(row)));
+
+    console.log('expected =>'+expectedString)
+    console.log('userResukt =>'+userResultString)
 
     return userResultString === expectedString;
   };
