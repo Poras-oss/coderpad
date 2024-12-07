@@ -308,14 +308,14 @@ export default function QuizApp()  {
       }));
 
       if (isCorrect) {
-        // setFeedback({ text: 'Correct!', isCorrect: true, userAnswer: userAnswer });
+        setFeedback({ text: 'Correct! now submit the question', isCorrect: true, userAnswer: userAnswer });
+        
       } else {
         setFeedback({
+          text: 'Incorrect. Please try again.',
           isCorrect: false,
-          expected: expectedOutput.map(row => Object.values(row).join(', ')).join(' | '),
-          userAnswer: Array.isArray(userAnswer) 
-            ? userAnswer.map(row => Object.values(row).join(', ')).join(' | ')
-            : 'No data returned'
+          expected: expectedOutput,
+          userAnswer: userAnswer,
         });
       }
   
@@ -326,6 +326,7 @@ export default function QuizApp()  {
     } catch (error) {
       setFeedback('Your query is incorrect');
       setShowFeedback(true);
+      setOutput(userAnswer);
     } finally {
       setIsRunning(false);
     }
@@ -933,17 +934,15 @@ export default function QuizApp()  {
                     {feedback.text}
                   </div>
                 )}
-               {output !== null && (
+         {output !== null && (
   <div className="mt-2 flex flex-col space-y-4">
     <div className="font-semibold">OUTPUT</div>
     <div className="overflow-x-auto">
       {output.error ? (
         // Handle error output
-        <div className="text-red-600 bg-white-50 border border-grey-400 rounded-md p-4">
+        <div className="text-red-600 bg-red-50 border border-red-400 rounded-md p-4">
           <p className="font-bold">Error:</p>
-          <p><strong>Message:</strong> {output.message}</p>
-          <p><strong>Details:</strong> {output.details}</p>
-          <p><strong>Error Code:</strong> {output.code}</p>
+          <p>{output.error}</p>
         </div>
       ) : Array.isArray(output) && output.length > 0 ? (
         // Handle table output
@@ -974,6 +973,8 @@ export default function QuizApp()  {
     </div>
   </div>
 )}
+
+
 
               </div>
             </div>
