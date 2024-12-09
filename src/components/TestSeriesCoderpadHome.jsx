@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
+import logo from '../assets/dslogo.png'
 import { useNavigate } from 'react-router-dom'
 import { useUser, SignInButton, UserButton } from '@clerk/clerk-react'
 import { Video, FileText, ChevronDown, X, ArrowLeft, Search, Filter, Moon, Sun, Bookmark, BookmarkCheck, Loader2, ChevronLeft, ChevronRight, Star, Briefcase, Hash, BookOpen } from 'lucide-react'
@@ -374,17 +375,17 @@ export default function QuizApp() {
   return (
     <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[#141414]' : 'bg-gray-100'}`}>
     {/* Header */}
-    <header className={`${isDarkMode ? 'bg-[#1d1d1d]' : 'bg-teal-600'} `}>
+    <header className={`${isDarkMode ? 'bg-[#1d1d1d]' : 'bg-oxford-blue'} `}>
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
           <Button 
             variant="ghost" 
             onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} 
-            className={`${isDarkMode ? 'text-white hover:bg-[#2f2f2f]' : 'text-gray-700 hover:bg-gray-100'}`}
+            className="mr-2 text-white hover:text-gray-300 transition-colors duration-200"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <img src="./7.png" alt="Quiz App Logo" className="h-8" />
+          <img src={logo} alt="Quiz App Logo" className="h-12 w-auto cursor-pointer" />
         </div>
         
         <div className="flex items-center space-x-4">
@@ -392,9 +393,9 @@ export default function QuizApp() {
             variant="ghost"
             size="icon"
             onClick={() => setIsDarkMode(!isDarkMode)}
-            className={`${isDarkMode ? 'text-white hover:bg-[#2f2f2f]' : 'text-gray-700 hover:bg-gray-100'}`}
+            className={`${isDarkMode ? 'text-white hover:bg-[#2f2f2f]' : 'text-gray-700  hover:bg-gray-300'}`}
           >
-            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5 text-white" />}
           </Button>
           {isLoaded && isSignedIn ? (
             <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
@@ -410,8 +411,8 @@ export default function QuizApp() {
     </header>
 
     <main className="flex-1 flex">
-      {/* Sidebar */}
-      <aside className={`w-64 border-r ${isDarkMode ? 'border-[#2f2f2f] bg-[#1d1d1d]' : 'border-gray-200 bg-gray-50'} hidden md:block`}>
+      {/* Sidebar */}                          
+      <aside className={`w-64 border-r ${isDarkMode ? 'border-[#2f2f2f] dark bg-[#141414]' : 'border-gray-200 bg-gray-100'} hidden md:block`}>
         <div className="p-4">
           <div className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             <h2 className="text-sm font-semibold mb-2">STATUS</h2>
