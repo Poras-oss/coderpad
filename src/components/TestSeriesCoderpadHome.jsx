@@ -633,7 +633,7 @@ export default function QuizApp() {
                   return (
                     <div 
                       key={quiz._id} 
-                      className={`mb-4 p-4 border ${isDarkMode ? 'border-[#2f2f2f] bg-[#1d1d1d]' : 'border-gray-200 bg-white'} rounded-lg`}
+                      className={`mb-4 p-4 border ${isDarkMode ? 'border-[#2f2f2f] bg-[#1d1d1d]' : 'border-gray-200 bg-white'} shadow-sm rounded-lg`}
                     >
                       <div className="flex justify-between items-start">
                         <div>
