@@ -7,6 +7,7 @@ import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import Split from 'react-split';
 import { Loader2, Video, X } from 'lucide-react';
 import ReactPlayer from 'react-player';
+import Bot from './Bot';
 
 export default function QuizApp()  {
   const { user, isLoaded } = useUser();
@@ -27,7 +28,7 @@ export default function QuizApp()  {
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
 
-  const [timeRemaining, setTimeRemaining] = useState(60 * 60); // 60 minutes in seconds
+  const [timeRemaining, setTimeRemaining] = useState(45 * 60); // 60 minutes in seconds
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [scores, setScores] = useState({});
   const [canSubmit, setCanSubmit] = useState(false);
@@ -308,14 +309,14 @@ export default function QuizApp()  {
       }));
 
       if (isCorrect) {
-        // setFeedback({ text: 'Correct!', isCorrect: true, userAnswer: userAnswer });
+        setFeedback({ text: 'Correct! now submit the question', isCorrect: true, userAnswer: userAnswer });
+        
       } else {
         setFeedback({
+          text: 'Incorrect. Please try again.',
           isCorrect: false,
-          expected: expectedOutput.map(row => Object.values(row).join(', ')).join(' | '),
-          userAnswer: Array.isArray(userAnswer) 
-            ? userAnswer.map(row => Object.values(row).join(', ')).join(' | ')
-            : 'No data returned'
+          expected: expectedOutput,
+          userAnswer: userAnswer,
         });
       }
   
@@ -326,18 +327,23 @@ export default function QuizApp()  {
     } catch (error) {
       setFeedback('Your query is incorrect');
       setShowFeedback(true);
+      setOutput(userAnswer);
     } finally {
       setIsRunning(false);
     }
   };
   
   const compareResults = (userResults, expectedOutput) => {
-    if (userResults.length !== expectedOutput.length) {
-      return false;
-    }
+    // if (userResults.length !== expectedOutput.length) {
+    //   console.log('different length')
+    //   return false;
+    // }
   
-    const expectedString = JSON.stringify(expectedOutput.map(row => Object.values(row)));
+    const expectedString = JSON.stringify(expectedOutput.rows.map(row => Object.values(row)));
     const userResultString = JSON.stringify(userResults.map(row => Object.values(row)));
+
+    console.log('expected =>'+expectedString)
+    console.log('userResukt =>'+userResultString)
 
     return userResultString === expectedString;
   };
@@ -582,14 +588,25 @@ export default function QuizApp()  {
       {/* Render scenario if it exists */}
       {currentQuestion.scenario && (
         <div 
-          className="scenario-text mb-4 text-sm italic"
+          className="scenario-text mb-4 text-md"
           dangerouslySetInnerHTML={{ __html: currentQuestion.scenario.replace(/\n/g, '<br>') }}
         />
       )}
 
+        {/* Render question text with single teal vertical line */}
+        <div className="mb-6 mt-6">
+        <div className="flex">
+          <div className={`w-1 mr-4 ${isDarkMode ? 'bg-teal-500' : 'bg-teal-600'}`}></div>
+          <div 
+            className="question-text flex-1 p-4"
+            dangerouslySetInnerHTML={{ __html: currentQuestion.question_text.replace(/\n/g, '<br>') }}
+          />
+        </div>
+      </div>
+
 {currentQuestion['data-overview'] && (
   <div className="mt-6">
-    <h4 className="text-lg font-semibold mb-2">Data Overview</h4>
+    {/* <h4 className="text-md font-semibold mb-2">Data Overview</h4> */}
     <div className={`border rounded-lg overflow-hidden ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
       <table className="min-w-full divide-y divide-gray-200">
         <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white'}>
@@ -616,16 +633,7 @@ export default function QuizApp()  {
   </div>
 )}
 
-      {/* Render question text with single teal vertical line */}
-      <div className="mb-6 mt-6">
-        <div className="flex">
-          <div className={`w-1 mr-4 ${isDarkMode ? 'bg-teal-500' : 'bg-teal-600'}`}></div>
-          <div 
-            className="question-text flex-1 p-4"
-            dangerouslySetInnerHTML={{ __html: currentQuestion.question_text.replace(/\n/g, '<br>') }}
-          />
-        </div>
-      </div>
+    
 
       {/* New section: Additional Information with table-like layout */}
       {(currentQuestion.common_mistakes || currentQuestion.interview_probability || currentQuestion.ideal_time ||  currentQuestion.roles) && (
@@ -685,12 +693,7 @@ export default function QuizApp()  {
 )}
 
 
-
-
-
-
-
-{activeTab === 'tables' && (
+                {activeTab === 'tables' && (
               <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
                 <h3 className="text-lg font-bold mb-2">Tables</h3>
                 {currentQuestion.table_data && currentQuestion.table_data.map((table, tableIndex) => (
@@ -834,21 +837,11 @@ export default function QuizApp()  {
       </div>
     )}
 
-            {activeTab === 'ai help' && (
-              <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                <h3 className="text-lg font-bold mb-4">AI Help</h3>
-                <p>AI: To solve this SQL problem, consider the following steps:</p>
-                <ol className="list-decimal list-inside space-y-2">
-                  <li>Identify the tables you need to query from.</li>
-                  <li>Determine which columns you need to select.</li>
-                  <li>If you need data from multiple tables, use appropriate JOINs.</li>
-                  <li>Apply filtering conditions using the WHERE clause.</li>
-                  <li>If you need to group data, use GROUP BY and potentially HAVING for group-level filtering.</li>
-                  <li>Order your results using ORDER BY if necessary.</li>
-                  <li>Use LIMIT if you need to restrict the number of rows returned.</li>
-                </ol>
-              </div>
-            )}
+{activeTab === 'ai help' && (
+        <div className={`rounded-lg p-4 mb-4 shadow-md h-[460px] ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
+          <Bot isDarkMode={isDarkMode} />
+        </div>
+      )}
               </>
             )}
 
@@ -936,17 +929,15 @@ export default function QuizApp()  {
                     {feedback.text}
                   </div>
                 )}
-               {output !== null && (
+         {output !== null && (
   <div className="mt-2 flex flex-col space-y-4">
     <div className="font-semibold">OUTPUT</div>
     <div className="overflow-x-auto">
       {output.error ? (
         // Handle error output
-        <div className="text-red-600 bg-white-50 border border-grey-400 rounded-md p-4">
+        <div className="text-red-600 bg-red-50 border border-red-400 rounded-md p-4">
           <p className="font-bold">Error:</p>
-          <p><strong>Message:</strong> {output.message}</p>
-          <p><strong>Details:</strong> {output.details}</p>
-          <p><strong>Error Code:</strong> {output.code}</p>
+          <p>{output.error}</p>
         </div>
       ) : Array.isArray(output) && output.length > 0 ? (
         // Handle table output
@@ -977,6 +968,8 @@ export default function QuizApp()  {
     </div>
   </div>
 )}
+
+
 
               </div>
             </div>
