@@ -7,6 +7,7 @@ import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import Split from 'react-split';
 import { Loader2, Video, X } from 'lucide-react';
 import ReactPlayer from 'react-player';
+import Bot from './Bot';
 
 export default function QuizApp()  {
   const { user, isLoaded } = useUser();
@@ -836,21 +837,11 @@ export default function QuizApp()  {
       </div>
     )}
 
-            {activeTab === 'ai help' && (
-              <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                <h3 className="text-lg font-bold mb-4">AI Help</h3>
-                <p>AI: To solve this SQL problem, consider the following steps:</p>
-                <ol className="list-decimal list-inside space-y-2">
-                  <li>Identify the tables you need to query from.</li>
-                  <li>Determine which columns you need to select.</li>
-                  <li>If you need data from multiple tables, use appropriate JOINs.</li>
-                  <li>Apply filtering conditions using the WHERE clause.</li>
-                  <li>If you need to group data, use GROUP BY and potentially HAVING for group-level filtering.</li>
-                  <li>Order your results using ORDER BY if necessary.</li>
-                  <li>Use LIMIT if you need to restrict the number of rows returned.</li>
-                </ol>
-              </div>
-            )}
+{activeTab === 'ai help' && (
+        <div className={`rounded-lg p-4 mb-4 shadow-md h-[460px] ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
+          <Bot isDarkMode={isDarkMode} />
+        </div>
+      )}
               </>
             )}
 

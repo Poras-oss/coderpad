@@ -619,19 +619,10 @@ const PythonQuizApp = () => {
       </div>
     )}
             {activeTab === 'ai help' && (
-              <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                <h3 className="text-lg font-bold mb-4">AI Help</h3>
-                <p>AI: To solve this Python problem, consider the following steps:</p>
-                <ol className="list-decimal list-inside space-y-2">
-                  <li>Understand the problem requirements clearly.</li>
-                  <li>Break down the problem into smaller, manageable parts.</li>
-                  <li>Consider using appropriate data structures (e.g., lists, dictionaries).</li>
-                  <li>Implement the logic using Python's built-in functions and methods.</li>
-                  <li>Test your solution with different inputs, including edge cases.</li>
-                  <li>Optimize your code for better performance if necessary.</li>
-                </ol>
-              </div>
-            )}
+        <div className={`rounded-lg p-4 mb-4 shadow-md h-[460px] ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
+          <Bot isDarkMode={isDarkMode} />
+        </div>
+      )}
             </>
             )}
           </div>
