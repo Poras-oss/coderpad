@@ -4,13 +4,12 @@ import queryString from 'query-string';
 import { useNavigate } from 'react-router-dom';
 import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import logo from '../assets/dslogo.png'
-
+import { Loader2 } from 'lucide-react'
 
 const skills = ['Excel', 'SQL', 'Python', 'PowerBI', 'Tableau'];
 
 import { Video, FileText, ChevronDown, X, ArrowLeft } from 'lucide-react';
 import { FaSun, FaMoon, FaBars, FaTimes } from 'react-icons/fa';
-
 
 const DataSkillsDashboard = () => {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -21,6 +20,7 @@ const DataSkillsDashboard = () => {
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchQuizzes();
@@ -39,11 +39,14 @@ const DataSkillsDashboard = () => {
   };
 
   const fetchQuizzes = async () => {
+    setIsLoading(true);
     try {
       const response = await axios.get('https://server.datasenseai.com/quiz/quizzes');
       setQuizzes(response.data);
     } catch (error) {
       console.error('Error fetching quizzes:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
   
@@ -53,65 +56,16 @@ const DataSkillsDashboard = () => {
       return;
     }
   
-    const confirmStart = () => {
-      const lowerCaseQuizName = quizName.toLowerCase();
+    const lowerCaseQuizName = quizName.toLowerCase();
   
-      if (lowerCaseQuizName.includes('sql:')) {
-        navigateTo(`/quiz?quizID=${quizID}&userID=${userID}`);
-      } else if (lowerCaseQuizName.includes('python:')) {
-        navigateTo(`/pyQuiz?quizID=${quizID}&userID=${userID}`);
-      } else if (lowerCaseQuizName.includes('mcq:')) {
-        navigateTo(`/mcqQuiz?quizID=${quizID}&userID=${userID}`);
-      } else {
-        alert('Unknown quiz type.');
-      }
-    };
-  
-    const showConfirmationPopup = () => {
-      if (confirm("Important: You can only open this quiz once. Are you sure you want to start?")) {
-        confirmStart();
-      } else {
-        // User clicked Cancel, do nothing or handle as needed
-      }
-    };
-  
-    showConfirmationPopup();
-  };
-
-  const handleRegisterQuiz = async (quizID, userID) => {
-    if (!isSignedIn) {
-      alert('You need to log in to register for the quiz.');
-      return;
-    }
-    try {
-      const response = await axios.post('https://server.datasenseai.com/sql-quiz/register', {
-        userID: userID,
-        quizID: quizID,
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      console.log('Quiz registration successful:', response.data);
-      alert('Quiz registration successful');
-    } catch (error) {
-      console.error('Error registering quiz:', error);
-      alert('Failed to register for quiz');
-    }
-  };
-
-  const determineButtonLabel = (quiz) => {
-    const lowerCaseQuizName = quiz.quizName.toLowerCase();
-    const now = new Date();
-    const startDate = new Date(quiz.start);
-    const endDate = new Date(quiz.end);
-
-    if (now < startDate) {
-      return 'Register';
-    } else if (now >= startDate && now <= endDate) {
-      return 'Start';
+    if (lowerCaseQuizName.includes('sql:')) {
+      navigateTo(`/quiz?quizID=${quizID}&userID=${userID}`);
+    } else if (lowerCaseQuizName.includes('python:')) {
+      navigateTo(`/pyQuiz?quizID=${quizID}&userID=${userID}`);
+    } else if (lowerCaseQuizName.includes('mcq:')) {
+      navigateTo(`/mcqQuiz?quizID=${quizID}&userID=${userID}`);
     } else {
-       return 'Results';
+      alert('Unknown quiz type.');
     }
   };
 
@@ -120,30 +74,12 @@ const DataSkillsDashboard = () => {
       alert('You need to log in to get the results.');
       return;
     }
-    //Adding navigation to leaderboard screen here
     navigateTo(`/leaderboard?quizID=${quizID}&userID=${userID}&quizName=${quizName}`);
   }
 
   function backToHome(){
     window.top.location.href = 'https://practice.datasenseai.com';
   }
-
-
-
-  const determineButtonColor = (quiz) => {
-    const lowerCaseQuizName = quiz.quizName.toLowerCase();
-    const now = new Date();
-    const startDate = new Date(quiz.start);
-    const endDate = new Date(quiz.end);
-
-    if (now < startDate) {
-      return 'bg-blue-600 hover:bg-blue-700';
-    } else if (now >= startDate && now <= endDate) {
-      return 'bg-cyan-600 hover:bg-gray-800';
-    } else {
-       return 'bg-green-600 hover:bg-green-700';
-    }
-  };
 
   const filteredQuizzes = selectedSkill
     ? quizzes.filter(quiz => quiz.quizName.toLowerCase().includes(selectedSkill.toLowerCase()))
@@ -213,79 +149,77 @@ const DataSkillsDashboard = () => {
       </div>
     </header>
 
-    <main className="container mx-auto p-4">
-      <div className="flex flex-wrap justify-center gap-2 my-6">
-        {skills.map((skill) => (
-          <button
-            key={skill}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 
-              ${selectedSkill === skill 
-                ? 'bg-cyan-600 text-white' 
-                : isDarkMode
-                  ? 'bg-[#403f3f] text-white border border-gray-600 hover:bg-[#4a4a4a]'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'}`}
-            onClick={() => setSelectedSkill(skill === selectedSkill ? null : skill)}
-          >
-            {skill}
-          </button>
-        ))}
-      </div>
 
-      <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} shadow-md rounded-lg overflow-x-auto`}>
-        <table className="w-full">
-          <thead className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topic</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-              {/* <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Difficulty</th> */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-            </tr>
-          </thead>
-          <tbody className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
-            {filteredQuizzes.slice().reverse().map((quiz, index) => (
-              <tr key={quiz._id} className={index % 2 === 0 ? (isDarkMode ? 'bg-[#333333]' : 'bg-gray-50') : (isDarkMode ? 'bg-[#403f3f]' : 'bg-white')}>
-                <td className="px-4 py-4 whitespace-nowrap text-sm">
-                  {getQuizType(quiz.quizName)}
-                </td>
-                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                  {removeQuizTypePrefix(quiz.quizName)}
-                </td>
-           
-                {/* <td className="px-4 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                    ${quiz.difficulty ? 
-                      (quiz.difficulty === 'Easy' ? 'bg-green-100 text-green-800' : 
-                      quiz.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 
-                      'bg-red-100 text-red-800') 
-                      : 'bg-green-100 text-green-800'}`}>
-                    {quiz.difficulty || 'Easy'}
-                  </span>
-                </td> */}
-                <td className="px-4 py-4 whitespace-nowrap">
-                <button
-                    onClick={() => {
-                      if (determineButtonLabel(quiz) === 'Register') {
-                        handleRegisterQuiz(quiz._id, userID);
-                      } else if (determineButtonLabel(quiz) === 'Start') {
-                        handleStartQuiz(quiz._id, userID, quiz.quizName);
-                      } else if (determineButtonLabel(quiz) === 'Results') {
-                        handleQuizResults(quiz._id, userID, quiz.quizName);
-                      }
-                    }}
-                    className={`text-white font-bold py-2 px-5 rounded-xl ${determineButtonColor(quiz)}`}
-                    disabled={determineButtonLabel(quiz) === 'Ended'}
-                  >
-                    {determineButtonLabel(quiz)}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </main>
-  </div>
-);
+    <main className="container mx-auto p-4">
+        <div className="flex flex-wrap justify-center gap-2 my-6">
+          {skills.map((skill) => (
+            <button
+              key={skill}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 
+                ${selectedSkill === skill 
+                  ? 'bg-cyan-600 text-white' 
+                  : isDarkMode
+                    ? 'bg-[#403f3f] text-white border border-gray-600 hover:bg-[#4a4a4a]'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'}`}
+              onClick={() => setSelectedSkill(skill === selectedSkill ? null : skill)}
+            >
+              {skill}
+            </button>
+          ))}
+        </div>
+
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin text-cyan-600" />
+            <p className="mt-4 text-lg font-medium">Loading quizzes...</p>
+          </div>
+        ) : (
+          <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} shadow-md rounded-lg overflow-x-auto`}>
+            <table className="w-full">
+              <thead className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topic</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Results</th>
+                </tr>
+              </thead>
+              <tbody className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+                {filteredQuizzes.slice().reverse().map((quiz, index) => (
+                  <tr key={quiz._id} className={index % 2 === 0 ? (isDarkMode ? 'bg-[#333333]' : 'bg-gray-50') : (isDarkMode ? 'bg-[#403f3f]' : 'bg-white')}>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm">
+                      {getQuizType(quiz.quizName)}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                      {removeQuizTypePrefix(quiz.quizName)}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <button
+                        onClick={() => handleStartQuiz(quiz._id, userID, quiz.quizName)}
+                        className="text-white font-bold py-2 px-5 rounded-xl bg-cyan-600 hover:bg-gray-800"
+                      >
+                        Start
+                      </button>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      {new Date() > new Date(quiz.end) && (
+                        <button
+                          onClick={() => handleQuizResults(quiz._id, userID, quiz.quizName)}
+                          className="text-white font-bold py-2 px-5 rounded-xl bg-green-600 hover:bg-green-700"
+                        >
+                          View Results
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </main>
+    </div>
+  );
 };
 
 export default DataSkillsDashboard;
