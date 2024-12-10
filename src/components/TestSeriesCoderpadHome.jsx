@@ -377,14 +377,14 @@ export default function QuizApp() {
     {/* Header */}
     <header className={`${isDarkMode ? 'bg-[#1d1d1d]' : 'bg-oxford-blue'} `}>
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <Button 
+        <div className="flex items-center ">
+          {/* <Button 
             variant="ghost" 
             onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} 
             className="mr-2 text-white hover:text-gray-300 transition-colors duration-200"
           >
             <ArrowLeft className="h-5 w-5" />
-          </Button>
+          </Button> */}
           <img src={logo} alt="Quiz App Logo" className="h-12 w-auto cursor-pointer" />
         </div>
         
