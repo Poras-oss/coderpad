@@ -27,6 +27,8 @@ export default function QuizApp()  {
   const [isTesting, setIsTesting] = useState(false);
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
+  const [activeNestedTab, setActiveNestedTab] = useState('Tables');
+
 
   const [timeRemaining, setTimeRemaining] = useState(45 * 60); // 60 minutes in seconds
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -693,73 +695,113 @@ export default function QuizApp()  {
 )}
 
 
-                {activeTab === 'tables' && (
-              <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                <h3 className="text-lg font-bold mb-2">Tables</h3>
-                {currentQuestion.table_data && currentQuestion.table_data.map((table, tableIndex) => (
-                  <div key={tableIndex} className="mb-4">
-                    <h4 className="text-md font-semibold mb-2">{table.table_name}</h4>
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
-                          <tr>
-                            {table.columns.map((column, columnIndex) => (
-                              <th key={columnIndex} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                                {column}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
-                          {table.rows.slice(0,10).map((row, rowIndex) => (
-                            <tr key={rowIndex}>
-                              {row.map((cell, cellIndex) => (
-                                <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
-                                  {typeof cell === 'object' ? JSON.stringify(cell) : cell}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                     
-                    </div>
-                  </div>
-                ))}
+{activeTab === 'tables' && (
+  <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+    <h3 className="text-lg font-bold mb-2">Tables</h3>
 
-{currentQuestion.expected_output && (
-  <div>
-    <h3 className="text-lg font-bold mb-2">Expected Answer</h3>
-    <table className="min-w-full divide-y divide-gray-200">
-      <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
-        <tr>
-          {currentQuestion.expected_output.columns.map((column, columnIndex) => (
-            <th
-              key={columnIndex}
-              className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+    {/* State for Active Nested Tab */}
+    <div className="tabs-container">
+      <div className="flex space-x-4 border-b mb-4">
+        {/* Default Tab for Expected Answer */}
+        <button
+          className={`py-2 px-4 ${
+            activeNestedTab === 'expected_output'
+              ? 'border-b-2 border-blue-500 text-black-500'
+              : 'text-gray-500'
+          }`}
+          onClick={() => setActiveNestedTab('expected_output')}
+        >
+          Expected Answer
+        </button>
+
+        {/* Dynamic Tabs for Tables */}
+        {currentQuestion.table_data &&
+          currentQuestion.table_data.map((table, tableIndex) => (
+            <button
+              key={tableIndex}
+              className={`py-2 px-4 ${
+                activeNestedTab === table.table_name
+                  ? 'border-b-2 border-blue-500 text-black-500'
+                  : 'text-gray-500'
+              }`}
+              onClick={() => setActiveNestedTab(table.table_name)}
             >
-              {column}
-            </th>
+              {table.table_name}
+            </button>
           ))}
-        </tr>
-      </thead>
-      <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
-        {currentQuestion.expected_output.rows.slice(0, 10).map((row, rowIndex) => (
-          <tr key={rowIndex}>
-            {row.map((value, cellIndex) => (
-              <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
-                {value}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+      </div>
+
+      {/* Render Content Based on Active Tab */}
+      {activeNestedTab === 'expected_output' && currentQuestion.expected_output && (
+        <div>
+          {/* <h3 className="text-lg font-bold mb-2">Expected Answer</h3> */}
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+              <tr>
+                {currentQuestion.expected_output.columns.map((column, columnIndex) => (
+                  <th
+                    key={columnIndex}
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  >
+                    {column}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
+              {currentQuestion.expected_output.rows.slice(0, 10).map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {row.map((value, cellIndex) => (
+                    <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
+                      {value}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Render Selected Table */}
+      {currentQuestion.table_data &&
+        currentQuestion.table_data.map((table, tableIndex) =>
+          activeNestedTab === table.table_name ? (
+            <div key={tableIndex} className="mb-4">
+              {/* <h4 className="text-md font-semibold mb-2">{table.table_name}</h4> */}
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+                    <tr>
+                      {table.columns.map((column, columnIndex) => (
+                        <th key={columnIndex} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                          {column}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
+                    {table.rows.slice(0, 10).map((row, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {row.map((cell, cellIndex) => (
+                          <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
+                            {typeof cell === 'object' ? JSON.stringify(cell) : cell}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : null
+        )}
+    </div>
   </div>
 )}
-              </div>
-              
-            )}
+
+
+
             {!isQuizMode && (
               <>
           
