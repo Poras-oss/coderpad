@@ -327,7 +327,7 @@ export default function QuizApp()  {
     } catch (error) {
       setFeedback('Your query is incorrect');
       setShowFeedback(true);
-      setOutput(userAnswer);
+      // setOutput(userAnswer);
     } finally {
       setIsRunning(false);
     }
@@ -339,11 +339,11 @@ export default function QuizApp()  {
     //   return false;
     // }
   
+    if(userResults.error == true) return false;
     const expectedString = JSON.stringify(expectedOutput.rows.map(row => Object.values(row)));
     const userResultString = JSON.stringify(userResults.map(row => Object.values(row)));
 
-    console.log('expected =>'+expectedString)
-    console.log('userResukt =>'+userResultString)
+ 
 
     return userResultString === expectedString;
   };
@@ -929,15 +929,17 @@ export default function QuizApp()  {
                     {feedback.text}
                   </div>
                 )}
-         {output !== null && (
+    {output !== null && (
   <div className="mt-2 flex flex-col space-y-4">
     <div className="font-semibold">OUTPUT</div>
     <div className="overflow-x-auto">
       {output.error ? (
         // Handle error output
-        <div className="text-red-600 bg-red-50 border border-red-400 rounded-md p-4">
-          <p className="font-bold">Error:</p>
-          <p>{output.error}</p>
+        <div className="text-red-600 bg-white-50 border border-grey-400 rounded-md p-4">
+          {/* <p className="font-bold"><u>Error-</u></p> */}
+          <p>{output.message}</p>
+          <p><strong>Details:</strong> {output.details}</p>
+          <p><strong>Error Code:</strong> {output.code}</p>
         </div>
       ) : Array.isArray(output) && output.length > 0 ? (
         // Handle table output
