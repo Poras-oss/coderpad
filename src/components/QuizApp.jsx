@@ -30,7 +30,7 @@ export default function QuizApp()  {
   const [activeNestedTab, setActiveNestedTab] = useState('Tables');
 
 
-  const [timeRemaining, setTimeRemaining] = useState(45 * 60); // 60 minutes in seconds
+  const [timeRemaining, setTimeRemaining] = useState(60 * 60); // 60 minutes in seconds
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [scores, setScores] = useState({});
   const [canSubmit, setCanSubmit] = useState(false);
@@ -113,7 +113,7 @@ export default function QuizApp()  {
         setTimeRemaining((prevTime) => prevTime - 1);
       }, 1000);
     } else if (timeRemaining === 0) {
-      handleSubmitQuiz();
+      handleSubmitQuiz(true);
     }
 
     return () => clearInterval(timer);
@@ -356,12 +356,11 @@ export default function QuizApp()  {
     setShowFeedback(false);
   };
 
-  const handleSubmitQuiz = async () => {
-    if (!canSubmit || timeRemaining === 0) {
+  const handleSubmitQuiz = async (isAutomatic = false) => {
+    if (!isAutomatic && (!canSubmit || isSubmitting)) {
       alert("You can't submit the quiz at this time.");
       return;
     }
-
     setIsTimerRunning(false);
     const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const timeTaken = 3600 - timeRemaining; // in seconds
@@ -393,6 +392,8 @@ export default function QuizApp()  {
       console.error('Error submitting quiz:', error);
       alert('Failed to submit quiz. Please try again.');
     }
+
+    alert("The quiz is submitted");
     
     window.location.href = `/live-events`;
   };

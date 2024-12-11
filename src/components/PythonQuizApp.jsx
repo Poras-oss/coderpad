@@ -74,7 +74,7 @@ const PythonQuizApp = () => {
         setTimeRemaining((prevTime) => prevTime - 1);
       }, 1000);
     } else if (timeRemaining === 0) {
-      handleSubmitQuiz();
+      handleSubmitQuiz(true);
     }
     return () => clearInterval(timer);
   }, [isTimerRunning, timeRemaining]);
@@ -330,8 +330,8 @@ const PythonQuizApp = () => {
     setUserOutput('');
   }, []);
 
-  const handleSubmitQuiz = async () => {
-    if (!canSubmit || timeRemaining === 0) {
+  const handleSubmitQuiz = async (isAutomatic = false) => {
+    if (!isAutomatic && (!canSubmit || isSubmitting)) {
       alert("You can't submit the quiz at this time.");
       return;
     }
@@ -359,6 +359,8 @@ const PythonQuizApp = () => {
       console.error('Error submitting quiz:', error);
       alert('Failed to submit quiz. Please try again.');
     }
+    alert("The quiz is submitted");
+    
     window.location.href = `/live-events`;
   };
 
