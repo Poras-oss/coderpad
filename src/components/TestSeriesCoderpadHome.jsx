@@ -33,6 +33,8 @@ import {
   SheetTrigger,
 } from "./ui/sheet"
 
+const PREDEFINED_SUBTOPICS = ['Column Selection', 'filtering', 'multiple costraints', 'Custom Selection', 'Filtering', 'Condition', 'Aggregation', 'Group by', 'Filter', 'Top N', 'Rank', 'Group']
+
 export default function QuizApp() {
   const { isLoaded, isSignedIn, user } = useUser()
   const navigateTo = useNavigate()
@@ -49,21 +51,7 @@ export default function QuizApp() {
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false)
   const [currentVideoId, setCurrentVideoId] = useState('')
   const [isLoading, setIsLoading] = useState(true)
-  const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false)
-  const [paginationInfo, setPaginationInfo] = useState({
-    total: 0,
-    totalPages: 0,
-    currentPage: 1,
-    next: null,
-    previous: null
-  })
-  const [itemsPerPage] = useState(10)
-
-  const subject = new URLSearchParams(window.location.search).get('subject') || 'mysql'
-  const STORAGE_KEY = 'quiz-bookmarks'
-
   const [getUserID, setUserID] = useState('default')
-
   const [filters, setFilters] = useState({
     difficulties: [],
     company: [],
@@ -72,11 +60,21 @@ export default function QuizApp() {
     bookmarked: false,
     solved: false
   })
-
-  const [availableSubtopics, setAvailableSubtopics] = useState([])
+  const [itemsPerPage] = useState(10)
+  const [availableSubtopics] = useState(PREDEFINED_SUBTOPICS)
   const [availableCompanies, setAvailableCompanies] = useState([])
   const [bookmarkedQuizzes, setBookmarkedQuizzes] = useState(new Set())
   const [solvedQuestions, setSolvedQuestions] = useState(new Set())
+   const [paginationInfo, setPaginationInfo] = useState({
+    total: 0,
+    totalPages: 0,
+    currentPage: 1,
+    next: null,
+    previous: null
+  })
+
+  const subject = new URLSearchParams(window.location.search).get('subject') || 'mysql'
+  const STORAGE_KEY = 'quiz-bookmarks'
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
@@ -103,29 +101,41 @@ export default function QuizApp() {
   const fetchQuizzes = useCallback(async () => {
     try {
       setIsLoading(true)
-      const response = await axios.get(`https://server.datasenseai.com/test-series-coding/${subject}`, {
-        params: {
-          page: paginationInfo.currentPage,
-          limit: itemsPerPage,
-          difficulties: filters.difficulties.join(','),
-          company: filters.company.join(','),
-          subtopics: filters.subtopics.join(','),
-          search: filters.search
+      let url = `https://server.datasenseai.com/test-series-coding/${subject}`
+      let params = {
+        page: paginationInfo.currentPage,
+        limit: itemsPerPage,
+        difficulties: filters.difficulties.join(','),
+        company: filters.company.join(','),
+        subtopics: filters.subtopics.join(','),
+        search: filters.search
+      }
+
+      if (filters.bookmarked) {
+        url = `https://server.datasenseai.com/bookmark/bookmarked-questions/${getUserID}`
+        params = {
+          ...params,
+          subject
         }
-      })
+      }
+
+      const response = await axios.get(url, { params })
       
       if (response.data && typeof response.data === 'object') {
-        const { total, totalPages, currentPage, next, previous, results } = response.data
+        let { total, totalPages, currentPage, next, previous, results } = response.data
+
+        if (filters.bookmarked) {
+          results = response.data.bookmarkedQuestions
+          total = response.data.totalBookmarks
+          totalPages = response.data.totalPages
+          currentPage = response.data.currentPage
+        }
 
         if (Array.isArray(results)) {
           let filteredQuizzes = results
 
           if (filters.solved) {
             filteredQuizzes = filteredQuizzes.filter(quiz => solvedQuestions.has(quiz._id))
-          }
-
-          if (filters.bookmarked) {
-            filteredQuizzes = filteredQuizzes.filter(quiz => bookmarkedQuizzes.has(quiz._id))
           }
 
           setQuizzes(filteredQuizzes)
@@ -137,9 +147,7 @@ export default function QuizApp() {
             previous
           })
           
-          const allSubtopics = [...new Set(results.flatMap(quiz => Array.isArray(quiz.subtopics) ? quiz.subtopics : []))]
           const allCompanies = [...new Set(results.flatMap(quiz => Array.isArray(quiz.company) ? quiz.company : []))]
-          setAvailableSubtopics(allSubtopics)
           setAvailableCompanies(allCompanies)
         } else {
           console.error('Unexpected response structure: results is not an array', response.data)
@@ -155,7 +163,7 @@ export default function QuizApp() {
     } finally {
       setIsLoading(false)
     }
-  }, [subject, paginationInfo.currentPage, itemsPerPage, filters, solvedQuestions, bookmarkedQuizzes])
+  }, [subject, paginationInfo.currentPage, itemsPerPage, filters, solvedQuestions, getUserID])
 
   const fetchBookmarks = async () => {
     if (!user || !user.id) return
@@ -457,7 +465,7 @@ export default function QuizApp() {
           <div className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             <h2 className="text-sm font-semibold mb-2">SUBTOPICS</h2>
             <ScrollArea className="h-[200px]">
-              {availableSubtopics.map((subtopic) => (
+              {PREDEFINED_SUBTOPICS.map((subtopic) => (
                 <label key={subtopic} className="flex items-center space-x-2 cursor-pointer mb-2">
                   <Checkbox
                     checked={filters.subtopics.includes(subtopic)}
@@ -564,7 +572,7 @@ export default function QuizApp() {
               <div className="mb-6">
                 <h2 className="text-sm font-semibold mb-2">SUBTOPICS</h2>
                 <ScrollArea className="h-[200px]">
-                  {availableSubtopics.map((subtopic) => (
+                  {PREDEFINED_SUBTOPICS.map((subtopic) => (
                     <label key={subtopic} className="flex items-center space-x-2 cursor-pointer mb-2">
                       <Checkbox
                         checked={filters.subtopics.includes(subtopic)}
@@ -613,7 +621,7 @@ export default function QuizApp() {
             placeholder="Search questions..."
             value={filters.search}
             onChange={(e) => updateFilters('search', e.target.value)}
-            className={`max-w ${isDarkMode ? 'bg-[#2f2f2f] border-[#3f3f3f]' : 'bg-white border-gray-200'}`}
+            className={`max-w ${isDarkMode ? 'bg-[#2f2f2f] border-[#3f3f3f] text-white' : 'bg-white border-gray-200'}`}
           />
         </div>
 
@@ -647,7 +655,7 @@ export default function QuizApp() {
                             {quiz.id && (
                               <Badge variant="secondary" className={`flex items-center gap-1 ${isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-100 text-gray-700'}`}>
                                 <Hash className="h-3 w-3" />
-                                {quiz.id.slice(-6).toUpperCase()}
+                                {quiz.id.toUpperCase()}
                               </Badge>
                             )}
                             {quiz.subtopics && quiz.subtopics.map((subtopic, subIndex) => (
@@ -761,3 +769,4 @@ export default function QuizApp() {
     // </div> 
   )
 }
+
