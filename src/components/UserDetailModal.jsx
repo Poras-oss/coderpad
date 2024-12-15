@@ -27,6 +27,7 @@ export function UserDetailModal({ open, onOpenChange, onClose }) {
     dob: '',
   })
   const [error, setError] = useState('')
+  const[isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (isLoaded && isSignedIn && user) {
@@ -44,6 +45,7 @@ export function UserDetailModal({ open, onOpenChange, onClose }) {
   }
 
   const handleSubmit = async (e) => {
+    setIsSubmitting(true);
     e.preventDefault()
     setError('')
     try {
@@ -56,9 +58,11 @@ export function UserDetailModal({ open, onOpenChange, onClose }) {
       })
       if (response.ok) {
         localStorage.setItem('userRegistered', 'true')
+        setIsSubmitting(false);
         onClose(true)
       } else {
         const errorData = await response.json()
+        setIsSubmitting(false);
         if (response.status === 409) {
           setError('This email is already registered. Please use a different email.')
         } else {
@@ -66,6 +70,7 @@ export function UserDetailModal({ open, onOpenChange, onClose }) {
         }
       }
     } catch (error) {
+      setIsSubmitting(false);
       console.error('Error saving user details:', error)
       setError('An unexpected error occurred. Please try again later.')
     }
@@ -118,6 +123,7 @@ export function UserDetailModal({ open, onOpenChange, onClose }) {
                 id="phone"
                 name="phone"
                 type="tel"
+                placeholder="+91 12301-89761"
                 value={formData.phone}
                 onChange={handleChange}
                 required
@@ -171,9 +177,13 @@ export function UserDetailModal({ open, onOpenChange, onClose }) {
             </div>
           </div>
           <DialogFooter className="mt-8">
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-              Complete Profile
-            </Button>
+          <Button 
+            type="submit" 
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            {isSubmitting ? 'Submitting...' : 'Complete Profile'}
+          </Button>
+
           </DialogFooter>
         </form>
       </DialogContent>

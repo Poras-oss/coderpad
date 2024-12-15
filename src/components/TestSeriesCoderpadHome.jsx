@@ -523,7 +523,9 @@ export default function QuizApp() {
             className={`cursor-pointer border ${
               filters.subtopics.includes(subtopic)
                 ? 'bg-teal-500 text-white border-teal-500' // Active styles
-                : 'bg-gray-200 text-black hover:bg-gray-300 border-gray-200' // Inactive styles
+                : isDarkMode
+                ? 'bg-[#2f2f2f] text-gray-100 hover:bg-gray-600 border-gray-500' // Inactive styles in dark mode
+                : 'bg-gray-100 text-gray-500 hover:bg-gray-300 border-gray-200' // Inactive styles in light mode
             }`}
             onClick={() => {
               updateFilters(
@@ -553,8 +555,10 @@ export default function QuizApp() {
               variant={filters.company.includes(company) ? "default" : "outline"}
               className={`cursor-pointer border ${
                 filters.company.includes(company)
-                  ? 'bg-blue-500 text-white border-blue-500' // Active state styles
-                  : 'bg-gray-200 text-black hover:bg-gray-300 border-gray-200' // Inactive state styles
+                ? 'bg-teal-500 text-white border-teal-500' // Active styles
+                : isDarkMode
+                ? 'bg-[#2f2f2f] text-gray-100 hover:bg-gray-600 border-gray-500' // Inactive styles in dark mode
+                : 'bg-gray-100 text-gray-500 hover:bg-gray-300 border-gray-200' // Inactive styles in light mode
               }`}
               onClick={() => {
                 updateFilters(
