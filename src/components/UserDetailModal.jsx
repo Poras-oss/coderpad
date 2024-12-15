@@ -142,9 +142,9 @@ export function UserDetailModal({ open, onOpenChange, onClose }) {
           <DialogTitle className="text-2xl font-bold text-center text-gray-900 mb-2 relative z-10">
             Unlock Your Full Experience
           </DialogTitle>
-          <p className="text-center text-gray-600 relative z-10">
+          <h4 className="text-center text-gray-600 relative z-10">
             Just a few more details and you're all set to explore!
-          </p>
+          </h4>
         </DialogHeader>
         {errors.general && (
           <Alert variant="destructive" className="mt-4">

@@ -35,6 +35,7 @@ import {
 } from "./ui/sheet"
 
 const PREDEFINED_SUBTOPICS = ['Column Selection', 'filtering', 'multiple costraints', 'Custom Selection', 'Filtering', 'Condition', 'Aggregation', 'Group by', 'Filter', 'Top N', 'Rank', 'Group']
+const PREDEFINED_PYTHON_TOPICS = ['Array', 'String', 'Two Pointers', 'Sliding Window', 'Dictionary', 'List', 'Tuples', 'Regex']
 
 export default function QuizApp() {
   const { isLoaded, isSignedIn, user } = useUser()
@@ -283,8 +284,12 @@ export default function QuizApp() {
   }
   
   const capitalizeFirstLetter = (string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
-  }
+    if (!string || typeof string !== 'string') {
+      return ''; // Return empty string if input is null, undefined, or not a string
+    }
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  };
+  
 
   const validateSubject = () => {
     const validSubjects = ['mysql', 'python', 'tableau', 'excel', 'powerbi']
@@ -516,33 +521,62 @@ export default function QuizApp() {
           <div className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             <h2 className="text-sm font-semibold mb-2">SUBTOPICS</h2>
             <ScrollArea className="h-[200px]">
-              {PREDEFINED_SUBTOPICS.map((subtopic) => (
-            <Badge
-            key={subtopic}
-            variant={filters.subtopics.includes(subtopic) ? "default" : "outline"}
-            className={`cursor-pointer border ${
-              filters.subtopics.includes(subtopic)
-                ? 'bg-teal-500 text-white border-teal-500' // Active styles
-                : isDarkMode
-                ? 'bg-[#2f2f2f] text-gray-100 hover:bg-gray-600 border-gray-500' // Inactive styles in dark mode
-                : 'bg-gray-100 text-gray-500 hover:bg-gray-300 border-gray-200' // Inactive styles in light mode
-            }`}
-            onClick={() => {
-              updateFilters(
-                'subtopics',
-                filters.subtopics.includes(subtopic)
-                  ? filters.subtopics.filter(s => s !== subtopic)
-                  : [...filters.subtopics, subtopic]
-              );
-            }}
-          >
-            {subtopic}
-            {filters.subtopics.includes(subtopic) && (
-              <X className="w-3 h-3 ml-1" />
-            )}
-          </Badge>
-          
-              ))}
+            {subject === "python" ? (
+  PREDEFINED_PYTHON_TOPICS.map((topic) => (
+    <Badge
+      key={topic}
+      variant={(filters?.topics || []) ? "default" : "outline"}
+      className={`cursor-pointer border ${
+        (filters?.topics || []).includes(topic)
+          ? 'bg-blue-500 text-white border-blue-500' // Active styles
+          : isDarkMode
+          ? 'bg-[#2f2f2f] text-gray-100 hover:bg-gray-600 border-gray-500' // Inactive styles in dark mode
+          : 'bg-gray-100 text-gray-500 hover:bg-gray-300 border-gray-200' // Inactive styles in light mode
+      }`}
+      onClick={() => {
+        updateFilters(
+          'topics',
+          filters.topics.includes(topic)
+            ? filters.topics.filter(t => t !== topic)
+            : [...filters.topics, topic]
+        );
+      }}
+    >
+      {topic}
+      {(filters?.topics || []).includes(topic) && (
+        <X className="w-3 h-3 ml-1" />
+      )}
+    </Badge>
+  ))
+) : (
+  PREDEFINED_SUBTOPICS.map((subtopic) => (
+    <Badge
+      key={subtopic}
+      variant={filters.subtopics.includes(subtopic) ? "default" : "outline"}
+      className={`cursor-pointer border ${
+        filters.subtopics.includes(subtopic)
+          ? 'bg-teal-500 text-white border-teal-500' // Active styles
+          : isDarkMode
+          ? 'bg-[#2f2f2f] text-gray-100 hover:bg-gray-600 border-gray-500' // Inactive styles in dark mode
+          : 'bg-gray-100 text-gray-500 hover:bg-gray-300 border-gray-200' // Inactive styles in light mode
+      }`}
+      onClick={() => {
+        updateFilters(
+          'subtopics',
+          filters.subtopics.includes(subtopic)
+            ? filters.subtopics.filter(s => s !== subtopic)
+            : [...filters.subtopics, subtopic]
+        );
+      }}
+    >
+      {subtopic}
+      {filters.subtopics.includes(subtopic) && (
+        <X className="w-3 h-3 ml-1" />
+      )}
+    </Badge>
+  ))
+)}
+
             </ScrollArea>
           </div>
 
@@ -650,20 +684,61 @@ export default function QuizApp() {
               <div className="mb-6">
                 <h2 className="text-sm font-semibold mb-2">SUBTOPICS</h2>
                 <ScrollArea className="h-[200px]">
-                  {PREDEFINED_SUBTOPICS.map((subtopic) => (
-                    <label key={subtopic} className="flex items-center space-x-2 cursor-pointer mb-2">
-                      <Checkbox
-                        checked={filters.subtopics.includes(subtopic)}
-                        onCheckedChange={(checked) => {
-                          updateFilters('subtopics', checked
-                            ? [...filters.subtopics, subtopic]
-                            : filters.subtopics.filter(s => s !== subtopic)
-                          )
-                        }}
-                      />
-                      <span>{subtopic}</span>
-                    </label>
-                  ))}
+                {subject === "python" ? (
+  PREDEFINED_PYTHON_TOPICS.map((topic) => (
+    <Badge
+      key={topic}
+      variant={(filters?.topics || []) ? "default" : "outline"}
+      className={`cursor-pointer border ${
+        (filters?.topics || []).includes(topic)
+          ? 'bg-blue-500 text-white border-blue-500' // Active styles
+          : isDarkMode
+          ? 'bg-[#2f2f2f] text-gray-100 hover:bg-gray-600 border-gray-500' // Inactive styles in dark mode
+          : 'bg-gray-100 text-gray-500 hover:bg-gray-300 border-gray-200' // Inactive styles in light mode
+      }`}
+      onClick={() => {
+        updateFilters(
+          'topics',
+          filters.topics.includes(topic)
+            ? filters.topics.filter(t => t !== topic)
+            : [...filters.topics, topic]
+        );
+      }}
+    >
+      {topic}
+      {(filters?.topics || []).includes(topic) && (
+        <X className="w-3 h-3 ml-1" />
+      )}
+    </Badge>
+  ))
+) : (
+  PREDEFINED_SUBTOPICS.map((subtopic) => (
+    <Badge
+      key={subtopic}
+      variant={filters.subtopics.includes(subtopic) ? "default" : "outline"}
+      className={`cursor-pointer border ${
+        filters.subtopics.includes(subtopic)
+          ? 'bg-teal-500 text-white border-teal-500' // Active styles
+          : isDarkMode
+          ? 'bg-[#2f2f2f] text-gray-100 hover:bg-gray-600 border-gray-500' // Inactive styles in dark mode
+          : 'bg-gray-100 text-gray-500 hover:bg-gray-300 border-gray-200' // Inactive styles in light mode
+      }`}
+      onClick={() => {
+        updateFilters(
+          'subtopics',
+          filters.subtopics.includes(subtopic)
+            ? filters.subtopics.filter(s => s !== subtopic)
+            : [...filters.subtopics, subtopic]
+        );
+      }}
+    >
+      {subtopic}
+      {filters.subtopics.includes(subtopic) && (
+        <X className="w-3 h-3 ml-1" />
+      )}
+    </Badge>
+  ))
+)}
                 </ScrollArea>
               </div>
               <div>
