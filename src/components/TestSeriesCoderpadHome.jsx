@@ -517,27 +517,29 @@ export default function QuizApp() {
             <h2 className="text-sm font-semibold mb-2">SUBTOPICS</h2>
             <ScrollArea className="h-[200px]">
               {PREDEFINED_SUBTOPICS.map((subtopic) => (
-             <Badge
-             key={subtopic}
-             variant={filters.subtopics.includes(subtopic) ? "default" : "outline"}
-             className={`cursor-pointer border ${
-               filters.subtopics.includes(subtopic)
-                 ? 'bg-primary text-primary-foreground'
-                 : 'bg-background text-foreground hover:bg-secondary'
-             }`}
-             onClick={() => {
-               updateFilters('subtopics', 
-                 filters.subtopics.includes(subtopic)
-                   ? filters.subtopics.filter(s => s !== subtopic)
-                   : [...filters.subtopics, subtopic]
-               )
-             }}
-           >
-             {subtopic}
-             {filters.subtopics.includes(subtopic) && (
-               <X className="w-3 h-3 ml-1" />
-             )}
-           </Badge>
+            <Badge
+            key={subtopic}
+            variant={filters.subtopics.includes(subtopic) ? "default" : "outline"}
+            className={`cursor-pointer border ${
+              filters.subtopics.includes(subtopic)
+                ? 'bg-teal-500 text-white border-teal-500' // Active styles
+                : 'bg-gray-200 text-black hover:bg-gray-300 border-gray-200' // Inactive styles
+            }`}
+            onClick={() => {
+              updateFilters(
+                'subtopics',
+                filters.subtopics.includes(subtopic)
+                  ? filters.subtopics.filter(s => s !== subtopic)
+                  : [...filters.subtopics, subtopic]
+              );
+            }}
+          >
+            {subtopic}
+            {filters.subtopics.includes(subtopic) && (
+              <X className="w-3 h-3 ml-1" />
+            )}
+          </Badge>
+          
               ))}
             </ScrollArea>
           </div>
@@ -546,27 +548,30 @@ export default function QuizApp() {
             <h2 className="text-sm font-semibold mb-2">COMPANIES</h2>
             <ScrollArea className="h-[200px]">
               {availableCompanies.map((company) => (
-                 <Badge
-                 key={company}
-                 variant={filters.company.includes(company) ? "default" : "outline"}
-                 className={`cursor-pointer border ${
-                   filters.company.includes(company)
-                     ? 'bg-primary text-primary-foreground'
-                     : 'bg-background text-foreground hover:bg-secondary'
-                 }`}
-                 onClick={() => {
-                   updateFilters('company', 
-                     filters.company.includes(company)
-                       ? filters.company.filter(c => c !== company)
-                       : [...filters.company, company]
-                   )
-                 }}
-               >
-                 {company}
-                 {filters.company.includes(company) && (
-                   <X className="w-3 h-3 ml-1" />
-                 )}
-               </Badge>
+              <Badge
+              key={company}
+              variant={filters.company.includes(company) ? "default" : "outline"}
+              className={`cursor-pointer border ${
+                filters.company.includes(company)
+                  ? 'bg-blue-500 text-white border-blue-500' // Active state styles
+                  : 'bg-gray-200 text-black hover:bg-gray-300 border-gray-200' // Inactive state styles
+              }`}
+              onClick={() => {
+                updateFilters(
+                  'company', 
+                  filters.company.includes(company)
+                    ? filters.company.filter(c => c !== company)
+                    : [...filters.company, company]
+                );
+              }}
+            >
+              {company}
+              {filters.company.includes(company) && (
+                <X className="w-3 h-3 ml-1" />
+              )}
+            </Badge>
+            
+              
               ))}
             </ScrollArea>
           </div>
