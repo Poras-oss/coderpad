@@ -102,7 +102,7 @@ export function UserDetailModal({ open, onOpenChange, onClose }) {
     setErrors({});
 
     try {
-      const response = await fetch('http://localhost:4000/user-details/save', {
+      const response = await fetch('https://server.datasenseai.com/user-details/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
