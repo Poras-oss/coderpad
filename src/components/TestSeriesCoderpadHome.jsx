@@ -707,10 +707,14 @@ export default function QuizApp() {
         <ScrollArea className="h-[calc(100vh-120px)]">
           <div className="p-4">
             {isLoading ? (
-              <div className="space-y-4">
-                {[...Array(5)].map((_, index) => (
-                  <Skeleton key={index} className="h-32" />
-                ))}
+              <div className="flex flex-col items-center justify-center p-8">
+                          <Loader2 className="h-8 w-8 animate-spin text-cyan-600" />
+                          <p className="mt-4 text-lg font-medium">Fetching questions...</p>
+                        </div>
+            ): quizzes.length === 0 ? (
+              <div className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                <p className="text-xl font-semibold">No questions available</p>
+                <p className="mt-2">Try adjusting your filters or search criteria</p>
               </div>
             ) : (
               <>
