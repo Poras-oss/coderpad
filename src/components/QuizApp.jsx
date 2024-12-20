@@ -27,7 +27,7 @@ export default function QuizApp()  {
   const [isTesting, setIsTesting] = useState(false);
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
-  const [activeNestedTab, setActiveNestedTab] = useState('Tables');
+  const [activeNestedTab, setActiveNestedTab] = useState('expected_output');
 
 
   const [timeRemaining, setTimeRemaining] = useState(60 * 60); // 60 minutes in seconds

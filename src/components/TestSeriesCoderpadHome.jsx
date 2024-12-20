@@ -380,7 +380,7 @@ export default function QuizApp() {
   
     if (userRegistered === 'true') {
       // User is already registered, start the quiz
-      navigateTo(`${route}?questionID=${quizID}&userID=${userID}`);
+      window.open(`${route}?questionID=${quizID}&userID=${userID}`, '_blank');
       return;
     }
   
