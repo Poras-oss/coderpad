@@ -784,7 +784,7 @@ export default function QuizApp() {
             {isLoading ? (
               <div className="flex flex-col items-center justify-center p-8">
                           <Loader2 className="h-8 w-8 animate-spin text-cyan-600" />
-                          <p className="mt-4 text-lg font-medium">Fetching questions...</p>
+                          <h4  className={`mt-4 text-lg font-medium ${ isDarkMode ? 'text-white' : 'text-black'}`}>Fetching questions...</h4>
                         </div>
             ): quizzes.length === 0 ? (
               <div className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
