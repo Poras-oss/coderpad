@@ -875,37 +875,9 @@ export default function QuizApp() {
         <ChevronLeft className="h-4 w-4" />
         <span className="hidden sm:inline ml-1">Previous</span>
       </Button>
-      
-      {/* Page numbers */}
-      {(() => {
-        const pageNumbers = [];
-        const totalPages = paginationInfo.totalPages;
-        const currentPage = paginationInfo.currentPage;
-        
-        let startPage = Math.max(1, currentPage - 2);
-        let endPage = Math.min(totalPages, startPage + 4);
-        
-        if (endPage - startPage < 4) {
-          startPage = Math.max(1, endPage - 4);
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-          pageNumbers.push(
-            <Button
-              key={i}
-              onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: i }))}
-              variant={i === currentPage ? "default" : "outline"}
-              size="sm"
-              className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
-            >
-              {i}
-            </Button>
-          );
-        }
-
-        return pageNumbers;
-      })()}
-
+      <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : ''}`}>
+        Page {paginationInfo.currentPage} of {paginationInfo.totalPages}
+      </span>
       <Button
         onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.min(prev.currentPage + 1, prev.totalPages) }))}
         disabled={paginationInfo.currentPage === paginationInfo.totalPages}
