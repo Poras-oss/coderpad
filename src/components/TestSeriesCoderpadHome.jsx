@@ -417,14 +417,78 @@ export default function QuizApp() {
     }
   }
   
-  const toggleQuestionExpansion = (quizId) => {
-    setExpandedQuestions(prev => ({...prev, [quizId]: !prev[quizId]}))
-  }
+  const handlePageChange = useCallback((newPage) => {
+    if (newPage >= 1 && newPage <= paginationInfo.totalPages && newPage !== paginationInfo.currentPage) {
+      setPaginationInfo(prev => ({ ...prev, currentPage: newPage }));
+      // Scroll to top of the page when changing pages
+      window.scrollTo(0, 0);
+    }
+  }, [paginationInfo.totalPages, paginationInfo.currentPage]);
+  const renderPaginationButtons = useCallback(() => {
+    const pageNumbers = [];
+    const totalPages = paginationInfo.totalPages;
+    const currentPage = paginationInfo.currentPage;
+    
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+    
+    if (endPage - startPage < 4) {
+      startPage = Math.max(1, endPage - 4);
+    }
 
-  const shortenQuestion = (question, maxLength = 135) => {
-    if (question.length <= maxLength) return question
-    return question.substring(0, maxLength) + '...'
-  }
+    // Always show first page
+    if (startPage > 1) {
+      pageNumbers.push(
+        <Button
+          key={1}
+          onClick={() => handlePageChange(1)}
+          variant="outline"
+          size="sm"
+          className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+        >
+          1
+        </Button>
+      );
+      if (startPage > 2) {
+        pageNumbers.push(<span key="ellipsis1">...</span>);
+      }
+    }
+
+    // Show page numbers
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(
+        <Button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          variant={i === currentPage ? "default" : "outline"}
+          size="sm"
+          className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+        >
+          {i}
+        </Button>
+      );
+    }
+
+    // Always show last page
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pageNumbers.push(<span key="ellipsis2">...</span>);
+      }
+      pageNumbers.push(
+        <Button
+          key={totalPages}
+          onClick={() => handlePageChange(totalPages)}
+          variant="outline"
+          size="sm"
+          className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+        >
+          {totalPages}
+        </Button>
+      );
+    }
+
+    return pageNumbers;
+  }, [paginationInfo.totalPages, paginationInfo.currentPage, isDarkMode, handlePageChange]);
 
 
   return (
@@ -865,30 +929,30 @@ export default function QuizApp() {
 
     {/* Pagination */}
     <div className="flex justify-center items-center mt-4 space-x-2 p-4">
-      <Button
-        onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.max(prev.currentPage - 1, 1) }))}
-        disabled={paginationInfo.currentPage === 1}
-        variant="outline"
-        size="sm"
-        className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
-      >
-        <ChevronLeft className="h-4 w-4" />
-        <span className="hidden sm:inline ml-1">Previous</span>
-      </Button>
-      <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : ''}`}>
-        Page {paginationInfo.currentPage} of {paginationInfo.totalPages}
-      </span>
-      <Button
-        onClick={() => setPaginationInfo(prev => ({ ...prev, currentPage: Math.min(prev.currentPage + 1, prev.totalPages) }))}
-        disabled={paginationInfo.currentPage === paginationInfo.totalPages}
-        variant="outline"
-        size="sm"
-        className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
-      >
-        <span className="hidden sm:inline mr-1">Next</span>
-        <ChevronRight className="h-4 w-4" />
-      </Button>
-    </div>
+        <Button
+          onClick={() => handlePageChange(paginationInfo.currentPage - 1)}
+          disabled={paginationInfo.currentPage === 1}
+          variant="outline"
+          size="sm"
+          className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+        >
+          <ChevronLeft className="h-4 w-4" />
+          <span className="hidden sm:inline ml-1">Previous</span>
+        </Button>
+        
+        {renderPaginationButtons()}
+
+        <Button
+          onClick={() => handlePageChange(paginationInfo.currentPage + 1)}
+          disabled={paginationInfo.currentPage === paginationInfo.totalPages}
+          variant="outline"
+          size="sm"
+          className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+        >
+          <span className="hidden sm:inline mr-1">Next</span>
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
     {/* Video Solution Dialog */}
     <Dialog open={isVideoPopupOpen} onOpenChange={setIsVideoPopupOpen}>
       <DialogContent className="sm:max-w-[800px]">
