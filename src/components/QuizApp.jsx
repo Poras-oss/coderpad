@@ -336,18 +336,34 @@ export default function QuizApp()  {
   };
   
   const compareResults = (userResults, expectedOutput) => {
-    // if (userResults.length !== expectedOutput.length) {
-    //   console.log('different length')
-    //   return false;
-    // }
+    // Handle error case
+    if (userResults.error === true) return false;
   
-    if(userResults.error == true) return false;
-    const expectedString = JSON.stringify(expectedOutput.rows.map(row => Object.values(row)));
-    const userResultString = JSON.stringify(userResults.map(row => Object.values(row)));
-
- 
-
-    return userResultString === expectedString;
+    // Get the rows from expected output
+    const expectedRows = expectedOutput.rows;
+  
+    // Early return if lengths don't match
+    if (userResults.length !== expectedRows.length) {
+      return false;
+    }
+  
+    // Convert both result sets to arrays of stringified sorted values
+    const expectedRowStrings = expectedRows
+      .map(row => JSON.stringify(Object.values(row).sort()))
+      .sort();
+    
+    const userRowStrings = userResults
+      .map(row => JSON.stringify(Object.values(row).sort()))
+      .sort();
+  
+    // Compare the sorted string arrays
+    for (let i = 0; i < expectedRowStrings.length; i++) {
+      if (expectedRowStrings[i] !== userRowStrings[i]) {
+        return false;
+      }
+    }
+  
+    return true;
   };
   
   const handleQuestionSelect = (index) => {
