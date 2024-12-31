@@ -5,11 +5,21 @@ import { useNavigate } from 'react-router-dom';
 import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import logo from '../assets/dslogo.png'
 import { Loader2 } from 'lucide-react'
+import QuizInstructionsDialog from './QuizInstructionsDialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+   AlertDialogCancel,
+} from './ui/alert-dialog';
 
 const skills = ['Excel', 'SQL', 'Python', 'PowerBI', 'Tableau'];
 
-import { Video, FileText, ChevronDown, X, ArrowLeft } from 'lucide-react';
-import { FaSun, FaMoon, FaBars, FaTimes } from 'react-icons/fa';
+import { FaSun, FaMoon, FaBars, FaTimes, FaFileAlt, FaVideo } from 'react-icons/fa';
 
 const DataSkillsDashboard = () => {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -21,6 +31,12 @@ const DataSkillsDashboard = () => {
   const userID = parsed.userID;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [quizType, setQuizType] = useState('');
+
+const [showInstructions, setShowInstructions] = useState(false);
+const [pendingNavigation, setPendingNavigation] = useState(null);
+
+  
 
   useEffect(() => {
     fetchQuizzes();
@@ -49,25 +65,72 @@ const DataSkillsDashboard = () => {
       setIsLoading(false);
     }
   };
+
+  
+  <QuizInstructionsDialog
+  isOpen={showInstructions}
+  onClose={() => setShowInstructions(false)}
+  onProceed={() => {
+    setShowInstructions(false);
+    pendingNavigation && pendingNavigation();
+  }}
+  quizType={quizType}
+/>
   
   const handleStartQuiz = (quizID, userID, quizName) => {
     if (!isSignedIn) {
       alert('You need to log in to start the quiz.');
       return;
     }
+
   
     const lowerCaseQuizName = quizName.toLowerCase();
+    let quizType;
+    let navigationPath;
   
     if (lowerCaseQuizName.includes('sql:')) {
-      navigateTo(`/quiz?quizID=${quizID}&userID=${userID}`);
+      quizType = 'sql';
+      navigationPath = `/quiz?quizID=${quizID}&userID=${userID}`;
     } else if (lowerCaseQuizName.includes('python:')) {
-      navigateTo(`/pyQuiz?quizID=${quizID}&userID=${userID}`);
+      quizType = 'python';
+      navigationPath = `/pyQuiz?quizID=${quizID}&userID=${userID}`;
     } else if (lowerCaseQuizName.includes('mcq:')) {
-      navigateTo(`/mcqQuiz?quizID=${quizID}&userID=${userID}`);
+      quizType = 'mcq';
+      navigationPath = `/mcqQuiz?quizID=${quizID}&userID=${userID}`;
     } else {
       alert('Unknown quiz type.');
+      return;
     }
+    setQuizType(quizType);
+    // navigateTo(navigationPath);
+    setShowInstructions(true);
+    setPendingNavigation(() => () => navigateTo(navigationPath));
+   
+  
+  
   };
+  // Function to handle Text Solution
+const handleTextSolution = (quizId) => {
+  const quiz = filteredQuizzes.find((q) => q._id === quizId);
+  
+  if (quiz?.textSolution) {
+    window.open(quiz.textSolution, '_blank');
+  } else {
+    alert('Text Solution not available.');
+  }
+};
+
+// Function to handle Video Solution
+const handleVideoSolution = (quizId) => {
+  const quiz = filteredQuizzes.find((q) => q._id === quizId);
+  
+  if (quiz?.videoSolution) {
+    window.open(quiz.videoSolution, '_blank');
+  } else {
+    alert('Video Solution not available.');
+  }
+};
+
 
   const handleQuizResults = (quizID, userID, quizName) => {
     if (!isSignedIn) {
@@ -85,8 +148,55 @@ const DataSkillsDashboard = () => {
     ? quizzes.filter(quiz => quiz.quizName.toLowerCase().includes(selectedSkill.toLowerCase()))
     : quizzes;
 
+
+
   return (
+
+
+
     <div className={`font-sans min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-gray-100 text-black'}`}>
+
+<AlertDialog open={showInstructions} onOpenChange={setShowInstructions}>
+        <AlertDialogContent className="max-w-md bg-white dark:bg-gray-800 shadow-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold">Quiz Instructions</AlertDialogTitle>
+            <AlertDialogDescription className="text-base mt-4 text-gray-700 dark:text-gray-300">
+              {quizType === 'sql' && (
+                "This SQL quiz will test your knowledge of database queries. Make sure to:"
+                + "\n\n• Write standard SQL syntax"
+                + "\n• Test your queries before submitting"
+                + "\n• Pay attention to the required output format"
+              )}
+              {quizType === 'python' && (
+                "This Python programming quiz will test your coding skills. Remember to:"
+                + "\n\n• Follow Python PEP 8 style guidelines"
+                + "\n• Handle edge cases"
+                + "\n• Use appropriate data structures"
+              )}
+              {quizType === 'mcq' && (
+                "This multiple choice quiz will test your knowledge. Please note:"
+                + "\n\n• Read all options carefully"
+                + "\n• Only one answer is correct"
+                + "\n• You cannot change your answer after submission"
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="space-x-2">
+            <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setShowInstructions(false);
+                pendingNavigation && pendingNavigation();
+              }}
+              className="bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Start Quiz
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     <header className={`p-4 ${isDarkMode ? 'bg-oxford-blue text-white' : 'bg-oxford-blue text-gray-800'}`}>
       <div className="container mx-auto flex justify-between items-center relative">
         
@@ -96,7 +206,7 @@ const DataSkillsDashboard = () => {
     className="mr-2 text-white hover:text-gray-300 transition-colors duration-200"
     aria-label="Go back"
   >
-    <ArrowLeft size={24} />
+    {/* <ArrowLeft size={24} /> */}
   </button>
   <img 
     className="h-12 w-auto cursor-pointer"
@@ -176,44 +286,72 @@ const DataSkillsDashboard = () => {
         ) : (
           <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} shadow-md rounded-lg overflow-x-auto`}>
             <table className="w-full">
-              <thead className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topic</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Results</th>
-                </tr>
-              </thead>
-              <tbody className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
-                {filteredQuizzes.slice().reverse().map((quiz, index) => (
-                  <tr key={quiz._id} className={index % 2 === 0 ? (isDarkMode ? 'bg-[#333333]' : 'bg-gray-50') : (isDarkMode ? 'bg-[#403f3f]' : 'bg-white')}>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm">
-                      {getQuizType(quiz.quizName)}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                      {removeQuizTypePrefix(quiz.quizName)}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => handleStartQuiz(quiz._id, userID, quiz.quizName)}
-                        className="text-white font-bold py-2 px-5 rounded-xl bg-cyan-600 hover:bg-gray-800"
-                      >
-                        Start
-                      </button>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      {new Date() > new Date(quiz.end) && (
-                        <button
-                          onClick={() => handleQuizResults(quiz._id, userID, quiz.quizName)}
-                          className="text-white font-bold py-2 px-5 rounded-xl bg-green-600 hover:bg-green-700"
-                        >
-                          View Results
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+            <thead className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
+  <tr>
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topic</th>
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Results</th>
+    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solution</th>
+  </tr>
+</thead>
+<tbody className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+  {filteredQuizzes.slice().reverse().map((quiz, index) => (
+    <tr
+      key={quiz._id}
+      className={
+        index % 2 === 0
+          ? isDarkMode
+            ? 'bg-[#333333]'
+            : 'bg-gray-50'
+          : isDarkMode
+          ? 'bg-[#403f3f]'
+          : 'bg-white'
+      }
+    >
+      <td className="px-4 py-4 whitespace-nowrap text-sm">{getQuizType(quiz.quizName)}</td>
+      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">{removeQuizTypePrefix(quiz.quizName)}</td>
+      <td className="px-4 py-4 whitespace-nowrap">
+        <button
+          onClick={() => handleStartQuiz(quiz._id, userID, quiz.quizName)}
+          className="text-white font-bold py-2 px-5 rounded-xl bg-cyan-600 hover:bg-gray-800"
+        >
+          Start
+        </button>
+      </td>
+      <td className="px-4 py-4 whitespace-nowrap">
+        {new Date() > new Date(quiz.end) && (
+          <button
+            onClick={() => handleQuizResults(quiz._id, userID, quiz.quizName)}
+            className="text-white font-bold py-2 px-5 rounded-xl bg-green-600 hover:bg-green-700"
+          >
+            View Results
+          </button>
+        )}
+      </td>
+      {/* Solution Column with Icons */}
+      <td className="px-4 py-4 whitespace-nowrap flex items-center gap-4 text-lg">
+        {/* Text Solution Icon */}
+        <button
+          onClick={() => handleTextSolution(quiz._id)}
+          className="text-blue-500 hover:text-blue-700"
+          title="Text Solution"
+        >
+          <FaFileAlt />
+        </button>
+        {/* Video Solution Icon */}
+        <button
+          onClick={() => handleVideoSolution(quiz._id)}
+          className="text-white-500 hover:text-white-700"
+          title="Video Solution"
+        >
+          <FaVideo />
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
             </table>
           </div>
         )}

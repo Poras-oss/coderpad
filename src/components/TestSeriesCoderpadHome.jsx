@@ -494,7 +494,7 @@ export default function QuizApp() {
   return (
 
     
-    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[#141414]' : 'bg-gray-100'}`}>
+    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[#141414]' : 'bg-gray-200'}`}>
     {/* Header */}
     <header className={`${isDarkMode ? 'bg-[#1d1d1d]' : 'bg-oxford-blue'} `}>
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -540,7 +540,7 @@ export default function QuizApp() {
       />
 
       {/* Sidebar */}                          
-      <aside className={`w-64 border-r ${isDarkMode ? 'border-[#2f2f2f] dark bg-[#141414]' : 'border-gray-200 bg-gray-100'} hidden md:block`}>
+      <aside className={`w-64 border-r ${isDarkMode ? 'border-[#2f2f2f] dark bg-[#141414]' : 'border-gray-300 bg-gray-200'} hidden md:block`}>
         <div className="p-4">
           <div className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             <h2 className="text-sm font-semibold mb-2">STATUS</h2>
@@ -879,12 +879,12 @@ export default function QuizApp() {
                                 {quiz.id.toUpperCase()}
                               </Badge>
                             )}
-                            {quiz.subtopics && quiz.subtopics.map((subtopic, subIndex) => (
+                            {/* {quiz.subtopics && quiz.subtopics.map((subtopic, subIndex) => (
                               <Badge key={subIndex} variant="secondary" className={`flex items-center gap-1 ${isDarkMode ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-700'}`}>
                                 <BookOpen className="h-3 w-3" />
                                 {subtopic}
                               </Badge>
-                            ))}
+                            ))} */}
                             {quiz.company && quiz.company.map((company, compIndex) => (
                               <Badge key={compIndex} variant="secondary" className={`flex items-center gap-1 ${isDarkMode ? 'bg-purple-900 text-purple-200' : 'bg-purple-100 text-purple-700'}`}>
                                 <Briefcase className="h-3 w-3" />

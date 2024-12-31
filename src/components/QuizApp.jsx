@@ -5,9 +5,11 @@ import queryString from 'query-string';
 import {useAuth0} from '@auth0/auth0-react'
 import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import Split from 'react-split';
-import { Loader2, Video, X } from 'lucide-react';
+import { Loader2, Video, X, BookOpen, Play, Pause, RotateCcw } from 'lucide-react';
 import ReactPlayer from 'react-player';
 import Bot from './Bot';
+import { Badge } from "./ui/badge"
+
 
 export default function QuizApp()  {
   const { user, isLoaded } = useUser();
@@ -50,6 +52,10 @@ export default function QuizApp()  {
   const [startTime, setStartTime] = useState(null);
   const [activeTab, setActiveTab] = useState('question');
   const [isQuizMode, setIsQuizMode] = useState(false);
+
+    // Stopwatch timer for practicing question
+    const [timeInSeconds, setTimeInSeconds] = useState(0);
+    const [isStopwatchRunning, setisStopwatchRunning] = useState(false);
 
 
 
@@ -119,11 +125,11 @@ export default function QuizApp()  {
     return () => clearInterval(timer);
   }, [isTimerRunning, timeRemaining]);
 
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
+  // const formatTime = (seconds) => {
+  //   const minutes = Math.floor(seconds / 60);
+  //   const remainingSeconds = seconds % 60;
+  //   return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  // };
 
   useEffect(() => {
     const checkMobile = () => {
@@ -488,6 +494,36 @@ export default function QuizApp()  {
       return resultMap;
   }
 
+    useEffect(() => {
+      let interval = null;
+      
+      if (isStopwatchRunning) {
+        interval = setInterval(() => {
+          setTimeInSeconds(prev => prev + 1);
+        }, 1000);
+      }
+      
+      return () => {
+        if (interval) clearInterval(interval);
+      };
+    }, [isStopwatchRunning]);
+    
+    const formatTime = (totalSeconds) => {
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    };
+    
+    const handleStart = () => setisStopwatchRunning(true);
+    const handlePause = () => setisStopwatchRunning(false);
+    const handleReset = () => {
+      setisStopwatchRunning(false);
+      setTimeInSeconds(0);
+    };
+  
+
   if (!quizData) return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
       <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
@@ -520,21 +556,41 @@ export default function QuizApp()  {
         <h1 className="mb-4 text-xl font-bold">SQL Coderpad</h1>
         <div className="flex items-center space-x-4">
 
-        {/* {quizID && timeRemaining > 0 && (
-          
-                  <button 
-                    onClick={handleSubmitQuiz}
-                    className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
-                  >
-                    Submit Quiz
-                  </button>
-                )} */}
-
           {isTimerRunning && (
             <div className="text-lg font-semibold">
               Time remaining: {formatTime(timeRemaining)}
             </div>
           )}
+
+{questionID && (
+        <>
+        <div className="text-lg font-mono">
+        {formatTime(timeInSeconds)}
+      </div>
+         <div className="flex items-center space-x-1">
+         <button
+           onClick={!isStopwatchRunning ? handleStart : handlePause}
+           className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+           aria-label={!isStopwatchRunning ? "Start timer" : "Pause timer"}
+         >
+           {!isStopwatchRunning ? (
+             <Play size={16} />
+           ) : (
+             <Pause size={16} />
+           )}
+         </button>
+         
+         <button
+           onClick={handleReset}
+           className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+           aria-label="Reset timer"
+         >
+           <RotateCcw size={16} />
+         </button>
+       </div>
+       </>
+      )}
+
           <button
             onClick={openVideoPopup}
             className={`p-2 rounded-full ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-[#262626]'}`}
@@ -702,6 +758,42 @@ export default function QuizApp()  {
                     </td>
                   </tr>
                 )}
+
+{currentQuestion.subtopics && (
+  <tr className={isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}>
+    <td
+      className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
+        isDarkMode ? 'text-gray-300' : 'text-gray-900'
+      }`}
+    >
+      Sub topics
+    </td>
+    <td
+      className={`px-6 py-4 whitespace-normal text-sm ${
+        isDarkMode ? 'text-gray-300' : 'text-gray-500'
+      }`}
+    >
+      <div className="flex flex-wrap gap-2">
+        {currentQuestion.subtopics &&
+          currentQuestion.subtopics.map((subtopic, subIndex) => (
+            <Badge
+              key={subIndex}
+              variant="secondary"
+              className={`flex items-center ${
+                isDarkMode
+                  ? 'bg-blue-900 text-blue-200'
+                  : 'bg-blue-100 text-blue-700'
+              }`}
+            >
+              <BookOpen className="h-3 w-3 mr-1" />
+              {subtopic}
+            </Badge>
+          ))}
+      </div>
+    </td>
+  </tr>
+)}
+
               </tbody>
             </table>
           </div>

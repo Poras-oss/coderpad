@@ -5,7 +5,7 @@ import queryString from 'query-string';
 import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import Split from 'react-split';
 import ReactPlayer from 'react-player';
-import { Loader2, Video, X } from 'lucide-react';
+import { Loader2, Video, X, Play, Pause, RotateCcw  } from 'lucide-react';
 
 const PythonQuizApp = () => {
   const { user, isLoaded } = useUser();
@@ -36,6 +36,10 @@ const PythonQuizApp = () => {
   const [submissions, setSubmissions] = useState([]);
   const [isQuizMode, setIsQuizMode] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
+
+  // Stopwatch timer for practicing question
+  const [timeInSeconds, setTimeInSeconds] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
 
   const parsed = queryString.parse(window.location.search);
   const userID = parsed.userID;
@@ -119,17 +123,6 @@ const PythonQuizApp = () => {
   }, [fetchQuizData]);
 
 
-  // useEffect(() => {
-  //   if (quizData && quizData.questions) {
-  //     const initialUserCodes = {};
-  //     quizData.questions.forEach((question, index) => {
-  //       initialUserCodes[index] = question.boilerplate_code || '';
-  //     });
-  //     initialCodesRef.current = initialUserCodes;
-  //     setUserCodes(initialUserCodes);
-  //   }
-  // }, [quizData]);
-
 
   useEffect(() => {
     const fetchSubmissions = async () => {
@@ -151,11 +144,11 @@ const PythonQuizApp = () => {
     fetchSubmissions();
   }, [activeTab, questionID, isLoaded]);
 
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
+  // const formatTime = (seconds) => {
+  //   const minutes = Math.floor(seconds / 60);
+  //   const remainingSeconds = seconds % 60;
+  //   return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  // };
 
   
   const getRelativeTime = (timestamp) => {
@@ -424,6 +417,35 @@ const PythonQuizApp = () => {
     }
   };
 
+  useEffect(() => {
+    let interval = null;
+    
+    if (isRunning) {
+      interval = setInterval(() => {
+        setTimeInSeconds(prev => prev + 1);
+      }, 1000);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isRunning]);
+  
+  const formatTime = (totalSeconds) => {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+  
+  const handleStart = () => setIsRunning(true);
+  const handlePause = () => setIsRunning(false);
+  const handleReset = () => {
+    setIsRunning(false);
+    setTimeInSeconds(0);
+  };
+
   if (!quizData) return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
       <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
@@ -460,6 +482,39 @@ const PythonQuizApp = () => {
               Time remaining: {formatTime(timeRemaining)}
             </div>
           )}
+
+
+      {questionID && (
+        <>
+        <div className="text-lg font-mono">
+        {formatTime(timeInSeconds)}
+      </div>
+         <div className="flex items-center space-x-1">
+         <button
+           onClick={!isRunning ? handleStart : handlePause}
+           className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+           aria-label={!isRunning ? "Start timer" : "Pause timer"}
+         >
+           {!isRunning ? (
+             <Play size={16} />
+           ) : (
+             <Pause size={16} />
+           )}
+         </button>
+         
+         <button
+           onClick={handleReset}
+           className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+           aria-label="Reset timer"
+         >
+           <RotateCcw size={16} />
+         </button>
+       </div>
+       </>
+      )}
+      
+         
+
           <button
             onClick={openVideoPopup}
             className={`p-2 rounded-full ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-[#262626]'}`}
