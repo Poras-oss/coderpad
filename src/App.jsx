@@ -16,6 +16,7 @@ import TestSeriesCoderpadHome from './components/TestSeriesCoderpadHome';
 import TestSeriesMcqHome from './components/TestSeriesMcqHome';
 import McqTestSeries from './components/McqTestSeries';
 import ScenarioTestSeries from './components/ScenarioTestSeries';
+import ScenarioQuiz from './components/ScenarioQuiz';
 const App = () => {
   return (
     <BrowserRouter>
@@ -31,6 +32,8 @@ const App = () => {
         <Route path="/quiz-area" element={<TestSeriesMcqHome />} />
         <Route path="/mcq" element={<McqTestSeries />} />
         <Route path="scenario-area" element={<ScenarioTestSeries />} />
+        <Route path="scenario-quiz" element={<ScenarioQuiz />} />
+        
       </Routes>
     </BrowserRouter>
   );
