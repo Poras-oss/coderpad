@@ -77,7 +77,7 @@ const ScenarioTestSeries = () => {
     
     return (
     
-        <div className={`min-h-screen  ${isDarkMode ? 'bg-gray-900' : 'bg-gra-50'}`}>
+        <div className={`min-h-screen  ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
            <header className={`p-4 ${isDarkMode ? 'bg-oxford-blue text-white' : 'bg-oxford-blue text-gray-800'}`}>
                 <div className="container mx-auto flex justify-between items-center relative">
                 <div className="flex items-center">

@@ -144,18 +144,18 @@ const Quiz = () => {
                       <div className={`border p-4 rounded-lg mb-4 shadow-inner ${
                         isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
                       }`}>
-                        <p className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+                        <h5 className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
                           {currentQuestion.scenario}
-                        </p>
+                        </h5>
                       </div>
                     )}
                     
                     <div className="prose max-w-none">
-                      <p className={`text-lg ${
+                      <h4 className={`text-lg ${
                         isDarkMode ? 'text-gray-200' : 'text-gray-800'
                       }`}>
                         {currentQuestion.question_text}
-                      </p>
+                      </h4>
                     </div>
 
                     {currentQuestion.image && (
@@ -246,11 +246,11 @@ const Quiz = () => {
                 }`}>
                   Quiz Summary
                 </h2>
-                <p className={`text-lg mb-6 ${
+                <h5 className={`text-lg mb-6 ${
                   isDarkMode ? 'text-gray-300' : 'text-gray-700'
                 }`}>
                   Your Score: {score} out of {questions.length} ({((score / questions.length) * 100).toFixed(2)}%)
-                </p>
+                </h5>
                 <div className="space-y-6">
                   {questions.map((question, index) => (
                     <div key={index} className={`border-b pb-4 ${
@@ -261,11 +261,11 @@ const Quiz = () => {
                       }`}>
                         Question {index + 1}:
                       </h3>
-                      <p className={`mb-2 ${
+                      <h5 className={`mb-2 ${
                         isDarkMode ? 'text-gray-300' : 'text-gray-700'
                       }`}>
                         {question.question_text}
-                      </p>
+                      </h5>
                       <div className="flex items-center mb-1">
                         <span className={`font-medium mr-2 ${
                           isDarkMode ? 'text-gray-300' : 'text-gray-700'

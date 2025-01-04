@@ -45,11 +45,11 @@ const QuizGrid = ({ darkmode, subject, topics }) => {
           key={index} 
           className={`${
             darkmode ? 'bg-gray-800 shadow-lg shadow-gray-700/20' : 'bg-white shadow-lg shadow-gray-200/50'
-          } hover:shadow-xl transition-shadow duration-300 cursor-pointer`}
+          } hover:shadow-xl transition-shadow duration-300 cursor-pointer border-none`}
           onClick={() => handleTopicSelect(quiz.difficulty, quiz.title)}
         >
           <CardHeader className="space-y-3">
-            <CardTitle className={`text-xl font-bold ${darkmode ? 'text-white' : 'text-gray-900'}`}>
+            <CardTitle className={`text-xl  font-bold ${darkmode ? 'text-white' : 'text-gray-900'}`}>
               {quiz.title}
             </CardTitle>
             <div className="flex items-center gap-2">
@@ -72,9 +72,9 @@ const QuizGrid = ({ darkmode, subject, topics }) => {
             </div>
           </CardHeader>
           <CardContent>
-            <p className={`text-sm mb-6 ${darkmode ? 'text-gray-300' : 'text-gray-600'}`}>
+            <h5 className={`text-sm mb-6 ${darkmode ? 'text-gray-300' : 'text-gray-600'}`}>
               {quiz.description}
-            </p>
+            </h5>
             <Button 
               className={`w-full ${
                 darkmode 
