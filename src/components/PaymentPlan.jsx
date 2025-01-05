@@ -59,7 +59,7 @@ const RazorpayPaymentPlans = () => {
       setError('');
 
       // Create order
-      const response = await fetch('/api/payments/create-order', {
+      const response = await fetch('https://server.datasenseai.com/payment/create-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ const RazorpayPaymentPlans = () => {
         order_id: order.id,
         handler: async function(response) {
           try {
-            const verifyResponse = await fetch('/api/payments/verify-payment', {
+            const verifyResponse = await fetch('https://server.datasenseai.com/payment/verify-payment', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -105,7 +105,7 @@ const RazorpayPaymentPlans = () => {
             if (!verifyResponse.ok) throw new Error('Payment verification failed');
             
             // Show success message or redirect
-            window.location.href = '/payment-success';
+            window.location.href = 'https://server.datasenseai.com/payment/payment-success';
           } catch (err) {
             setError('Payment verification failed. Please contact support.');
           }
