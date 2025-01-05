@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Moon, Sun, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
 
-const Quiz = () => {
+const ScenarioQuiz = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
@@ -21,14 +21,14 @@ const Quiz = () => {
   useEffect(() => {
     const fetchQuestions = async () => {
       const response = await fetch(
-        `https://server.datasenseai.com/test-series-scenario/${subject}?difficulty=${difficulty}&subtopic=${subtopic}`
+        `https://server.datasenseai.com/test-series-scenario/${subject}`
+        // `https://server.datasenseai.com/test-series-scenario/${subject}?difficulty=${difficulty}&subtopic=${subtopic}`
       );
       const data = await response.json();
       setQuestions(data);
-      
-      const total = data.reduce((acc, q) => acc + (q.duration || 0), 0);
-      setTotalTime(total);
-      setTimeLeft(total);
+      console.log(data)
+
+
     };
 
     fetchQuestions();
@@ -332,4 +332,4 @@ const Quiz = () => {
   );
 };
 
-export default Quiz;
+export default ScenarioQuiz;

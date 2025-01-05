@@ -11,9 +11,14 @@ const QuizGrid = ({ darkmode, subject, topics }) => {
     navigate(`/scenario-quiz?subject=${encodeURIComponent(subject)}&difficulty=${difficulty}&subtopic=${encodeURIComponent(subtopic)}`);
   };
 
+  function capitalizeFirstLetter(str) {
+    if (!str) return ''; // Handle empty string or undefined input
+    return str[0].toUpperCase() + str.slice(1);
+}
+
   const quizzes = [
     {
-      title: "PowerBI Easy Quiz",
+      title: `${capitalizeFirstLetter(subject)} Easy Quiz`,
       difficulty: "Easy",
       tag: "MCQ",
       description: "Test your fundamental knowledge of data analysis concepts and techniques.",
@@ -21,7 +26,7 @@ const QuizGrid = ({ darkmode, subject, topics }) => {
       difficultyColor: "bg-green-100"
     },
     {
-      title: "PowerBI Medium Quiz",
+      title: `${capitalizeFirstLetter(subject)} Medium Quiz`,
       difficulty: "Medium",
       tag: "SQL",
       description: "Challenge yourself with complex SQL queries and database management problems.",
@@ -29,7 +34,7 @@ const QuizGrid = ({ darkmode, subject, topics }) => {
       difficultyColor: "bg-yellow-100"
     },
     {
-      title: "PowerBI Hard Quiz",
+      title: `${capitalizeFirstLetter(subject)} Hard Quiz`,
       difficulty: "Hard",
       tag: "Python",
       description: "Dive deep into advanced machine learning algorithms and implementations.",
@@ -61,14 +66,14 @@ const QuizGrid = ({ darkmode, subject, topics }) => {
               >
                 {quiz.difficulty}
               </Badge>
-              <Badge 
+              {/* <Badge 
                 className={`${quiz.tagColor} ${
                   darkmode ? 'text-white bg-opacity-20' : 'text-yellow-800'
                 }`}
                 variant="secondary"
               >
                 {quiz.tag}
-              </Badge>
+              </Badge> */}
             </div>
           </CardHeader>
           <CardContent>

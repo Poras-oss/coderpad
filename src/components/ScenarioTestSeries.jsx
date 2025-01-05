@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import 'tailwindcss/tailwind.css';
-import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import queryString from 'query-string';
 import { FaSun, FaMoon, FaBars, FaTimes } from 'react-icons/fa';
 import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
-import { ArrowLeft, CheckCircle, XCircle, Loader2, ArrowRight } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import TopicGrid from './TopicGrid'
 import logo from '../assets/dslogo.png'
 
