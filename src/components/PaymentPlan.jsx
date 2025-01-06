@@ -68,13 +68,14 @@ const RazorpayPaymentPlans = () => {
           amount: plan.price,
           currency: 'INR',
           receipt: `receipt_${Date.now()}`,
+          clerkId: user.id, // Move clerkId to the top level
           notes: {
-            clerkId: user.id,
             planId: plan.id,
             fuelUnits: plan.fuel
           }
         }),
       });
+      
 
       if (!response.ok) throw new Error('Failed to create order');
       
