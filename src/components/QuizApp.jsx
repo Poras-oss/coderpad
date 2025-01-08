@@ -827,7 +827,7 @@ export default function QuizApp()  {
   <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
     <h3 className="text-lg font-bold mb-2">Tables</h3>
     <div className={`mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-      <p className="text-sm italic mb-2">Note: Only the top 10 rows of each table are displayed</p>
+      <p className="text-sm italic mb-2">Note: Only the top 10 rows of each table are displayed except Expected Answer</p>
       {/* <p className="text-sm">
         These tables provide a snapshot of the data. For a more comprehensive view or to analyze specific data points, 
         please use the search and filter options available in the main interface.
@@ -884,7 +884,7 @@ export default function QuizApp()  {
               </tr>
             </thead>
             <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
-              {currentQuestion.expected_output.rows.slice(0, 10).map((row, rowIndex) => (
+              {currentQuestion.expected_output.rows.map((row, rowIndex) => (
                 <tr key={rowIndex}>
                   {row.map((value, cellIndex) => (
                     <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
