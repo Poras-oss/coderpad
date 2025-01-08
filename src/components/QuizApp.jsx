@@ -5,7 +5,7 @@ import queryString from 'query-string';
 import {useAuth0} from '@auth0/auth0-react'
 import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import Split from 'react-split';
-import { Loader2, Video, X, BookOpen, Play, Pause, RotateCcw } from 'lucide-react';
+import { Loader2, Video, X, BookOpen, Play, Pause, RotateCcw, Hash  } from 'lucide-react';
 import ReactPlayer from 'react-player';
 import Bot from './Bot';
 import { Badge } from "./ui/badge"
@@ -619,29 +619,34 @@ export default function QuizApp()  {
         cursor="col-resize"
       >
         {/* Left side: Question List and Details */}
+
         <div className="flex flex-col overflow-hidden">
           {/* Question List */}
-          <div className={`flex gap-10 ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 h-1/8 relative`}>
-            <div className="overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 hover:scrollbar-thumb-gray-500">
-              <ul className="flex flex-nowrap gap-4 py-2">
-                {quizData.questions.map((question, index) => (
-                  <li
-                    key={index}
-                    className={`cursor-pointer py-2 px-4 rounded border ${
-                      index === currentQuestionIndex
-                        ? 'bg-teal-500 text-white'
-                        : isDarkMode
-                        ? 'bg-[#262626] text-white hover:bg-gray-600'
-                        : 'bg-gray-300 text-gray-900 hover:bg-gray-400'
-                    }`}
-                    onClick={() => handleQuestionSelect(index)}
-                  >
-                    {index + 1}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+         {quizID && (
+           <div className={`flex gap-10 ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 h-1/8 relative`}>
+           <div className="overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 hover:scrollbar-thumb-gray-500">
+             <ul className="flex flex-nowrap gap-4 py-2">
+               {quizData.questions.map((question, index) => (
+                 <li
+                   key={index}
+                   className={`cursor-pointer py-2 px-4 rounded border ${
+                     index === currentQuestionIndex
+                       ? 'bg-teal-500 text-white'
+                       : isDarkMode
+                       ? 'bg-[#262626] text-white hover:bg-gray-600'
+                       : 'bg-gray-300 text-gray-900 hover:bg-gray-400'
+                   }`}
+                   onClick={() => handleQuestionSelect(index)}
+                 >
+                   {index + 1}
+                 </li>
+               ))}
+             </ul>
+           </div>
+         </div>
+         )}
+
+          
 
           {/* Tabs */}
           <div className={`flex ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4`}>
@@ -660,6 +665,20 @@ export default function QuizApp()  {
           {activeTab === 'question' && (
   <>
     <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+    {currentQuestion.id && (
+      <div className={`question-heading flex items-center p-4 mb-6 border-b ${
+        isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'
+      }`}>
+        <Hash className={`mr-2 h-5 w-5 ${
+          isDarkMode ? 'text-gray-400' : 'text-gray-500'
+        }`} />
+        <h2 className={`text-xl font-bold ${
+          isDarkMode ? 'text-white' : 'text-gray-800'
+        }`}>
+          {currentQuestion.id.toUpperCase()}. {currentQuestion.title}
+        </h2>
+      </div>
+    )}
       {/* Render scenario if it exists */}
       {currentQuestion.scenario && (
         <div 
@@ -807,6 +826,13 @@ export default function QuizApp()  {
 {activeTab === 'tables' && (
   <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
     <h3 className="text-lg font-bold mb-2">Tables</h3>
+    <div className={`mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+      <p className="text-sm italic mb-2">Note: Only the top 10 rows of each table are displayed</p>
+      {/* <p className="text-sm">
+        These tables provide a snapshot of the data. For a more comprehensive view or to analyze specific data points, 
+        please use the search and filter options available in the main interface.
+      </p> */}
+    </div>
 
     {/* State for Active Nested Tab */}
     <div className="tabs-container">
@@ -989,10 +1015,27 @@ export default function QuizApp()  {
     )}
 
 {activeTab === 'ai help' && (
-        <div className={`rounded-lg p-4 mb-4 shadow-md h-[460px] ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
-          <Bot isDarkMode={isDarkMode} />
+      <div className={`relative rounded-lg p-4 mb-4 shadow-md h-[460px] overflow-hidden ${
+        isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+      }`}>
+        {/* Glass effect overlay */}
+        <div className="absolute inset-0 backdrop-filter backdrop-blur-md bg-opacity-50 bg-gray-200 dark:bg-gray-700 dark:bg-opacity-50"></div>
+        
+        {/* Coming Soon text */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <h2 className={`text-4xl font-bold ${
+            isDarkMode ? 'text-white' : 'text-gray-800'
+          }`}>
+            Coming Soon
+          </h2>
         </div>
-      )}
+        
+        {/* Existing content (blurred behind the overlay) */}
+        <div className="relative z-10 opacity-50">
+          <Bot size={24} className={isDarkMode ? 'text-white' : 'text-gray-900'} />
+        </div>
+      </div>
+    )}
               </>
             )}
 
@@ -1002,7 +1045,7 @@ export default function QuizApp()  {
         {/* Right side: Code Editor and Results */}
         <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 flex flex-col`}>
           <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-t-lg p-2 flex justify-between items-center`}>
-            <span className="font-semibold">SQL</span>
+            <span className="font-semibold">MySQL</span>
             <div className="flex space-x-2">
         
         {quizID && timeRemaining > 0 && (

@@ -88,10 +88,10 @@ export const ChatInterface = ({ isDarkMode }) => {
                 )}>Generate Summary</Button>
                 <Button className={cn(
                   isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-800"
-                )}>Training Style</Button>
+                )}>Explain Question</Button>
                 <Button className={cn(
                   isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-800"
-                )}>Experience Level</Button>
+                )}>Optimize query</Button>
               </div>
             </motion.div>
           )}
