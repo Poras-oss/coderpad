@@ -42,14 +42,6 @@ export default function QuizApp() {
   const navigateTo = useNavigate()
   const [quizzes, setQuizzes] = useState([])
   const [isDarkMode, setIsDarkMode] = useState(false)
-  const [selectedDifficulties, setSelectedDifficulties] = useState([])
-  const [selectedCompanies, setSelectedCompanies] = useState([])
-  const [selectedSubtopics, setSelectedSubtopics] = useState([])
-  const [expandedQuestions, setExpandedQuestions] = useState({})
-  const [difficulties] = useState(['Easy', 'Medium', 'Advance'])
-  const [companies] = useState(['Amazon', 'Google', 'Microsoft', 'Facebook', 'Apple'])
-  const [subtopics, setSubtopics] = useState([])
-  const [searchTerm, setSearchTerm] = useState('')
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false)
   const [currentVideoId, setCurrentVideoId] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -74,6 +66,8 @@ export default function QuizApp() {
     next: null,
     previous: null
   })
+  const [pageInput, setPageInput] = useState(paginationInfo.currentPage.toString());
+  const [currentPage, setCurrentPage] = useState(paginationInfo.currentPage);
 
   const subject = new URLSearchParams(window.location.search).get('subject') || 'mysql'
   const STORAGE_KEY = 'quiz-bookmarks'
@@ -418,6 +412,8 @@ export default function QuizApp() {
   }
   
   const handlePageChange = useCallback((newPage) => {
+    setCurrentPage(newPage);
+    setPageInput(newPage.toString()); 
     if (newPage >= 1 && newPage <= paginationInfo.totalPages && newPage !== paginationInfo.currentPage) {
       setPaginationInfo(prev => ({ ...prev, currentPage: newPage }));
       // Scroll to top of the page when changing pages
@@ -489,6 +485,15 @@ export default function QuizApp() {
 
     return pageNumbers;
   }, [paginationInfo.totalPages, paginationInfo.currentPage, isDarkMode, handlePageChange]);
+
+  const handleGoToPage = () => {
+    const page = parseInt(pageInput, 10);
+    if (page >= 1 && page <= paginationInfo.totalPages) {
+      handlePageChange(page);
+    } else {
+      toast.error(`Please enter a valid page number between 1 and ${paginationInfo.totalPages}`);
+    }
+  };
 
 
   return (
@@ -928,31 +933,54 @@ export default function QuizApp() {
     </main>
 
     {/* Pagination */}
-    <div className="flex justify-center items-center mt-4 space-x-2 p-4">
-        <Button
-          onClick={() => handlePageChange(paginationInfo.currentPage - 1)}
-          disabled={paginationInfo.currentPage === 1}
-          variant="outline"
-          size="sm"
-          className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
-        >
-          <ChevronLeft className="h-4 w-4" />
-          <span className="hidden sm:inline ml-1">Previous</span>
-        </Button>
-        
-        {renderPaginationButtons()}
+    <div className="flex flex-wrap justify-center items-center mt-4 space-x-2 space-y-2 p-4">
+      <Button
+        onClick={() => handlePageChange(paginationInfo.currentPage - 1)}
+        disabled={paginationInfo.currentPage === 1}
+        variant="outline"
+        size="sm"
+        className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+      >
+        <ChevronLeft className="h-4 w-4" />
+        <span className="hidden sm:inline ml-1">Previous</span>
+      </Button>
+      
+      {renderPaginationButtons()}
 
+      <Button
+        onClick={() => handlePageChange(paginationInfo.currentPage + 1)}
+        disabled={paginationInfo.currentPage === paginationInfo.totalPages}
+        variant="outline"
+        size="sm"
+        className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+      >
+        <span className="hidden sm:inline mr-1">Next</span>
+        <ChevronRight className="h-4 w-4" />
+      </Button>
+
+      <div className="flex items-center space-x-2 mt-2 sm:mt-0 sm:ml-4">
+        <Input
+          type="number"
+          min={1}
+          max={paginationInfo.totalPages}
+          value={pageInput}
+          onChange={(e) => setPageInput(e.target.value)}
+          className={`w-16 ${
+            isDarkMode
+              ? 'bg-[#2f2f2f] border-[#3f3f3f] text-white'
+              : 'bg-white border-gray-200'
+          }`}
+        />
         <Button
-          onClick={() => handlePageChange(paginationInfo.currentPage + 1)}
-          disabled={paginationInfo.currentPage === paginationInfo.totalPages}
+          onClick={handleGoToPage}
           variant="outline"
           size="sm"
           className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
         >
-          <span className="hidden sm:inline mr-1">Next</span>
-          <ChevronRight className="h-4 w-4" />
+          Go
         </Button>
       </div>
+    </div>
     {/* Video Solution Dialog */}
     <Dialog open={isVideoPopupOpen} onOpenChange={setIsVideoPopupOpen}>
       <DialogContent className="sm:max-w-[800px]">
@@ -977,16 +1005,7 @@ export default function QuizApp() {
       </DialogContent>
     </Dialog>
   </div>
-    // <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-teal-500 text-white">
-    //   <div className="text-center p-6 max-w-md mx-auto bg-white rounded-lg shadow-lg">
-    //     <h1 className="text-4xl font-bold text-gray-800 mb-4">Coming Soon</h1>
-    //     <p className="text-gray-600 mb-6">
-    //       We're working hard to bring something amazing to you. Stay tuned!
-    //     </p>
-       
-    //   </div>
 
-    // </div> 
   )
 }
 
