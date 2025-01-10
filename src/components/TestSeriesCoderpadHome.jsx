@@ -5,17 +5,16 @@ import axios from 'axios'
 import logo from '../assets/dslogo.png'
 import { useNavigate } from 'react-router-dom'
 import { useUser, SignInButton, UserButton } from '@clerk/clerk-react'
-import { Video, FileText, ChevronDown, X, ArrowLeft, Search, Filter, Moon, Sun, Bookmark, BookmarkCheck, Loader2, ChevronLeft, ChevronRight, Star, Briefcase, Hash, BookOpen } from 'lucide-react'
+import {  X, Filter, Moon, Sun, Loader2, ChevronLeft, ChevronRight, Star, Briefcase, Hash } from 'lucide-react'
 import ReactPlayer from 'react-player/youtube'
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Badge } from "./ui/badge"
 import { toast } from 'react-toastify'
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
 import { ScrollArea } from "./ui/scroll-area"
 import { Checkbox } from "./ui/checkbox"
-import { Skeleton } from "./ui/skeleton"
+import RenderSubscription from './RenderSubscription';
+import SubscriptionDialogue from './SubscriptionDialogue';
 import { UserDetailModal } from "./UserDetailModal"
 import {
   Dialog,
@@ -46,6 +45,8 @@ export default function QuizApp() {
   const [currentVideoId, setCurrentVideoId] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [getUserID, setUserID] = useState('default')
+  const [isSubscriptionDialogueOpen, setIsSubscriptionDialogueOpen] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState('');
   const [filters, setFilters] = useState({
     difficulties: [],
     company: [],
@@ -69,7 +70,8 @@ export default function QuizApp() {
   const [pageInput, setPageInput] = useState(paginationInfo.currentPage.toString());
   const [currentPage, setCurrentPage] = useState(paginationInfo.currentPage);
 
-  const subject = new URLSearchParams(window.location.search).get('subject') || 'mysql'
+  let subject = new URLSearchParams(window.location.search).get('subject') || 'mysql'
+  if(subject === 'sql'){subject = 'mysql'}
   const STORAGE_KEY = 'quiz-bookmarks'
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -98,6 +100,7 @@ export default function QuizApp() {
   const fetchQuizzes = useCallback(async () => {
     try {
       setIsLoading(true)
+      
       let url = `https://server.datasenseai.com/test-series-coding/${subject}`
       let params = {
         page: paginationInfo.currentPage,
@@ -369,6 +372,21 @@ export default function QuizApp() {
       route = '/pyQuiz';
     }
   
+    // Check subscription status from localStorage
+    const subscriptionData = JSON.parse(localStorage.getItem('subscriptionStatus'));
+    
+    if (!subscriptionData || subscriptionData.message === 'User not subscribed') {
+      setSubscriptionStatus('not_premium');
+      setIsSubscriptionDialogueOpen(true);
+      return;
+    }
+    
+    if (subscriptionData.message === 'Subscription Expired') {
+      setSubscriptionStatus('expired');
+      setIsSubscriptionDialogueOpen(true);
+      return;
+    }
+  
     // Check if `userRegistered` exists in localStorage
     const userRegistered = localStorage.getItem('userRegistered');
   
@@ -380,14 +398,14 @@ export default function QuizApp() {
   
     // If `userRegistered` doesn't exist or is false, check with the server
     try {
-      const response = await fetch(`https://server.datasenseai.com/user-details/profile-status/${userID}`); // Adjust the route if needed
+      const response = await fetch(`https://server.datasenseai.com/user-details/profile-status/${userID}`);
       const data = await response.json();
   
       if (response.ok) {
         if (data.isProfileComplete) {
           // Save the result in localStorage and start the quiz
           localStorage.setItem('userRegistered', 'true');
-          navigateTo(`${route}?questionID=${quizID}&userID=${userID}`);
+          window.open(`${route}?questionID=${quizID}&userID=${userID}`, '_blank');
         } else {
           // Show the UserDetailModal for incomplete profile
           setIsModalOpen(true);
@@ -515,6 +533,9 @@ export default function QuizApp() {
         </div>
         
         <div className="flex items-center space-x-4">
+
+        {isLoaded && isSignedIn && <RenderSubscription />}
+
           <Button
             variant="ghost"
             size="icon"
@@ -524,13 +545,19 @@ export default function QuizApp() {
             {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5 text-white" />}
           </Button>
           {isLoaded && isSignedIn ? (
+            <>
+            <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-white'} md:${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            Welcome, {user.firstName}
+          </span>
             <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
+            </>
           ) : (
             <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`}>
               <Button size={"sm"} className={`${isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-600 hover:bg-green-700'} text-white`}>
                 LogIn
               </Button>
             </SignInButton>
+            
           )}
         </div>
       </div>
@@ -542,6 +569,12 @@ export default function QuizApp() {
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         onClose={handleModalClose}
+      />
+
+<SubscriptionDialogue 
+        isOpen={isSubscriptionDialogueOpen}
+        onClose={() => setIsSubscriptionDialogueOpen(false)}
+        status={subscriptionStatus}
       />
 
       {/* Sidebar */}                          

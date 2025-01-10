@@ -1,14 +1,64 @@
-import React from 'react';
+import {React, useState} from 'react';
 import { Badge } from "./ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { useNavigate } from 'react-router-dom';
+import SubscriptionDialogue from './SubscriptionDialogue';
 
 const QuizGrid = ({ darkmode, subject, topics }) => {
   const navigate = useNavigate();
+     const [isSubscriptionDialogueOpen, setIsSubscriptionDialogueOpen] = useState(false);
+      const [subscriptionStatus, setSubscriptionStatus] = useState('');
 
-  const handleTopicSelect = (difficulty, subtopic) => {
-    navigate(`/scenario-quiz?subject=${encodeURIComponent(subject)}&difficulty=${difficulty}&subtopic=${encodeURIComponent(subtopic)}`);
+  const handleTopicSelect = async(difficulty, subtopic) => {
+    
+
+     // Check subscription status from localStorage
+     const subscriptionData = JSON.parse(localStorage.getItem('subscriptionStatus'));
+    
+     if (!subscriptionData || subscriptionData.message === 'User not subscribed') {
+       setSubscriptionStatus('not_premium');
+       setIsSubscriptionDialogueOpen(true);
+       return;
+     }
+     
+     if (subscriptionData.message === 'Subscription Expired') {
+       setSubscriptionStatus('expired');
+       setIsSubscriptionDialogueOpen(true);
+       return;
+     }
+   
+     // Check if `userRegistered` exists in localStorage
+     const userRegistered = localStorage.getItem('userRegistered');
+   
+     if (userRegistered === 'true') {
+       // User is already registered, start the quiz
+       navigate(`/scenario-quiz?subject=${encodeURIComponent(subject)}&difficulty=${difficulty}&subtopic=${encodeURIComponent(subtopic)}`);
+       return;
+     }
+   
+     // If `userRegistered` doesn't exist or is false, check with the server
+     try {
+       const response = await fetch(`https://server.datasenseai.com/user-details/profile-status/${userID}`);
+       const data = await response.json();
+   
+       if (response.ok) {
+         if (data.isProfileComplete) {
+           // Save the result in localStorage and start the quiz
+           localStorage.setItem('userRegistered', 'true');
+           navigate(`/scenario-quiz?subject=${encodeURIComponent(subject)}&difficulty=${difficulty}&subtopic=${encodeURIComponent(subtopic)}`);
+         } else {
+           // Show the UserDetailModal for incomplete profile
+           setIsModalOpen(true);
+         }
+       } else {
+         console.error('Failed to fetch profile status:', data.message);
+         alert('Login first!');
+       }
+     } catch (error) {
+       console.error('Error while checking user profile status:', error);
+       alert('An unexpected error occurred. Please try again.');
+     }
   };
 
   function capitalizeFirstLetter(str) {
@@ -45,6 +95,11 @@ const QuizGrid = ({ darkmode, subject, topics }) => {
 
   return (
     <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 ${darkmode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <SubscriptionDialogue 
+        isOpen={isSubscriptionDialogueOpen}
+        onClose={() => setIsSubscriptionDialogueOpen(false)}
+        status={subscriptionStatus}
+      />
       {quizzes.map((quiz, index) => (
         <Card 
           key={index} 

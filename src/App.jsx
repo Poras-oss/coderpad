@@ -1,4 +1,4 @@
-import React from 'react'; 
+import {React, useEffect} from 'react'; 
 import {
   BrowserRouter,
   Routes,
@@ -18,8 +18,30 @@ import McqTestSeries from './components/McqTestSeries';
 import ScenarioTestSeries from './components/ScenarioTestSeries';
 import ScenarioQuiz from './components/ScenarioQuiz';
 import PaymentPlan from './components/PaymentPlan';
+import { useUser } from "@clerk/clerk-react";
+
 const App = () => {
+  const { isLoaded, isSignedIn, user } = useUser();
+
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      fetchSubscriptionStatus(user.id);
+    }
+  }, [isLoaded, isSignedIn, user]);
+
+  const fetchSubscriptionStatus = async (clerkId) => {
+    try {
+      const response = await fetch(`https://server.datasenseai.com/subscription/subscription-status?clerkId=${clerkId}`);
+      const data = await response.json();
+      localStorage.setItem('subscriptionStatus', JSON.stringify(data));
+    } catch (error) {
+      console.error('Error fetching subscription status:', error);
+      localStorage.removeItem('subscriptionStatus');
+    }
+  };
+
   return (
+
     <BrowserRouter>
       <Routes>
         {  <Route path="/" element={<iframe src="/home.html" style={{ width: '100%', height: '100vh', border: 'none' }} title="External Page" />} /> }
@@ -38,6 +60,7 @@ const App = () => {
         
       </Routes>
     </BrowserRouter>
+
   );
 };
 

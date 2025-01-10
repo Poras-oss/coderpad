@@ -4,7 +4,8 @@ import queryString from 'query-string';
 import { useNavigate } from 'react-router-dom';
 import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import logo from '../assets/dslogo.png'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Moon, Sun } from 'lucide-react'
+import { Button } from "./ui/button"
 import QuizInstructionsDialog from './QuizInstructionsDialog'
 import {
   AlertDialog,
@@ -230,13 +231,14 @@ const handleVideoSolution = (quizId) => {
         <nav className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex absolute md:relative top-full left-0 right-0 md:top-auto ${isDarkMode ? 'bg-gray-800' : 'bg-gray-800'} md:bg-transparent z-10 flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 p-4 md:p-0`}>
           <ul className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
             <li>
-              <button
-                onClick={() => setIsDarkMode(!isDarkMode)}
-                className={`p-2 rounded-full ${isDarkMode ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-yellow-400'}`}
-                aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-              >
-                {isDarkMode ? <FaSun /> : <FaMoon />}
-              </button>
+            <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className={`${isDarkMode ? 'text-white hover:bg-[#2f2f2f]' : 'text-gray-700  hover:bg-gray-300'}`}
+          >
+            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5 text-white" />}
+          </Button>
             </li>
             <li className="w-full md:w-auto">
               {isLoaded && isSignedIn ? (

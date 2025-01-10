@@ -99,7 +99,7 @@ const PythonQuizApp = () => {
         setIsQuizMode(true);
         response = await axios.get(`https://server.datasenseai.com/python-quiz/${quizID}/${userID}`);
       } else if (questionID) {
-        response = await axios.get(`https://server.datasenseai.com/test-series-coding/python/${questionID}`);
+        response = await axios.get(`http://localhost:5173/test-series-coding/python/${questionID}`);
       }
       if (response) {
         setQuizData(response.data);

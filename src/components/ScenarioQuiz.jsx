@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Moon, Sun, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Moon, Sun, CheckCircle, XCircle, RotateCcw, Menu } from 'lucide-react';
+import QuestionList from './ScenarioQuestionList';
 
 const ScenarioQuiz = () => {
   const [searchParams] = useSearchParams();
@@ -13,6 +14,7 @@ const ScenarioQuiz = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isQuizCompleted, setIsQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const difficulty = searchParams.get('difficulty');
   const subtopic = searchParams.get('subtopic');
@@ -22,13 +24,10 @@ const ScenarioQuiz = () => {
     const fetchQuestions = async () => {
       const response = await fetch(
         `https://server.datasenseai.com/test-series-scenario/${subject}`
-        // `https://server.datasenseai.com/test-series-scenario/${subject}?difficulty=${difficulty}&subtopic=${subtopic}`
       );
       const data = await response.json();
       setQuestions(data);
-      console.log(data)
-
-
+      console.log(data);
     };
 
     fetchQuestions();
@@ -89,25 +88,37 @@ const ScenarioQuiz = () => {
     setTimeLeft(totalTime);
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   if (!currentQuestion && !isQuizCompleted) return null;
 
   return (
-    <div className="min-h-screen">
-      <div className={`min-h-screen ${
-        isDarkMode 
-          ? 'bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800' 
-          : 'bg-gradient-to-br from-cyan-100 via-white to-cyan-200'
-      }`}>
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-between items-center mb-6">
+    <div className={`min-h-screen ${
+      isDarkMode 
+        ? 'bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800' 
+        : 'bg-gradient-to-br from-cyan-100 via-white to-cyan-200'
+    }`}>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className={`flex items-center hover:text-gray-900 ${
+              isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600'
+            }`}
+          >
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Back
+          </button>
+          <div className="flex items-center">
             <button
-              onClick={() => navigate(-1)}
-              className={`flex items-center hover:text-gray-900 ${
-                isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600'
+              onClick={toggleSidebar}
+              className={`p-2 rounded-full mr-2 ${
+                isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-800'
               }`}
             >
-              <ArrowLeft className="w-5 h-5 mr-2" />
-              Back
+              <Menu className="w-5 h-5" />
             </button>
             <button
               onClick={toggleDarkMode}
@@ -118,8 +129,19 @@ const ScenarioQuiz = () => {
               {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
           </div>
+        </div>
+        
+        <div className="flex">
+          <QuestionList
+            questions={questions}
+            currentIndex={currentIndex}
+            setCurrentIndex={setCurrentIndex}
+            selectedAnswers={selectedAnswers}
+            isDarkMode={isDarkMode}
+            isOpen={isSidebarOpen}
+          />
           
-          <div className={`rounded-lg shadow-lg overflow-hidden ${
+          <div className={`flex-grow rounded-lg shadow-lg overflow-hidden ${
             isDarkMode ? 'bg-gray-800' : 'bg-white'
           }`}>
             {!isQuizCompleted ? (
@@ -333,3 +355,4 @@ const ScenarioQuiz = () => {
 };
 
 export default ScenarioQuiz;
+

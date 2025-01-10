@@ -4,7 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { Sun, Moon, Info, Lock, ArrowLeft } from 'lucide-react';
 import queryString from 'query-string';
 import { FaSun, FaMoon, FaBars, FaTimes } from 'react-icons/fa';
+import { Button } from "./ui/button"
 import logo from '../assets/dslogo.png'
+import RenderSubscription from './RenderSubscription';
+import SubscriptionDialogue from './SubscriptionDialogue';
 
 const TestSeriesMcqHome = () => {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -17,6 +20,9 @@ const TestSeriesMcqHome = () => {
   });
   const parsed = queryString.parse(window.location.search);
   const subject = parsed.subject;
+
+    const [isSubscriptionDialogueOpen, setIsSubscriptionDialogueOpen] = useState(false);
+    const [subscriptionStatus, setSubscriptionStatus] = useState('');
 
   const getFirstName = (fullName) => {
     return fullName.split(' ')[0];
@@ -141,8 +147,6 @@ const TestSeriesMcqHome = () => {
   };
 
 
-
-
   const selectedQuizzes = quizzesBySubject[subject] || quizzesBySubject.hardcodedQuizzes;
 
 
@@ -193,7 +197,7 @@ const TestSeriesMcqHome = () => {
   };
 
 
-  const handleStartQuiz = (quizID, quizType, difficulty) => {
+  const handleStartQuiz = async(quizID, quizType, difficulty) => {
     // if (!isSignedIn) {
     //   alert('You need to log in to start the quiz.');
     //   return;
@@ -201,7 +205,54 @@ const TestSeriesMcqHome = () => {
     //updateUserProgress(difficulty);
     
   
-    navigateTo(`/mcq?subject=${subject}&difficulty=${difficulty.toLowerCase()}`);
+    
+
+    // Check subscription status from localStorage
+    const subscriptionData = JSON.parse(localStorage.getItem('subscriptionStatus'));
+    
+    if (!subscriptionData || subscriptionData.message === 'User not subscribed') {
+      setSubscriptionStatus('not_premium');
+      setIsSubscriptionDialogueOpen(true);
+      return;
+    }
+    
+    if (subscriptionData.message === 'Subscription Expired') {
+      setSubscriptionStatus('expired');
+      setIsSubscriptionDialogueOpen(true);
+      return;
+    }
+  
+    // Check if `userRegistered` exists in localStorage
+    const userRegistered = localStorage.getItem('userRegistered');
+  
+    if (userRegistered === 'true') {
+      // User is already registered, start the quiz
+      navigateTo(`/mcq?subject=${subject}&difficulty=${difficulty.toLowerCase()}`);
+      return;
+    }
+  
+    // If `userRegistered` doesn't exist or is false, check with the server
+    try {
+      const response = await fetch(`https://server.datasenseai.com/user-details/profile-status/${userID}`);
+      const data = await response.json();
+  
+      if (response.ok) {
+        if (data.isProfileComplete) {
+          // Save the result in localStorage and start the quiz
+          localStorage.setItem('userRegistered', 'true');
+          navigateTo(`/mcq?subject=${subject}&difficulty=${difficulty.toLowerCase()}`);
+        } else {
+          // Show the UserDetailModal for incomplete profile
+          setIsModalOpen(true);
+        }
+      } else {
+        console.error('Failed to fetch profile status:', data.message);
+        alert('Login first!');
+      }
+    } catch (error) {
+      console.error('Error while checking user profile status:', error);
+      alert('An unexpected error occurred. Please try again.');
+    }
 
 
   };
@@ -233,13 +284,13 @@ const TestSeriesMcqHome = () => {
       <header className={`p-4 ${isDarkMode ? 'bg-oxford-blue text-white' : 'bg-oxford-blue text-gray-800'}`}>
       <div className="container mx-auto flex justify-between items-center relative">
       <div className="flex items-center">
-  <button
+  {/* <button
     onClick={backToHome}
     className="mr-2 text-white hover:text-gray-300 transition-colors duration-200"
     aria-label="Go back"
   >
     <ArrowLeft size={24} />
-  </button>
+  </button> */}
   <img 
     className="h-12 w-auto cursor-pointer"
     src={logo}
@@ -263,13 +314,15 @@ const TestSeriesMcqHome = () => {
         <nav className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex absolute md:relative top-full left-0 right-0 md:top-auto ${isDarkMode ? 'bg-gray-800' : 'bg-gray-800'} md:bg-transparent z-10 flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 p-4 md:p-0`}>
           <ul className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
             <li>
-              <button
-                onClick={() => setIsDarkMode(!isDarkMode)}
-                className={`p-2 rounded-full ${isDarkMode ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-yellow-400'}`}
-                aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-              >
-                {isDarkMode ? <FaSun /> : <FaMoon />}
-              </button>
+            {isLoaded && isSignedIn && <RenderSubscription />}
+              <Button
+                         variant="ghost"
+                         size="icon"
+                         onClick={() => setIsDarkMode(!isDarkMode)}
+                         className={`${isDarkMode ? 'text-white hover:bg-[#2f2f2f]' : 'text-gray-700  hover:bg-gray-300'}`}
+                       >
+                         {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5 text-white" />}
+                       </Button>
             </li>
             <li className="w-full md:w-auto">
               {isLoaded && isSignedIn ? (
@@ -292,6 +345,11 @@ const TestSeriesMcqHome = () => {
       </div>
     </header>
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-grow">
+      <SubscriptionDialogue 
+        isOpen={isSubscriptionDialogueOpen}
+        onClose={() => setIsSubscriptionDialogueOpen(false)}
+        status={subscriptionStatus}
+      />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {selectedQuizzes.map((quiz) => (
             <div key={quiz._id} className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105`}>

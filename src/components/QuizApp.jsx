@@ -9,7 +9,7 @@ import { Loader2, Video, X, BookOpen, Play, Pause, RotateCcw, Hash  } from 'luci
 import ReactPlayer from 'react-player';
 import Bot from './Bot';
 import { Badge } from "./ui/badge"
-
+import SubscriptionDialogue from './SubscriptionDialogue';
 
 export default function QuizApp()  {
   const { user, isLoaded } = useUser();
@@ -30,6 +30,10 @@ export default function QuizApp()  {
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
   const [activeNestedTab, setActiveNestedTab] = useState('expected_output');
+
+  //Subscription states
+  const [isSubscriptionDialogueOpen, setIsSubscriptionDialogueOpen] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState('');
 
 
   const [timeRemaining, setTimeRemaining] = useState(60 * 60); // 60 minutes in seconds
@@ -159,28 +163,98 @@ export default function QuizApp()  {
  
   useEffect(() => {
     const fetchQuizData = async () => {
+      // Don't proceed if neither quizID nor questionID is available
+      if (!quizID && !questionID) {
+        console.log('No quiz or question ID provided');
+        return;
+      }
+  
+      // Set loading state
+      setLoading(true);
+  
       try {
+        // Wait for user to be loaded
+        if (!user?.id) {
+          console.log('Waiting for user data...');
+          return;
+        }
+  
+        const baseUrl = 'https://server.datasenseai.com';
         let response;
-        
+  
         if (quizID) {
           setIsQuizMode(true);
-          response = await axios.get(`https://server.datasenseai.com/sql-quiz/${quizID}/${userID}`);
-        } else if (questionID) {
-          response = await axios.get(`https://server.datasenseai.com/test-series-coding/mysql/${questionID}`);
+          response = await axios.get(`${baseUrl}/sql-quiz/${quizID}/${user.id}`, {
+            params: { clerkId: user.id }
+          });
+        } else {
+          response = await axios.get(`${baseUrl}/test-series-coding/mysql/${questionID}`, {
+            params: { clerkId: user.id }
+          });
         }
-
-        if (response) {
+  
+        if (response?.data) {
           setQuizData(response.data);
         }
-
-
+  
       } catch (error) {
-        console.error('Error fetching quiz data:', error);
+        console.error('Error details:', {
+          message: error.message,
+          user: user?.id || 'undefined',
+          quizID,
+          questionID,
+          responseData: error.response?.data
+        });
+  
+        // Handle different types of errors
+        if (error.response) {
+          const { status, data } = error.response;
+          
+          switch (status) {
+            case 401:
+              setAuthError(true);
+              break;
+            case 403:
+              if (data.message === 'User not subscribed') {
+                setSubscriptionStatus('not_premium');
+                alert(`You're not a premium user`)
+                // setIsSubscriptionDialogueOpen(true);
+              } else if (data.message === 'Subscription expired') {
+                setSubscriptionStatus('Subscription expired');
+                alert('expired')
+                // setIsSubscriptionDialogueOpen(true);
+              }
+              break;
+            case 404:
+              setError('Quiz or question not found');
+              break;
+            default:
+              setError('An error occurred while fetching data');
+          }
+        } else if (error.request) {
+          // Request was made but no response received
+          setError('No response from server. Please check your connection.');
+        } else {
+          // Something else went wrong
+          setError('An unexpected error occurred');
+        }
+      } finally {
+        setLoading(false);
       }
     };
-
-    fetchQuizData();
-  }, []);
+  
+    // Only run if we have required data
+    if (user?.id && (quizID || questionID)) {
+      fetchQuizData();
+    }
+  
+    // Cleanup function
+    return () => {
+      setQuizData(null);
+      setError(null);
+      setLoading(false);
+    };
+  }, [user, quizID, questionID]); // Add all dependencies
 
   useEffect(() => {
     if (quizData && quizData.questions) {
@@ -188,7 +262,9 @@ export default function QuizApp()  {
     }
   }, [quizData]);
 
-
+  const handleCloseSubscriptionDialogue = () => {
+    setIsSubscriptionDialogueOpen(false);
+  };
 
   const getRelativeTime = (timestamp) => {
     const now = new Date();
@@ -550,8 +626,12 @@ export default function QuizApp()  {
     );
   }
 
+
+
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-black'}`}>
+      
+     
       <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center`}>
         <h1 className="mb-4 text-xl font-bold">SQL Coderpad</h1>
         <div className="flex items-center space-x-4">
@@ -606,6 +686,8 @@ export default function QuizApp()  {
         
         </div>
       </nav>
+
+     
       <Split
         className="flex h-[calc(100vh-4rem)]"
         sizes={[50, 50]}
