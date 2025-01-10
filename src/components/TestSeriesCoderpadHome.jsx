@@ -371,6 +371,11 @@ export default function QuizApp() {
     if (subject.toLowerCase() === 'python') {
       route = '/pyQuiz';
     }
+
+    if(!isSignedIn){
+      alert(`You're not logged in`)
+      return;
+    }
   
     // Check subscription status from localStorage
     const subscriptionData = JSON.parse(localStorage.getItem('subscriptionStatus'));

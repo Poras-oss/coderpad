@@ -36,6 +36,7 @@ const PythonQuizApp = () => {
   const [submissions, setSubmissions] = useState([]);
   const [isQuizMode, setIsQuizMode] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
+    const [subscriptionStatus, setSubscriptionStatus] = useState('');
 
   // Stopwatch timer for practicing question
   const [timeInSeconds, setTimeInSeconds] = useState(0);
@@ -93,15 +94,35 @@ const PythonQuizApp = () => {
   }, []);
 
   const fetchQuizData = useCallback(async () => {
+    // Don't proceed if neither quizID nor questionID is available
+    if (!quizID && !questionID) {
+      console.log('No quiz or question ID provided');
+      return;
+    }
+  
+    // Set loading state
+    setLoading(true);
+  
     try {
+      // Wait for user to be loaded
+      if (!user?.id) {
+        console.log('Waiting for user data...');
+        return;
+      }
+  
+      const baseUrl = 'https://server.datasenseai.com';
       let response;
+  
       if (quizID) {
         setIsQuizMode(true);
-        response = await axios.get(`https://server.datasenseai.com/python-quiz/${quizID}/${userID}`);
-      } else if (questionID) {
-        response = await axios.get(`http://localhost:5173/test-series-coding/python/${questionID}?clerkId=${user.id}`);
+        response = await axios.get(`${baseUrl}/python-quiz/${quizID}/${userID}`);
+      } else {
+        response = await axios.get(`${baseUrl}/test-series-coding/python/${questionID}`, {
+          params: { clerkId: user.id }
+        });
       }
-      if (response) {
+  
+      if (response?.data) {
         setQuizData(response.data);
         const initialUserCodes = {};
         response.data.questions.forEach((question, index) => {
@@ -110,17 +131,67 @@ const PythonQuizApp = () => {
         setUserCodes(initialUserCodes);
         userCodesRef.current = initialUserCodes;
       }
+  
     } catch (error) {
-      console.error('Error fetching quiz data:', error);
-      setError('Failed to fetch quiz data. Please try again.');
+      console.error('Error details:', {
+        message: error.message,
+        user: user?.id || 'undefined',
+        quizID,
+        questionID,
+        responseData: error.response?.data
+      });
+  
+      // Handle different types of errors
+      if (error.response) {
+        const { status, data } = error.response;
+  
+        switch (status) {
+          case 401:
+            setAuthError(true);
+            break;
+          case 403:
+            if (data.message === 'User not subscribed') {
+              setSubscriptionStatus('not_premium');
+              alert(`You're not a premium user`);
+              // setIsSubscriptionDialogueOpen(true);
+            } else if (data.message === 'Subscription expired') {
+              setSubscriptionStatus('Subscription expired');
+              alert('expired');
+              // setIsSubscriptionDialogueOpen(true);
+            }
+            break;
+          case 404:
+            setError('Quiz or question not found');
+            break;
+          default:
+            setError('An error occurred while fetching data');
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        setError('No response from server. Please check your connection.');
+      } else {
+        // Something else went wrong
+        setError('An unexpected error occurred');
+      }
     } finally {
       setLoading(false);
     }
-  }, [quizID, userID, questionID]);
-
+  }, [quizID, userID, questionID, user]);
+  
   useEffect(() => {
-    fetchQuizData();
-  }, [fetchQuizData]);
+    if (user?.id && (quizID || questionID)) {
+      fetchQuizData();
+    }
+  
+    // Cleanup function
+    return () => {
+      setQuizData(null);
+      setError(null);
+      setLoading(false);
+      setUserCodes({});
+      userCodesRef.current = {};
+    };
+  }, [fetchQuizData, user, quizID, questionID]);
 
 
 

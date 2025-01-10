@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Moon, Sun, CheckCircle, XCircle, RotateCcw, Menu } from 'lucide-react';
 import QuestionList from './ScenarioQuestionList';
+import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 
 const ScenarioQuiz = () => {
+  const { user, isLoaded } = useUser();
+
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
@@ -22,6 +25,10 @@ const ScenarioQuiz = () => {
 
   useEffect(() => {
     const fetchQuestions = async () => {
+      if(!user){
+        alert(`You're not logged in`);
+        history.back();
+      }
       const response = await fetch(
         `https://server.datasenseai.com/test-series-scenario/${subject}?clerkId=${user.id}`
       );
