@@ -23,7 +23,7 @@ const ScenarioQuiz = () => {
   useEffect(() => {
     const fetchQuestions = async () => {
       const response = await fetch(
-        `https://server.datasenseai.com/test-series-scenario/${subject}`
+        `https://server.datasenseai.com/test-series-scenario/${subject}?clerkId=${user.id}`
       );
       const data = await response.json();
       setQuestions(data);

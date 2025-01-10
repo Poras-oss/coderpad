@@ -47,7 +47,7 @@ const Quiz = () => {
         // }
 
         const loadQuestions = async () => {
-            const response = await fetch('https://server.datasenseai.com/quizadmin/python-mcq-questions/' + quizID);
+            const response = await fetch('https://server.datasenseai.com/quizadmin/python-mcq-questions/' + quizID + `?clerkId=${user.id}`);
             const data = await response.json();
             setQuestions(data);
             setStartTime(new Date()); 
