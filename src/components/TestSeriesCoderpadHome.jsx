@@ -259,7 +259,7 @@ export default function QuizApp() {
 
     const normalized = difficulty.toLowerCase()
     if (normalized === 'advance' || normalized === 'advanced') {
-      return 'advance'
+      return 'advanced'
     }
 
     return normalized
@@ -608,7 +608,7 @@ export default function QuizApp() {
           <div className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             <h2 className="text-sm font-semibold mb-2">DIFFICULTY</h2>
             <div className="space-y-2">
-              {['Easy', 'Medium', 'Advance'].map((difficulty) => (
+              {['Easy', 'Medium', 'Advanced'].map((difficulty) => (
                 <label key={difficulty} className="flex items-center space-x-2 cursor-pointer">
                   <Checkbox
                     checked={filters.difficulties.includes(difficulty.toLowerCase())}
