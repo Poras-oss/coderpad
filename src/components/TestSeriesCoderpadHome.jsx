@@ -558,7 +558,7 @@ export default function QuizApp() {
             </>
           ) : (
             <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`}>
-              <Button size={"sm"} className={`${isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-600 hover:bg-green-700'} text-white`}>
+              <Button size={"sm"} className={`${isDarkMode ? 'bg-blue-500 hover:bg-blue-600' : 'bg-blue-500 hover:bg-blue-600'} text-white`}>
                 LogIn
               </Button>
             </SignInButton>
