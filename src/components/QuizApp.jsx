@@ -30,6 +30,7 @@ export default function QuizApp()  {
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
   const [activeNestedTab, setActiveNestedTab] = useState('expected_output');
+  const [totalScore, setTotalScore] = useState(0);
 
   //Subscription states
   const [isSubscriptionDialogueOpen, setIsSubscriptionDialogueOpen] = useState(false);
@@ -194,6 +195,7 @@ export default function QuizApp()  {
         }
   
         if (response?.data) {
+          setTotalScore(response.data.questions.length)
           setQuizData(response.data);
         }
   
@@ -318,7 +320,19 @@ export default function QuizApp()  {
       // Optionally show non-blocking notifications
     }
   };
-  
+
+const addToStreak = async (clerkId, questionId) => {
+    try {
+        const response = await axios.post('https://server.datasenseai.com/question-attempt/update-streak', {
+            clerkId,
+            subjectId: "mysql",
+            questionId,
+        });
+        return response.data; // Return the response if needed elsewhere
+    } catch (error) {
+        console.error('Error saving streak:', error.response?.data || error.message);
+    }
+};
 
 
   const handleTestCode = async () => {
@@ -357,6 +371,9 @@ export default function QuizApp()  {
   
       // Save submission in the background
       saveSubmission(user.id, questionID, isCorrect, userQueries[currentQuestionIndex]);
+
+      //Increment the question solving streak
+      addToStreak(user.id, questionID);
   
       // Add to submissions history
       setSubmissions(prevSubmissions => [
@@ -460,13 +477,14 @@ export default function QuizApp()  {
       return;
     }
     setIsTimerRunning(false);
-    const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
+    const userScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const timeTaken = 3600 - timeRemaining; // in seconds
 
     const uf = {
       quizID: quizID,
       userID: `${userInfo.email || ' '}, ${userInfo.firstName || ' '}, ${userInfo.phone || ' '}`,
-      score: totalScore,
+      score: userScore,
+      totalscore: totalScore,
       duration: timeTaken
     };
 

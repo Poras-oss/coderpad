@@ -25,6 +25,7 @@ const Quiz = () => {
     const [timer, setTimer] = useState(80);
     const [quizCompleted, setQuizCompleted] = useState(false);
     const [startTime, setStartTime] = useState(null);
+    const [totalScore, setTotalScore] = useState(0);   
 
     useEffect(() => {
         const parsed = queryString.parse(window.location.search);
@@ -50,6 +51,7 @@ const Quiz = () => {
             const response = await fetch('https://server.datasenseai.com/quizadmin/python-mcq-questions/' + quizID + `?clerkId=${user.id}`);
             const data = await response.json();
             setQuestions(data);
+            setTotalScore(data.length);
             setStartTime(new Date()); 
         };
         loadQuestions();
@@ -140,6 +142,7 @@ const Quiz = () => {
             quizID: quizID,
             userID: `${user?.primaryEmailAddress?.emailAddress || 'N/A'}, ${user?.firstName || 'N/A'}, ${user?.phoneNumbers?.[0]?.phoneNumber || 'N/A'}`,
             score: calculatedScore,
+            totalScore: totalScore,
             duration: durationInSeconds
         };
 

@@ -13,7 +13,7 @@ const PythonQuizApp = () => {
   const [quizData, setQuizData] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userCodes, setUserCodes] = useState({});
-   const userCodesRef = useRef({});
+  const userCodesRef = useRef({});
   const [feedback, setFeedback] = useState('');
   const [showFeedback, setShowFeedback] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,7 +36,8 @@ const PythonQuizApp = () => {
   const [submissions, setSubmissions] = useState([]);
   const [isQuizMode, setIsQuizMode] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
-    const [subscriptionStatus, setSubscriptionStatus] = useState('');
+  const [totalScore, setTotalScore] = useState(0);
+  const [subscriptionStatus, setSubscriptionStatus] = useState('');
 
   // Stopwatch timer for practicing question
   const [timeInSeconds, setTimeInSeconds] = useState(0);
@@ -123,6 +124,7 @@ const PythonQuizApp = () => {
       }
   
       if (response?.data) {
+        setTotalScore(response.data.questions.length)
         setQuizData(response.data);
         const initialUserCodes = {};
         response.data.questions.forEach((question, index) => {
@@ -349,6 +351,20 @@ const PythonQuizApp = () => {
     }
   };
 
+  const addToStreak = async (clerkId, questionId) => {
+      try {
+          const response = await axios.post('https://server.datasenseai.com/question-attempt/update-streak', {
+              clerkId,
+              subjectId: "python",
+              questionId,
+          });
+  
+          return response.data; // Return the response if needed elsewhere
+      } catch (error) {
+          console.error('Error saving streak:', error.response?.data || error.message);
+      }
+  };
+
   const handleTestCode = async () => {
     setShowFeedback(false);
     setFeedback('Running test cases...');
@@ -374,6 +390,9 @@ const PythonQuizApp = () => {
     setIsTesting(false);
 
     saveSubmission(user.id, questionID, allTestCasesPassed, userCodes[currentQuestionIndex]);
+    
+    //Increment the question solving streak
+    addToStreak(user.id, questionID);
 
     setSubmissions(prevSubmissions => [
       ...prevSubmissions,
@@ -400,12 +419,13 @@ const PythonQuizApp = () => {
       return;
     }
     setIsTimerRunning(false);
-    const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
+    const userScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const timeTaken = 3600 - timeRemaining;
     const uf = {
       quizID: quizID,
       userID: `${userInfo.email}, ${userInfo.firstName}, ${userInfo.phone}`,
-      score: totalScore,
+      score: userScore,
+      totalscore: totalScore,
       duration: timeTaken
     };
     try {
