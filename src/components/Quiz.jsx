@@ -139,6 +139,7 @@ const Quiz = () => {
 
         // Prepare data for the API call
         const userInfo = {
+            clerkId: user?.id,
             quizID: quizID,
             userID: `${user?.primaryEmailAddress?.emailAddress || 'N/A'}, ${user?.firstName || 'N/A'}, ${user?.phoneNumbers?.[0]?.phoneNumber || 'N/A'}`,
             score: calculatedScore,

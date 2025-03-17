@@ -481,6 +481,7 @@ const addToStreak = async (clerkId, questionId) => {
     const timeTaken = 3600 - timeRemaining; // in seconds
 
     const uf = {
+      clerkId: user?.id,
       quizID: quizID,
       userID: `${userInfo.email || ' '}, ${userInfo.firstName || ' '}, ${userInfo.phone || ' '}`,
       score: userScore,

@@ -422,6 +422,7 @@ const PythonQuizApp = () => {
     const userScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const timeTaken = 3600 - timeRemaining;
     const uf = {
+      clerkId: user?.id,
       quizID: quizID,
       userID: `${userInfo.email}, ${userInfo.firstName}, ${userInfo.phone}`,
       score: userScore,
