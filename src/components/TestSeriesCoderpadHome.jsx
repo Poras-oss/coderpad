@@ -92,6 +92,7 @@ export default function QuizApp() {
 
   useEffect(() => {
     if (user && user.id) {
+      console.log(user.id)
       fetchBookmarks()
       fetchSolvedQuestions()
     }
@@ -121,6 +122,7 @@ export default function QuizApp() {
       }
 
       const response = await axios.get(url, { params })
+     
       
       if (response.data && typeof response.data === 'object') {
         let { total, totalPages, currentPage, next, previous, results } = response.data
@@ -190,12 +192,15 @@ export default function QuizApp() {
     try {
       const response = await fetch(`https://server.datasenseai.com/question-attempt/solved/${user.id}`)
       if (response.ok) {
-        const data = await response.json()
-        const solvedSet = new Set(data.solvedQuestions.filter(id => id !== null))
-        setSolvedQuestions(solvedSet)
+        const data = await response.json();
+        // Filter out null values and store them in a Set
+        const solvedSet = new Set(data.solvedQuestions.filter(item => item !== null));
+        setSolvedQuestions(solvedSet);
+        console.log(solvedSet);
       } else {
-        throw new Error("Failed to fetch solved questions")
+        throw new Error("Failed to fetch solved questions");
       }
+      
     } catch (error) {
       console.error("Error fetching solved questions:", error)
       toast.error("Failed to fetch solved questions. Please try again later.")
@@ -901,6 +906,7 @@ export default function QuizApp() {
             ) : (
               <>
                 {quizzes.map((quiz, index) => {
+                  // console.log(quiz._id.toString())
                   const questionNumber = (paginationInfo.currentPage - 1) * itemsPerPage + index + 1;
                   return (
                     <div 

@@ -300,6 +300,7 @@ export default function QuizApp()  {
       await axios.post('https://server.datasenseai.com/question-attempt/add-solved', {
         clerkId,
         questionId,
+        subject: "mysql"
       });
     } catch (error) {
       console.error('Error saving solved question:', error.message);
