@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import MonacoEditor from './ResizableMonacoEditor' 
 import queryString from 'query-string';
-import {useAuth0} from '@auth0/auth0-react'
 import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import Split from 'react-split';
 import { Loader2, Video, X, BookOpen, Play, Pause, RotateCcw, Hash  } from 'lucide-react';
