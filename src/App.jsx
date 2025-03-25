@@ -18,7 +18,9 @@ import McqTestSeries from './components/McqTestSeries';
 import ScenarioTestSeries from './components/ScenarioTestSeries';
 import ScenarioQuiz from './components/ScenarioQuiz';
 import PaymentPlan from './components/PaymentPlan';
+import Dashboard from './components/Dashboard';
 import { useUser } from "@clerk/clerk-react";
+
 
 const App = () => {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -26,6 +28,7 @@ const App = () => {
   useEffect(() => {
     if (isLoaded && isSignedIn) {
       fetchSubscriptionStatus(user.id);
+      DailyCheckinBonus(user.id);
     }
   }, [isLoaded, isSignedIn, user]);
 
@@ -37,6 +40,20 @@ const App = () => {
     } catch (error) {
       console.error('Error fetching subscription status:', error);
       localStorage.removeItem('subscriptionStatus');
+    }
+  };
+
+  const DailyCheckinBonus = async (clerkId) => {
+    try {
+      const response = await fetch(`https://server.datasenseai.com/fuel-engine/check-in`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ clerkId, key: 'daily-checkin' }),
+      });
+    } catch (error) {
+      console.error('Error adding daily checkin bonus', error);
     }
   };
 
@@ -57,7 +74,7 @@ const App = () => {
         <Route path="/scenario-area" element={<ScenarioTestSeries />} />
         <Route path="/scenario-quiz" element={<ScenarioQuiz />} />
         <Route path="/go-premium" element={<PaymentPlan />} />
-        
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>
 

@@ -334,6 +334,16 @@ const addToStreak = async (clerkId, questionId) => {
     }
 };
 
+  const creditFuel = async (clerkId) => {
+      const difficulty = quizData.questions[currentQuestionIndex].difficulty;
+      const response = await axios.post('https://server.datasenseai.com/fuel-engine/credit', {
+          clerkId,
+          key: 'practice'+difficulty,
+      });
+
+      console.log('fuel credit pracictice'+difficulty, response.data);
+  };
+
 
   const handleTestCode = async () => {
     setIsTesting(true);
@@ -411,7 +421,9 @@ const addToStreak = async (clerkId, questionId) => {
 
       if (isCorrect) {
         setFeedback({ text: 'Correct! now submit the question', isCorrect: true, userAnswer: userAnswer });
-        
+        if(submissions.length == 0 && !isQuizMode){
+          creditFuel(user.id);
+        }
       } else {
         setFeedback({
           text: 'Incorrect. Please try again.',

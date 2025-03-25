@@ -313,6 +313,9 @@ const PythonQuizApp = () => {
         ...prevScores,
         [currentQuestionIndex]: 1
       }));
+      if(submissions.length == 0 && !isQuizMode){
+        creditFuel(user.id);
+      }
     } else {
       setFeedback('Some test cases failed.');
       setScores(prevScores => ({
@@ -404,6 +407,17 @@ const PythonQuizApp = () => {
       },
     ]);
   };
+
+    const creditFuel = async (clerkId) => {
+        const difficulty = quizData.questions[currentQuestionIndex].difficulty;
+        const response = await axios.post('https://server.datasenseai.com/fuel-engine/credit', {
+            clerkId,
+            key: 'practice'+difficulty,
+        });
+  
+        console.log('fuel credit pracictice'+difficulty, response.data);
+    };
+  
 
   const handleQuestionSelect = useCallback((index) => {
     setCurrentQuestionIndex(index);
