@@ -4,7 +4,6 @@ import {
   Routes,
   Route,
 } from 'react-router-dom';
-import Home from './components/Home';
 import QuizApp from './components/QuizApp'; // Your QuizApp component
 import PythonQuizApp from './components/PythonQuizApp';
 import Quiz from './components/Quiz';

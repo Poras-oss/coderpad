@@ -32,10 +32,11 @@ const plans = [
       { name: "JD Review (100L)", value: "1 Review" },
     ],
     free: true,
+    razorpayPlanIds: null, // No subscription for free plan
   },
   {
     name: "Pro",
-    planId: "pro",
+    planId: "plan_QBObaZLRPpakhP",
     price: { monthly: 249, yearly: 2490 },
     description: "Perfect for serious learners",
     features: [
@@ -55,10 +56,14 @@ const plans = [
       { name: "JD Review (100L)", value: "1 Per Day" },
     ],
     popular: true,
+    razorpayPlanIds: {
+      monthly: "plan_QBObaZLRPpakhP", // Replace with actual Razorpay plan ID
+      yearly: "plan_ProYearly",   // Replace with actual Razorpay plan ID
+    },
   },
   {
     name: "Elite",
-    planId: "elite",
+    planId: "plan_QBOcAVOQUhZ4fX",
     price: { monthly: 399, yearly: 3990 },
     description: "For the ultimate experience",
     features: [
@@ -78,6 +83,10 @@ const plans = [
       { name: "JD Review (100L)", value: "Unlimited", unlimited: true },
     ],
     enterprise: true,
+    razorpayPlanIds: {
+      monthly: "plan_QBOcAVOQUhZ4fX", // Replace with actual Razorpay plan ID
+      yearly: "plan_EliteYearly",   // Replace with actual Razorpay plan ID
+    },
   },
 ]
 
@@ -101,7 +110,26 @@ export default function RazorpayPricingPage() {
 
   const initializeRazorpay = async (plan) => {
     if (plan.free) {
-      // Handle free plan signup logic here
+      // Handle free plan signup without payment
+      try {
+        setLoadingPlanId(plan.planId)
+        const response = await fetch("https://server.datasenseai.com/payment/signup-free", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            clerkId: user.id,
+            plan: plan.planId,
+          }),
+        })
+        if (!response.ok) throw new Error("Failed to sign up for free plan")
+        window.location.href = "https://server.datasenseai.com/payment/free-signup-success"
+      } catch (err) {
+        setError("Failed to sign up for free plan. Please try again.")
+      } finally {
+        setLoadingPlanId(null)
+      }
       return
     }
 
@@ -114,58 +142,58 @@ export default function RazorpayPricingPage() {
       setLoadingPlanId(plan.planId)
       setError("")
 
-      // Create order
-      const response = await fetch("https://server.datasenseai.com/payment/create-order", {
+      // Select the appropriate Razorpay plan ID based on billing cycle
+      const razorpayPlanId = plan.razorpayPlanIds[isYearly ? "yearly" : "monthly"]
+
+      // Create subscription
+      const response = await fetch("https://server.datasenseai.com/payment/create-subscription", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: isYearly ? plan.price.yearly * 100 : plan.price.monthly * 100,
-          currency: "INR",
-          receipt: `receipt_${Date.now()}`,
+          razorpayPlanId: razorpayPlanId,
           clerkId: user.id,
           email: user.emailAddresses[0].emailAddress,
-          plan: plan.planId, // Send plan name (pro, elite) in the request body
-          notes: {
-            planId: plan.name,
-            billingCycle: isYearly ? "yearly" : "monthly",
-          },
+          plan_id: plan.planId, // Optional, for reference on server
         }),
       })
 
-      if (!response.ok) throw new Error("Failed to create order")
+      if (!response.ok) throw new Error("Failed to create subscription")
 
-      const order = await response.json()
+        
 
+      const subscription = await response.json()
+     
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: order.currency,
+        key: 'rzp_test_gGfozkxP1yjUMG',
+        subscription_id: subscription.id, 
         name: "Datasense LMS",
-        description: `${plan.name} - ${isYearly ? "Yearly" : "Monthly"}`,
-        order_id: order.id,
+        description: `${plan.name} - ${isYearly ? "Yearly" : "Monthly"} Subscription`,
         handler: async (response) => {
           try {
-            const verifyResponse = await fetch("https://server.datasenseai.com/payment/verify-payment", {
+            const verifyResponse = await fetch("https://server.datasenseai.com/payment/verify-subscription", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
                 razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
+                razorpay_subscription_id: response.razorpay_subscription_id,
                 razorpay_signature: response.razorpay_signature,
                 clerkId: user.id,
-                plan: plan.planId, // Include plan name in verification request too
+                plan_id: plan.planId,
               }),
             })
 
-            if (!verifyResponse.ok) throw new Error("Payment verification failed")
+            
+  
+            
+            if (!verifyResponse.ok) throw new Error("Subscription verification failed")
 
-            window.location.href = "https://server.datasenseai.com/payment/payment-success"
+            window.location.href = "https://server.datasenseai.com/payment/subscription-success"
           } catch (err) {
-            setError("Payment verification failed. Please contact support.")
+            setError("Subscription verification failed. Please contact support.")
           }
         },
         prefill: {
@@ -180,7 +208,7 @@ export default function RazorpayPricingPage() {
       const rzp = new window.Razorpay(options)
       rzp.open()
     } catch (err) {
-      setError("Failed to initialize payment. Please try again.")
+      setError("Failed to initialize subscription. Please try again.")
     } finally {
       setLoadingPlanId(null)
     }
@@ -389,4 +417,3 @@ export default function RazorpayPricingPage() {
     </div>
   )
 }
-
