@@ -26,10 +26,25 @@ const App = () => {
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
-      fetchSubscriptionStatus(user.id);
+      useSubscriptionPolling(user.id);
       DailyCheckinBonus(user.id);
     }
   }, [isLoaded, isSignedIn, user]);
+
+
+  const useSubscriptionPolling = (clerkId) => {
+    useEffect(() => {
+      if (!clerkId) return;
+  
+      fetchSubscriptionStatus(clerkId); // Initial fetch
+  
+      const interval = setInterval(() => {
+        fetchSubscriptionStatus(clerkId);
+      }, 60000); // Poll every 60 seconds
+  
+      return () => clearInterval(interval); // Cleanup on unmount
+    }, [clerkId]);
+  };
 
   const fetchSubscriptionStatus = async (clerkId) => {
     try {

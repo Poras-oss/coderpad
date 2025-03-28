@@ -6,6 +6,7 @@ import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 import Split from 'react-split';
 import ReactPlayer from 'react-player';
 import { Loader2, Video, X, Play, Pause, RotateCcw  } from 'lucide-react';
+import { useNotification } from "../notification/NotificationProvider";
 
 const PythonQuizApp = () => {
   const { user, isLoaded } = useUser();
@@ -38,6 +39,8 @@ const PythonQuizApp = () => {
   const [isTesting, setIsTesting] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
   const [subscriptionStatus, setSubscriptionStatus] = useState('');
+  const { showSuccess, showError, showWarning, showInfo } = useNotification()
+  
 
   // Stopwatch timer for practicing question
   const [timeInSeconds, setTimeInSeconds] = useState(0);
@@ -152,14 +155,14 @@ const PythonQuizApp = () => {
             setAuthError(true);
             break;
           case 403:
-            if (data.message === 'User not subscribed') {
-              setSubscriptionStatus('not_premium');
-              alert(`You're not a premium user`);
-              // setIsSubscriptionDialogueOpen(true);
-            } else if (data.message === 'Subscription expired') {
-              setSubscriptionStatus('Subscription expired');
-              alert('expired');
-              // setIsSubscriptionDialogueOpen(true);
+            if (data.message.includes("requires a")) {
+              showWarning(`Upgrade required: ${data.message}`)
+            } else if (data.message.includes("reached your limit")) {
+              showWarning(`Usage limit: ${data.message}`)
+            } else if (data.message.includes("Insufficient fuel")) {
+              showError(`Fuel error: ${data.message}`)
+            } else {
+              showError(data.message)
             }
             break;
           case 404:

@@ -8,10 +8,11 @@ import { Loader2, Video, X, BookOpen, Play, Pause, RotateCcw, Hash  } from 'luci
 import ReactPlayer from 'react-player';
 import Bot from './Bot';
 import { Badge } from "./ui/badge"
-import SubscriptionDialogue from './SubscriptionDialogue';
+import { useNotification } from "../notification/NotificationProvider";
 
 export default function QuizApp()  {
   const { user, isLoaded } = useUser();
+  const { showSuccess, showError, showWarning, showInfo } = useNotification()
 
   // console.log( 'userinfo -> '+ user.emailAddress+' '+user.username+' '+user.clerkId )
 
@@ -216,14 +217,14 @@ export default function QuizApp()  {
               setAuthError(true);
               break;
             case 403:
-              if (data.message === 'User not subscribed') {
-                setSubscriptionStatus('not_premium');
-                alert(`You're not a premium user`)
-                // setIsSubscriptionDialogueOpen(true);
-              } else if (data.message === 'Subscription expired') {
-                setSubscriptionStatus('Subscription expired');
-                alert('expired')
-                // setIsSubscriptionDialogueOpen(true);
+              if (data.message.includes("requires a")) {
+                showWarning(`Upgrade required: ${data.message}`)
+              } else if (data.message.includes("reached your limit")) {
+                showWarning(`Usage limit: ${data.message}`)
+              } else if (data.message.includes("Insufficient fuel")) {
+                showError(`Fuel error: ${data.message}`)
+              } else {
+                showError(data.message)
               }
               break;
             case 404:
