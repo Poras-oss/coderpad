@@ -19,7 +19,7 @@ import ScenarioQuiz from './components/ScenarioQuiz';
 import PaymentPlan from './components/PaymentPlan';
 import Dashboard from './components/Dashboard';
 import { useUser } from "@clerk/clerk-react";
-
+import { NotificationProvider } from "./notification/NotificationProvider";
 
 const App = () => {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -43,6 +43,7 @@ const App = () => {
   };
 
   const DailyCheckinBonus = async (clerkId) => {
+    console.log(clerkId)
     try {
       const response = await fetch(`https://server.datasenseai.com/fuel-engine/check-in`, {
         method: 'POST',
@@ -57,7 +58,7 @@ const App = () => {
   };
 
   return (
-
+    <NotificationProvider>
     <BrowserRouter>
       <Routes>
         {  <Route path="/" element={<iframe src="/home.html" style={{ width: '100%', height: '100vh', border: 'none' }} title="External Page" />} /> }
@@ -76,7 +77,7 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>
-
+    </NotificationProvider>
   );
 };
 

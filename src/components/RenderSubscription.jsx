@@ -28,48 +28,45 @@ const RenderSubscription = () => {
   if (!subscriptionStatus) return null
 
   const getStatusDetails = () => {
-    switch (subscriptionStatus.message) {
-      case "User not subscribed":
-        return {
-          icon: <Star className="h-5 w-5 text-yellow-500" />,
-          buttonIcon: <Crown className="h-4 w-4 text-yellow-500" />,
-          label: "Free Plan",
-          color: "yellow",
-          action: "Upgrade to Premium",
-          description: "Unlock all premium features",
-          gradient: "from-yellow-50 to-yellow-100",
-        }
-      case "Subscription Expired":
-        return {
-          icon: <X className="h-5 w-5 text-red-500" />,
-          buttonIcon: <AlertCircle className="h-4 w-4 text-red-500" />,
-          label: "Expired",
-          color: "red",
-          action: "Reactivate Premium",
-          description: "Your premium access has expired",
-          gradient: "from-red-50 to-red-100",
-        }
-      case "Subscription is active":
-        const expiryDate = new Date(subscriptionStatus.subscriptionExpiry)
-        return {
-          icon: <CheckCircle2 className="h-5 w-5 text-green-500" />,
-          buttonIcon: <Crown className="h-4 w-4 text-green-500" />,
-          label: "Premium",
-          color: "green",
-          description: `Premium membership`,
-          expiryDate: expiryDate,
-          gradient: "from-green-50 to-green-100",
-          fuel: subscriptionStatus.fuel,
-        }
-      default:
-        return null
+    const { plan, subscriptionStatus: status, fuel } = subscriptionStatus;
+
+    if (plan === 'free' || status === 'cancelled') {
+      return {
+        icon: <Star className="h-5 w-5 text-yellow-500" />,
+        buttonIcon: <Crown className="h-4 w-4 text-yellow-500" />,
+        label: "Free Plan",
+        color: "yellow",
+        action: "Upgrade to Premium",
+        description: "Unlock all premium features",
+        gradient: "from-yellow-50 to-yellow-100",
+      };
+    } else if (['active', 'authenticated'].includes(status)) {
+      return {
+        icon: <CheckCircle2 className="h-5 w-5 text-green-500" />,
+        buttonIcon: <Crown className="h-4 w-4 text-green-500" />,
+        label: plan.charAt(0).toUpperCase() + plan.slice(1), // Capitalize plan name
+        color: "green",
+        description: `${plan.charAt(0).toUpperCase() + plan.slice(1)} membership`,
+        gradient: "from-green-50 to-green-100",
+        fuel: fuel,
+      };
+    } else {
+      return {
+        icon: <X className="h-5 w-5 text-red-500" />,
+        buttonIcon: <AlertCircle className="h-4 w-4 text-red-500" />,
+        label: "Inactive",
+        color: "red",
+        action: "Reactivate Premium",
+        description: "Your premium access is inactive",
+        gradient: "from-red-50 to-red-100",
+      };
     }
   }
 
   const statusDetails = getStatusDetails()
   if (!statusDetails) return null
 
-  // Calculate fuel percentage for the progress bar
+  // Calculate fuel percentage for the progress bar if fuel is available
   const fuelPercentage = statusDetails.fuel ? Math.min(Math.max((statusDetails.fuel / 200) * 100, 0), 100) : 0
 
   return (
@@ -105,33 +102,6 @@ const RenderSubscription = () => {
             <h5 className="text-sm text-gray-600">{statusDetails.description}</h5>
           </div>
 
-          {statusDetails.expiryDate && (
-            <div className="bg-green-50 border border-green-100 rounded-md p-3">
-              <div className="flex flex-col space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-gray-700">Valid Until:</span>
-                  <span className="text-sm font-bold text-green-600">
-                    {statusDetails.expiryDate.toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-gray-700">Start Date:</span>
-                  <span className="text-sm text-gray-600">
-                    {new Date(subscriptionStatus.subscriptionStart).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-
           {statusDetails.fuel !== undefined && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -163,4 +133,3 @@ const RenderSubscription = () => {
 }
 
 export default RenderSubscription
-
