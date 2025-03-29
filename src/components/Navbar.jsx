@@ -1,111 +1,280 @@
-import React, { useState } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
-import { FaSignOutAlt, FaHome } from 'react-icons/fa';
+import React, { useState } from "react";
+import { useUser, SignInButton, UserButton } from "@clerk/clerk-react";
+import { Moon, Sun } from "lucide-react";
+import { FaBars, FaTimes } from "react-icons/fa";
+import { Button } from "./ui/button";
+import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaYoutube, FaDiscord} from "react-icons/fa";
+import { IoIosNotifications } from "react-icons/io";
+import logo from "../assets/logo.png";
 
-const Navbar = () => {
-  const { loginWithPopup, logout, user, isAuthenticated } = useAuth0();
+const Navbar = ({ isDarkMode, setIsDarkMode }) => {
+  const { isLoaded, isSignedIn, user } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCommunityOpen, setIsCommunityOpen] = useState(false);
 
-  const getFirstName = (fullName) => {
-    return fullName.split(' ')[0];
-  };
-
-  const handleHome = () => {
-    window.location.href = window.location.origin;
-  };
-
-  const handleLogout = () => {
-    logout({ returnTo: window.location.origin });
+  const handleBackToHome = () => {
+    window.location.href = "https://practice.datasenseai.com";
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-cyan-700 backdrop-blur-lg border-b border-white border-opacity-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex-shrink-0">
-            <span className="text-black text-xl sm:text-2xl font-bold tracking-widest uppercase">Datasense</span>
+    <header className="sticky top-0 w-full bg-[#008B8B] shadow-lg z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo Section */}
+          <div className="flex items-center">
+            <img
+              className="h-10 w-auto cursor-pointer"
+              src={logo}
+              alt="Datasense"
+              onClick={handleBackToHome}
+            />
           </div>
-          <div className="hidden md:flex items-center space-x-4">
-            <button
-              onClick={handleHome}
-              className="bg-red-500 bg-opacity-80 hover:bg-opacity-100 text-white px-4 py-2 rounded-full font-semibold transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-50 shadow-md hover:shadow-lg text-sm"
-            >
-              Home
-            </button>
-            {!isAuthenticated ? (
-              <button
-                onClick={() => loginWithPopup()}
-                className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-full font-semibold transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 shadow-md hover:shadow-lg text-sm"
-              >
-                Log In
-              </button>
-            ) : (
-              <div className="flex items-center space-x-4">
-                <span className="text-white font-medium text-sm">
-                  Welcome, {getFirstName(user.name)}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-500 bg-opacity-80 hover:bg-opacity-100 text-white px-4 py-2 rounded-full font-semibold transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-50 shadow-md hover:shadow-lg text-sm"
-                >
-                  Log Out
-                </button>
-              </div>
-            )}
-          </div>
+
+          {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white p-2"
-              aria-expanded={isMenuOpen}
+              className="p-2 rounded-md text-white hover:bg-teal-600 transition-colors"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
-              <span className="sr-only">Open main menu</span>
               {isMenuOpen ? (
-                <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <FaTimes className="h-6 w-6" />
               ) : (
-                <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-                </svg>
+                <FaBars className="h-6 w-6" />
               )}
             </button>
           </div>
-        </div>
-      </div>
-      {isMenuOpen && (
-        <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <button
-              onClick={handleHome}
-              className="text-white hover:bg-cyan-600 block px-3 py-2 rounded-md text-base font-medium w-full text-left"
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-4">
+            {/* Join Community Button for desktop */}
+            <div
+              className="relative flex items-center cursor-pointer"
+              // onMouseEnter={() => setIsCommunityOpen(true)}
+              // onMouseLeave={() => setIsCommunityOpen(false)}
+              onClick={() => setIsCommunityOpen(!isCommunityOpen)}
             >
-              <FaHome className="inline-block mr-2" /> Home
-            </button>
-            {!isAuthenticated ? (
-              <button
-                onClick={() => loginWithPopup()}
-                className="text-white hover:bg-cyan-600 block px-3 py-2 rounded-md text-base font-medium w-full text-left"
-              >
-                Log In
-              </button>
-            ) : (
-              <>
-                <div className="text-white px-3 py-2 text-sm">
-                  Welcome, {getFirstName(user.name)}
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="text-white hover:bg-cyan-600 block px-3 py-2 rounded-md text-base font-medium w-full text-left"
+              <div className="relative bg-white hover:bg-teal-600 rounded-full p-2 shadow-md hover:shadow-lg transition-all duration-300 group">
+                <IoIosNotifications className="text-[#008B8B] hover:text-white text-2xl transition-transform duration-300 hover:scale-110" />
+                <span className="absolute top-0 right-0 bg-red-500 h-3 w-3 rounded-full animate-pulse"></span>
+              </div>
+              {isCommunityOpen && (
+                <div 
+                  className="absolute top-12 right-0 bg-[#008B8B] p-4 rounded-lg shadow-xl flex flex-col items-center z-50 origin-top-right"
+                  style={{
+                    animation: "fadeInScale 0.3s ease-out forwards",
+                    boxShadow: "0 10px 25px -5px rgba(0, 139, 139, 0.3), 0 8px 10px -6px rgba(0, 139, 139, 0.2)"
+                  }}
                 >
-                  <FaSignOutAlt className="inline-block mr-2" /> Log Out
+                  <style>{`
+                    @keyframes fadeInScale {
+                      0% {
+                        opacity: 0;
+                        transform: translateY(-10px) scale(0.95);
+                      }
+                      100% {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                      }
+                    }
+                    @keyframes glowPulse {
+                      0% {
+                        box-shadow: 0 0 5px rgba(0, 139, 139, 0.4);
+                      }
+                      50% {
+                        box-shadow: 0 0 15px rgba(0, 139, 139, 0.6);
+                      }
+                      100% {
+                        box-shadow: 0 0 5px rgba(0, 139, 139, 0.4);
+                      }
+                    }
+                    @keyframes floatIcon {
+                      0% {
+                        transform: translateY(0) scale(1);
+                      }
+                      50% {
+                        transform: translateY(-3px) scale(1.1);
+                      }
+                      100% {
+                        transform: translateY(0) scale(1);
+                      }
+                    }
+                    .social-icon {
+                      transition: all 0.3s ease;
+                      position: relative;
+                    }
+                    .social-icon:hover {
+                      transform: scale(1.2);
+                      animation: floatIcon 1s ease infinite;
+                    }
+                    .social-icon:hover::after {
+                      content: '';
+                      position: absolute;
+                      top: 50%;
+                      left: 50%;
+                      width: 140%;
+                      height: 140%;
+                      border-radius: 50%;
+                      background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+                      transform: translate(-50%, -50%);
+                      z-index: -1;
+                      animation: glowPulse 1.5s infinite;
+                    }
+                  `}</style>
+                  <p 
+                    className="text-white font-semibold mb-3 relative pb-2"
+                    style={{
+                      borderBottom: "2px solid rgba(0, 139, 139, 0.3)",
+                      textShadow: "0 0 1px rgba(0, 139, 139, 0.3)"
+                    }}
+                  >
+                    Join Community
+                  </p>
+                  <div className="flex space-x-4 p-2 rounded-xl bg-gradient-to-r from-teal-50 to-white">
+                    <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                      <FaYoutube className="text-teal-600 text-2xl" />
+                    </a>
+                    <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                      <FaLinkedin className="text-teal-600 text-2xl" />
+                    </a>
+                    <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                      <FaInstagram className="text-teal-600 text-2xl" />
+                    </a>
+                    <a href="https://www.whatsapp.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                      <FaWhatsapp className="text-teal-600 text-2xl" />
+                    </a>
+                    <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                      <FaFacebook className="text-teal-600 text-2xl" />
+                    </a>
+                    <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                      <FaDiscord className="text-teal-600 text-2xl" />
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="text-white hover:bg-teal-600 transition-colors"
+            >
+              {isDarkMode ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </Button>
+
+            {isLoaded && isSignedIn ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-white text-sm">
+                  Welcome, {user.firstName}
+                </span>
+                <UserButton afterSignOutUrl={`/live-events`} />
+              </div>
+            ) : (
+              <SignInButton
+                mode="modal"
+                fallbackRedirectUrl={`/live-events`}
+                signUpForceRedirectUrl={`/live-events`}
+              >
+                <button className="bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                  Log In
                 </button>
-              </>
+              </SignInButton>
             )}
+          </nav>
+        </div>
+
+        {/* Mobile Navigation Menu */}
+        <div
+          className={`${
+            isMenuOpen ? "block" : "hidden"
+          } md:hidden bg-[#008B8B] border-t border-teal-600`}
+        >
+          <div className="px-4 py-3 space-y-3">
+            <div className="flex flex-col items-center space-y-3">
+              {/* Join Community Button in mobile menu */}
+              <div className="relative w-full">
+                <button 
+                  onClick={() => setIsCommunityOpen(!isCommunityOpen)}
+                  className="w-full flex items-center justify-center space-x-2 bg-white hover:bg-teal-600 text-[#008B8B] font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  <span>Join Community</span>
+                  <div className="relative">
+                    <IoIosNotifications className="text-[#008B8B] text-xl" />
+                    <span className="absolute top-0 right-0 bg-red-500 h-2 w-2 rounded-full animate-pulse"></span>
+                  </div>
+                </button>
+                
+                {isCommunityOpen && (
+                  <div 
+                    className="mt-2 p-3 bg-white rounded-lg shadow-md"
+                    style={{
+                      animation: "fadeInScale 0.3s ease-out forwards",
+                    }}
+                  >
+                    <div className="flex justify-center space-x-4 p-2 rounded-xl bg-gradient-to-r from-teal-50 to-white">
+                      <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                        <FaYoutube className="text-teal-600 text-2xl" />
+                      </a>
+                      <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                        <FaLinkedin className="text-teal-600 text-2xl" />
+                      </a>
+                      <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                        <FaInstagram className="text-teal-600 text-2xl" />
+                      </a>
+                      <a href="https://www.whatsapp.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                        <FaWhatsapp className="text-teal-600 text-2xl" />
+                      </a>
+                      <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                        <FaFacebook className="text-teal-600 text-2xl" />
+                      </a>
+                      <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                        <FaDiscord className="text-teal-600 text-2xl" />
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {isLoaded && isSignedIn ? (
+                <>
+                  <span className="text-white text-sm">
+                    Welcome, {user.firstName}
+                  </span>
+                  <UserButton afterSignOutUrl={`/live-events`} />
+                </>
+              ) : (
+                <SignInButton
+                  mode="modal"
+                  fallbackRedirectUrl={`/live-events`}
+                  signUpForceRedirectUrl={`/live-events`}
+                >
+                  <button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                    Log In
+                  </button>
+                </SignInButton>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className="text-white hover:bg-teal-600 transition-colors mt-2"
+              >
+                {isDarkMode ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )}
+              </Button>
+            </div>
           </div>
         </div>
-      )}
-    </nav>
+      </div>
+    </header>
   );
 };
 

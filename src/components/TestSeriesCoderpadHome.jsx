@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
-import logo from '../assets/dslogo.png'
 import { useNavigate } from 'react-router-dom'
-import { useUser, SignInButton, UserButton } from '@clerk/clerk-react'
-import {  X, Filter, Moon, Sun, Loader2, ChevronLeft, ChevronRight, Star, Briefcase, Hash } from 'lucide-react'
+import { useUser } from '@clerk/clerk-react'
+import { Filter, Loader2, ChevronLeft, ChevronRight, Star, Briefcase, Hash } from 'lucide-react'
 import ReactPlayer from 'react-player/youtube'
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
@@ -32,6 +31,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet"
+import Navbar from './Navbar' // Add this import
 
 const PREDEFINED_SUBTOPICS = ['Column Selection', 'filtering', 'multiple costraints', 'Custom Selection', 'Filtering', 'Condition', 'Aggregation', 'Group by', 'Filter', 'Top N', 'Rank', 'Group']
 const PREDEFINED_PYTHON_TOPICS = ['Array', 'String', 'Two Pointers', 'Sliding Window', 'Dictionary', 'List', 'Tuples', 'Regex']
@@ -69,6 +69,7 @@ export default function QuizApp() {
   })
   const [pageInput, setPageInput] = useState(paginationInfo.currentPage.toString());
   const [currentPage, setCurrentPage] = useState(paginationInfo.currentPage);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   let subject = new URLSearchParams(window.location.search).get('subject') || 'mysql'
   if(subject === 'sql'){subject = 'mysql'}
@@ -366,26 +367,85 @@ export default function QuizApp() {
     }
   }
 
+  // const handleStartQuiz = async (quizID, userID, quizName) => {
+  //   let route = '/quiz';
+  //   if (subject.toLowerCase() === 'python') {
+  //     route = '/pyQuiz';
+  //   }
+
+  //   if(!isSignedIn){
+  //     alert(`You're not logged in`)
+  //     return;
+  //   }
+  
+  //   // Check subscription status from localStorage
+  //   const subscriptionData = JSON.parse(localStorage.getItem('subscriptionStatus'));
+    
+  //   if (!subscriptionData || subscriptionData.message === 'User not subscribed') {
+  //     setSubscriptionStatus('not_premium');
+  //     setIsSubscriptionDialogueOpen(true);
+  //     return;
+  //   }
+    
+  //   if (subscriptionData.message === 'Subscription Expired') {
+  //     setSubscriptionStatus('expired');
+  //     setIsSubscriptionDialogueOpen(true);
+  //     return;
+  //   }
+  
+  //   // Check if `userRegistered` exists in localStorage
+  //   const userRegistered = localStorage.getItem('userRegistered');
+  
+  //   if (userRegistered === 'true') {
+  //     // User is already registered, start the quiz
+  //     window.open(`${route}?questionID=${quizID}&userID=${userID}`, '_blank');
+  //     return;
+  //   }
+  
+  //   // If `userRegistered` doesn't exist or is false, check with the server
+  //   try {
+  //     const response = await fetch(`https://server.datasenseai.com/user-details/profile-status/${userID}`);
+  //     const data = await response.json();
+  
+  //     if (response.ok) {
+  //       if (data.isProfileComplete) {
+  //         // Save the result in localStorage and start the quiz
+  //         localStorage.setItem('userRegistered', 'true');
+  //         window.open(`${route}?questionID=${quizID}&userID=${userID}`, '_blank');
+  //       } else {
+  //         // Show the UserDetailModal for incomplete profile
+  //         setIsModalOpen(true);
+  //       }
+  //     } else {
+  //       console.error('Failed to fetch profile status:', data.message);
+  //       alert('Login first!');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error while checking user profile status:', error);
+  //     alert('An unexpected error occurred. Please try again.');
+  //   }
+  // };
+
   const handleStartQuiz = async (quizID, userID, quizName) => {
     let route = '/quiz';
     if (subject.toLowerCase() === 'python') {
       route = '/pyQuiz';
     }
-
-    if(!isSignedIn){
-      alert(`You're not logged in`)
+  
+    if (!isSignedIn) {
+      alert(`You're not logged in`);
       return;
     }
   
     // Check subscription status from localStorage
     const subscriptionData = JSON.parse(localStorage.getItem('subscriptionStatus'));
-    
+  
     if (!subscriptionData || subscriptionData.message === 'User not subscribed') {
       setSubscriptionStatus('not_premium');
       setIsSubscriptionDialogueOpen(true);
       return;
     }
-    
+  
     if (subscriptionData.message === 'Subscription Expired') {
       setSubscriptionStatus('expired');
       setIsSubscriptionDialogueOpen(true);
@@ -395,6 +455,12 @@ export default function QuizApp() {
     // Check if `userRegistered` exists in localStorage
     const userRegistered = localStorage.getItem('userRegistered');
   
+    // Direct quiz access - bypass profile check in development
+    if (process.env.NODE_ENV === 'development') {
+      window.open(`${route}?questionID=${quizID}&userID=${userID}`, '_blank');
+      return;
+    }
+  
     if (userRegistered === 'true') {
       // User is already registered, start the quiz
       window.open(`${route}?questionID=${quizID}&userID=${userID}`, '_blank');
@@ -403,25 +469,28 @@ export default function QuizApp() {
   
     // If `userRegistered` doesn't exist or is false, check with the server
     try {
-      const response = await fetch(`https://server.datasenseai.com/user-details/profile-status/${userID}`);
+      // Use a fallback ID if userID is not available
+      const effectiveUserID = userID || 'default';
+      
+      const response = await fetch(`https://server.datasenseai.com/user-details/profile-status/${effectiveUserID}`);
       const data = await response.json();
   
       if (response.ok) {
         if (data.isProfileComplete) {
-          // Save the result in localStorage and start the quiz
           localStorage.setItem('userRegistered', 'true');
-          window.open(`${route}?questionID=${quizID}&userID=${userID}`, '_blank');
+          window.open(`${route}?questionID=${quizID}&userID=${effectiveUserID}`, '_blank');
         } else {
-          // Show the UserDetailModal for incomplete profile
           setIsModalOpen(true);
         }
       } else {
-        console.error('Failed to fetch profile status:', data.message);
-        alert('Login first!');
+        // If profile status check fails, still allow quiz access but show a warning
+        console.warn('Profile status check failed, proceeding anyway');
+        window.open(`${route}?questionID=${quizID}&userID=${effectiveUserID}`, '_blank');
       }
     } catch (error) {
       console.error('Error while checking user profile status:', error);
-      alert('An unexpected error occurred. Please try again.');
+      // On error, still allow access but log the error
+      window.open(`${route}?questionID=${quizID}&userID=${userID || 'default'}`, '_blank');
     }
   };
 
@@ -518,57 +587,18 @@ export default function QuizApp() {
     }
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
 
   return (
 
     
     <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[#141414]' : 'bg-gray-200'}`}>
-    {/* Header */}
-    <header className={`${isDarkMode ? 'bg-[#1d1d1d]' : 'bg-oxford-blue'} `}>
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          {/* <Button 
-            variant="ghost" 
-            onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} 
-            className="mr-2 text-white hover:text-gray-300 transition-colors duration-200"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button> */}
-          <img src={logo} alt="Quiz App Logo" className="h-12 w-auto cursor-pointer" />
-        </div>
-        
-        <div className="flex items-center space-x-4">
+      {/* Replace old header with Navbar component */}
+      <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 
-        {isLoaded && isSignedIn && <RenderSubscription />}
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className={`${isDarkMode ? 'text-white hover:bg-[#2f2f2f]' : 'text-gray-700  hover:bg-gray-300'}`}
-          >
-            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5 text-white" />}
-          </Button>
-          {isLoaded && isSignedIn ? (
-            <>
-            <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-white'} md:${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            Welcome, {user.firstName}
-          </span>
-            <UserButton afterSignOutUrl={`/practice-area?subject=${subject}`} />
-            </>
-          ) : (
-            <SignInButton mode="modal" fallbackRedirectUrl={`/practice-area?subject=${subject}`}>
-              <Button size={"sm"} className={`${isDarkMode ? 'bg-blue-500 hover:bg-blue-600' : 'bg-blue-500 hover:bg-blue-600'} text-white`}>
-                LogIn
-              </Button>
-            </SignInButton>
-            
-          )}
-        </div>
-      </div>
-    </header>
-
-    <main className="flex-1 flex">
+      <main className="flex-1 flex">
 
     <UserDetailModal
         open={isModalOpen}
@@ -582,16 +612,27 @@ export default function QuizApp() {
         status={subscriptionStatus}
       />
 
+      {/* Sidebar Toggle Button */}
+{/* Remove or comment out the current button code */}
+{/* <button
+  onClick={toggleSidebar}
+  className={`absolute top-4 left-4 z-50 p-2 rounded-full shadow-lg ${
+    isDarkMode ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+  }`}
+  ...
+</button> */}
+
       {/* Sidebar */}                          
-      <aside className={`w-64 border-r ${isDarkMode ? 'border-[#2f2f2f] dark bg-[#141414]' : 'border-gray-300 bg-gray-200'} hidden md:block`}>
-        <div className="p-4">
-          <div className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            <h2 className="text-sm font-semibold mb-2">STATUS</h2>
-            <div className="space-y-2">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <Checkbox 
-                  checked={filters.solved} 
-                  onCheckedChange={(checked) => updateFilters('solved', checked)}
+      {isSidebarOpen && (
+        <aside className={`w-64 border-r ${isDarkMode ? 'border-[#2f2f2f] dark bg-[#141414]' : 'border-gray-300 bg-gray-200'} hidden md:block`}>
+          <div className="p-4">
+            <div className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <h2 className="text-sm font-semibold mb-2">STATUS</h2>
+              <div className="space-y-2">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <Checkbox 
+                    checked={filters.solved} 
+                    onCheckedChange={(checked) => updateFilters('solved', checked)}
                 />
                 <span>Solved</span>
               </label>
@@ -722,6 +763,7 @@ export default function QuizApp() {
           </div>
         </div>
       </aside>
+      )}
 
       {/* Mobile Filter Button */}
       <Sheet>
@@ -875,15 +917,60 @@ export default function QuizApp() {
       {/* Main Content */}
       <div className="flex-1">
         {/* Search Bar */}
-        <div className={`p-4 border-b ${isDarkMode ?  'border-[#2f2f2f]' : 'border-gray-200'}`} >
-          <Input
-            type="text"
-            placeholder="Search questions..."
-            value={filters.search}
-            onChange={(e) => updateFilters('search', e.target.value)}
-            className={`max-w ${isDarkMode ? 'bg-[#2f2f2f] border-[#3f3f3f] text-white' : 'bg-white border-gray-200'}`}
-          />
-        </div>
+        <div className={`p-4 border-b ${isDarkMode ? 'border-[#2f2f2f]' : 'border-gray-200'} flex items-center gap-4`}>
+  <button
+    onClick={toggleSidebar}
+    className={`p-2 hover:bg-opacity-80 rounded transition-colors ${
+      isDarkMode 
+        ? 'hover:bg-[#2f2f2f] text-gray-300' 
+        : 'hover:bg-gray-100 text-gray-700'
+    }`}
+    aria-label="Toggle sidebar"
+  >
+    {isSidebarOpen ? (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-6 w-6"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M6 18L18 6M6 6l12 12"
+        />
+      </svg>
+    ) : (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-6 w-6"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M4 6h16M4 12h16M4 18h16"
+        />
+      </svg>
+    )}
+  </button>
+  <Input
+    type="text"
+    placeholder="Search questions..."
+    value={filters.search}
+    onChange={(e) => updateFilters('search', e.target.value)}
+    className={`w-full ${
+      isDarkMode 
+        ? 'bg-[#2f2f2f] border-[#3f3f3f] text-white' 
+        : 'bg-white border-gray-200'
+    }`}
+  />
+</div>
 
         {/* Questions List */}
         <ScrollArea className="h-[calc(100vh-120px)]">

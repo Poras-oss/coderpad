@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef, useCallback  } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import MonacoEditor from './ResizableMonacoEditor'; 
 import queryString from 'query-string';
-import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
+import { useUser } from '@clerk/clerk-react';
 import Split from 'react-split';
 import ReactPlayer from 'react-player';
-import { Loader2, Video, X, Play, Pause, RotateCcw  } from 'lucide-react';
+import { Loader2, Video, X, Play, Pause, RotateCcw } from 'lucide-react';
+import Navbar from './Navbar'; // Add this import if not present
+import '../styles/scrollbar.css';
 
 const PythonQuizApp = () => {
   const { user, isLoaded } = useUser();
@@ -544,9 +546,13 @@ const PythonQuizApp = () => {
   }
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
-      <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center`}>
-        <h1 className="mb-4 text-xl font-bold">Python Coderpad</h1>
+    <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gradient-to-r from-cyan-500/10 via-transparent to-cyan-500/10 text-gray-900'}`}>
+      {/* Replace the old nav with Navbar component */}
+      <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+
+      {/* Timer and Controls Section */}
+      <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center shadow-sm`}>
+        <h1 className="text-xl font-bold">Python Coderpad</h1>
         <div className="flex items-center space-x-4">
           {isTimerRunning && (
             <div className="text-lg font-semibold">
@@ -554,37 +560,30 @@ const PythonQuizApp = () => {
             </div>
           )}
 
-
-      {questionID && (
-        <>
-        <div className="text-lg font-mono">
-        {formatTime(timeInSeconds)}
-      </div>
-         <div className="flex items-center space-x-1">
-         <button
-           onClick={!isRunning ? handleStart : handlePause}
-           className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-           aria-label={!isRunning ? "Start timer" : "Pause timer"}
-         >
-           {!isRunning ? (
-             <Play size={16} />
-           ) : (
-             <Pause size={16} />
-           )}
-         </button>
-         
-         <button
-           onClick={handleReset}
-           className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-           aria-label="Reset timer"
-         >
-           <RotateCcw size={16} />
-         </button>
-       </div>
-       </>
-      )}
-      
-         
+          {questionID && (
+            <>
+              <div className="text-lg font-mono">
+                {formatTime(timeInSeconds)}
+              </div>
+              <div className="flex items-center space-x-1">
+                <button
+                  onClick={!isRunning ? handleStart : handlePause}
+                  className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                  aria-label={!isRunning ? "Start timer" : "Pause timer"}
+                >
+                  {!isRunning ? <Play size={16} /> : <Pause size={16} />}
+                </button>
+                
+                <button
+                  onClick={handleReset}
+                  className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                  aria-label="Reset timer"
+                >
+                  <RotateCcw size={16} />
+                </button>
+              </div>
+            </>
+          )}
 
           <button
             onClick={openVideoPopup}
@@ -592,54 +591,90 @@ const PythonQuizApp = () => {
           >
             <Video size={24} />
           </button>
-          <button
-            onClick={toggleDarkMode}
-            className={`p-2 rounded-full ${isDarkMode ? 'bg-white text-black' : 'bg-[#262626] text-white'}`}
-          >
-            {isDarkMode ? '☀️' : '🌙'}
-          </button>
         </div>
-      </nav>
+      </div>
+
+      {/* Rest of your existing code */}
       <Split
-        className="flex h-[calc(100vh-4rem)]"
+        className={`flex h-[calc(100vh-8rem)] split-wrapper ${isDarkMode ? 'dark' : ''}`}
         sizes={[50, 50]}
         minSize={300}
         expandToMin={false}
-        gutterSize={10}
+        gutterSize={4} // Reduced from 10 to 4 for a sleeker look
         gutterAlign="center"
         snapOffset={30}
         dragInterval={1}
         direction="horizontal"
         cursor="col-resize"
+        style={{
+          // Add inline styles for the split container
+          '--gutter-bg': isDarkMode ? '#60a5fa' : '#4a5568',
+          '--gutter-hover': isDarkMode ? '#3b82f6' : '#60a5fa',
+        }}
+        gutter={(index, direction) => {
+          const gutter = document.createElement('div');
+          gutter.className = `gutter gutter-${direction}`;
+          // Add inline styles for the gutter
+          Object.assign(gutter.style, {
+            position: 'relative',
+            backgroundColor: 'transparent',
+            cursor: 'col-resize',
+          });
+
+          // Add the visual indicator
+          const indicator = document.createElement('div');
+          Object.assign(indicator.style, {
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '4px',
+            height: '50px',
+            borderRadius: '3px',
+            backgroundColor: 'var(--gutter-bg)',
+            opacity: '0.5',
+            transition: 'opacity 0.2s, background-color 0.2s',
+          });
+
+          // Add hover effect
+          gutter.addEventListener('mouseenter', () => {
+            indicator.style.opacity = '0.8';
+            indicator.style.backgroundColor = 'var(--gutter-hover)';
+          });
+          gutter.addEventListener('mouseleave', () => {
+            indicator.style.opacity = '0.5';
+            indicator.style.backgroundColor = 'var(--gutter-bg)';
+          });
+
+          gutter.appendChild(indicator);
+          return gutter;
+        }}
       >
         {/* Left side: Question List and Details */}
         <div className="flex flex-col overflow-hidden">
           {/* Question List */}
-          <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-gray-200'} p-4 overflow-x-auto`}>
-            <div className="flex items-center space-x-4 mb-2">
-              <h3 className="text-lg font-bold">Questions</h3>
-            </div>
-            <ul className="flex space-x-2">
-              {quizData.questions.map((question, index) => (
-                <li
-                  key={index}
-                  className={`cursor-pointer py-2 px-4 rounded transition-colors duration-200 ${
-                    index === currentQuestionIndex 
-                      ? 'bg-cyan-600 text-white' 
-                      : isDarkMode 
-                        ? 'bg-gray-700 hover:bg-gray-600' 
-                        : 'bg-gray-300 hover:bg-gray-400'
-                  }`}
-                  onClick={() => handleQuestionSelect(index)}
-                >
-                  {index + 1}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <div className={`flex gap-10 ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 h-1/8 relative`}>
+  <ul className="flex flex-nowrap gap-4 py-2">
+    {quizData.questions.map((question, index) => (
+      <li
+        key={index}
+        className={`cursor-pointer py-2 px-4 rounded border ${
+          index === currentQuestionIndex
+            ? 'bg-teal-500 text-white'
+            : isDarkMode
+            ? 'bg-[#262626] text-white hover:bg-gray-600'
+            : 'bg-gray-300 text-gray-900 hover:bg-gray-400'
+        }`}
+        onClick={() => handleQuestionSelect(index)}
+      >
+        {index + 1}
+      </li>
+    ))}
+  </ul>
+</div>
 
           {/* Tabs */}
-          <div className={`flex ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4`}>
+          <div className={`flex overflow-x-auto custom-scrollbar ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 py-2`}>
 
           {(isQuizMode ? ['Question'] : ['Question', 'Discussion', 'Solution', 'Submission', 'AI Help']).map((tab) => (
   <button
@@ -654,17 +689,17 @@ const PythonQuizApp = () => {
           </div>
 
           {/* Question Details */}
-          <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-gray-100'} p-4 flex-grow overflow-y-auto`}>
+          <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex-grow overflow-y-auto custom-scrollbar`}>
             {activeTab === 'question' && (
               <>
-                <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
                   <h3 className="text-xl font-bold mb-2">{currentQuestion.question_text}</h3>
                 </div>
-                <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-2xl`}>
+                <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-2xl`}>
                   <h3 className="text-lg font-bold mb-2">Test Cases</h3>
                   <ul className="space-y-2">
                     {currentQuestion.test_cases.map((testCase, index) => (
-                      <li key={index} className={`p-2 rounded ${isDarkMode ? 'bg-[#2f2c2c]' : 'bg-gray-200'}`}>
+                      <li key={index} className={`p-2 rounded ${isDarkMode ? 'bg-[#262626]' : 'bg-gray-200'}`}>
                         <strong>Input:</strong> <code className="text-sm">{testCase.input}</code> <br />
                         <strong>Expected Output:</strong> <code className="text-sm">{testCase.expected_output}</code>
                       </li>
@@ -686,7 +721,7 @@ const PythonQuizApp = () => {
     ) : comments.length === 0 ? (
       <p>{comments[0]?.isPlaceholder ? comments[0].text : "No discussions yet. Be the first to comment!"}</p>
     ) : (
-      <div className="mb-4 max-h-60 overflow-y-auto space-y-2">
+      <div className="mb-4 max-h-60 overflow-y-auto custom-scrollbar space-y-2">
         {comments.slice().reverse().map((comment, index) => (
           <div key={index} className="p-2 rounded-md border border-gray-300">
             <p className="font-semibold">{comment.username}:</p>
@@ -758,8 +793,8 @@ const PythonQuizApp = () => {
         </div>
 
         {/* Right side: Code Editor and Results */}
-        <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-gray-200'} p-4 flex flex-col`}>
-          <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} rounded-t-lg p-2 flex justify-between items-center`}>
+        <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex flex-col`}>
+          <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-t-lg p-2 flex justify-between items-center`}>
             <span className="text-lg font-semibold">Python</span>
             <div className="flex space-x-2">
         
@@ -778,9 +813,50 @@ const PythonQuizApp = () => {
             direction="vertical"
             sizes={[70, 30]}
             minSize={100}
-            gutterSize={10}
-            gutterAlign="center">
+            gutterSize={4}
+            gutterAlign="center"
+            style={{
+              '--gutter-bg': isDarkMode ? '#60a5fa' : '#4a5568',
+              '--gutter-hover': isDarkMode ? '#3b82f6' : '#60a5fa',
+            }}
+            gutter={(index, direction) => {
+              const gutter = document.createElement('div');
+              gutter.className = `gutter gutter-${direction}`;
+              Object.assign(gutter.style, {
+                position: 'relative',
+                backgroundColor: 'transparent',
+                cursor: 'row-resize',
+              });
 
+              // Add the visual indicator
+              const indicator = document.createElement('div');
+              Object.assign(indicator.style, {
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                height: '4px',
+                width: '50px',
+                borderRadius: '3px',
+                backgroundColor: 'var(--gutter-bg)',
+                opacity: '0.5',
+                transition: 'opacity 0.2s, background-color 0.2s',
+              });
+
+              // Add hover effect
+              gutter.addEventListener('mouseenter', () => {
+                indicator.style.opacity = '0.8';
+                indicator.style.backgroundColor = 'var(--gutter-hover)';
+              });
+              gutter.addEventListener('mouseleave', () => {
+                indicator.style.opacity = '0.5';
+                indicator.style.backgroundColor = 'var(--gutter-bg)';
+              });
+
+              gutter.appendChild(indicator);
+              return gutter;
+            }}
+          >
             <MonacoEditor
               language="python"
               theme={isDarkMode ? "vs-dark" : "vs-light"}
@@ -831,7 +907,7 @@ const PythonQuizApp = () => {
                   ) : 'Submit Code'}
                 </button>
               </div>
-            <div className={`mt-1 ${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} rounded p-2 flex-grow overflow-y-auto`}>
+            <div className={`mt-1 ${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded p-2 flex-grow overflow-y-auto custom-scrollbar`}>
               <h1 className='text-lg font-semibold'>Output</h1>
               {showFeedback && (
                 <div className={`p-2 rounded mb-2 ${feedback.includes('Correct answer!') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>

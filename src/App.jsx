@@ -44,6 +44,7 @@ const App = () => {
 
     <BrowserRouter>
       <Routes>
+        {/* <Route path="/" element={<Home />} /> */}
         {  <Route path="/" element={<iframe src="/home.html" style={{ width: '100%', height: '100vh', border: 'none' }} title="External Page" />} /> }
         <Route path="/live-events" element={<DataSkillsDashboard />} />
         <Route path="/quiz" element={<QuizApp />} />
