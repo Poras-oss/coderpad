@@ -8,7 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
 import { Sun, Moon } from "lucide-react"
 import { Button } from "../components/ui/button"
 import axios from "axios"
-import { useUser } from "@clerk/clerk-react"
+import { useUser, SignInButton, UserButton } from '@clerk/clerk-react'
+import RenderSubscription from './RenderSubscription';
+import logo from '../assets/dslogo.png'
 
 export default function Dashboard() {
   const { isLoaded, isSignedIn, user } = useUser()
@@ -285,68 +287,53 @@ export default function Dashboard() {
   }
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
-      <div className="container mx-auto p-4">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <img
-                src={userData.profileImageUrl || "/placeholder.svg?height=40&width=40"}
-                alt={userData.username}
-                className="w-16 h-16 rounded-full border-2"
-                style={{ borderColor: isDarkMode ? colors.primaryDark : colors.primary }}
-              />
-              {userData.isPremium && (
-                <div className="absolute -top-2 -right-2">
-                  <Badge
-                    variant="outline"
-                    style={{
-                      backgroundColor: isDarkMode ? "#78350F" : "#FEF3C7",
-                      color: isDarkMode ? "#FBBF24" : "#92400E",
-                      borderColor: isDarkMode ? "#F59E0B" : "#FDE68A",
-                    }}
-                  >
-                    PRO
-                  </Badge>
-                </div>
-              )}
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">{userData.username}</h1>
-              <p style={{ color: isDarkMode ? colors.mutedDark : colors.muted }}>{userData.email}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              style={{
-                backgroundColor: isDarkMode ? colors.cardDark : colors.card,
-                borderColor: isDarkMode ? colors.borderDark : colors.border,
-                color: isDarkMode ? colors.textDark : colors.text,
-              }}
-            >
-              {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
-            <div className="flex items-center gap-2">
-              <div style={{ color: isDarkMode ? colors.mutedDark : colors.muted }} className="text-sm">
-                Fuel
-              </div>
-              <Progress
-                value={userData.fuel}
-                className="w-24 h-2"
-                style={{
-                  backgroundColor: isDarkMode ? colors.borderDark : colors.border,
-                  "--progress-background": isDarkMode ? colors.primaryDark : colors.primary,
-                }}
-              />
-              <span className="text-sm font-medium">{userData.fuel}%</span>
-            </div>
-          </div>
-        </header>
+    <div className={`min-h-screen ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-200 text-gray-900"}`}>
+      <div className="container mx-auto ">
+      <header className={`${isDarkMode ? 'bg-gray-900' : 'bg-oxford-blue'} mb-8`}>
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          {/* <Button 
+            variant="ghost" 
+            onClick={() => window.top.location.href = 'https://practice.datasenseai.com'} 
+            className="mr-2 text-white hover:text-gray-300 transition-colors duration-200"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button> */}
+          <img src={logo} alt="Quiz App Logo" className="h-12 w-auto cursor-pointer" />
+        </div>
+        
+        <div className="flex items-center space-x-4">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {isLoaded && isSignedIn && <RenderSubscription />}
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className={`${isDarkMode ? 'text-white hover:bg-[#2f2f2f]' : 'text-gray-700  hover:bg-gray-300'}`}
+          >
+            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5 text-white" />}
+          </Button>
+          {isLoaded && isSignedIn ? (
+            <>
+            <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-white'} md:${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            Welcome, {user.firstName}
+          </span>
+            <UserButton afterSignOutUrl={`/dashboard`} />
+            </>
+          ) : (
+            <SignInButton mode="modal" fallbackRedirectUrl={`/dashboard`}>
+              <Button size={"sm"} className={`${isDarkMode ? 'bg-blue-500 hover:bg-blue-600' : 'bg-blue-500 hover:bg-blue-600'} text-white`}>
+                LogIn
+              </Button>
+            </SignInButton>
+            
+          )}
+        </div>
+      </div>
+    </header>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 p-4">
           <Card
             style={{
               backgroundColor: isDarkMode ? colors.cardDark : colors.card,
@@ -536,7 +523,7 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 p-4">
           <Card
             className="lg:col-span-2"
             style={{
