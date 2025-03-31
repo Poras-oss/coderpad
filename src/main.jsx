@@ -7,7 +7,7 @@ import { ClerkProvider } from '@clerk/clerk-react'
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 
-const PUBLISHABLE_KEY =  process.env.VITE_CLERK_PUBLISHABLE_KEY;
+const PUBLISHABLE_KEY =  process.env.PUBLISHABLE_KEY;
 
 
 if (!PUBLISHABLE_KEY) {
