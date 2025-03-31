@@ -20,6 +20,7 @@ import PaymentPlan from './components/PaymentPlan';
 import Dashboard from './components/Dashboard';
 import { useUser } from "@clerk/clerk-react";
 import { NotificationProvider } from "./notification/NotificationProvider";
+import NavSwitcher from './components/DashAndBadgeSwitch';
 
 // Define custom hook outside the component
 const useSubscriptionPolling = (clerkId) => {
@@ -93,7 +94,7 @@ const App = () => {
           <Route path="/scenario-area" element={<ScenarioTestSeries />} />
           <Route path="/scenario-quiz" element={<ScenarioQuiz />} />
           <Route path="/go-premium" element={<PaymentPlan />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<NavSwitcher />} />
         </Routes>
       </BrowserRouter>
     </NotificationProvider>
