@@ -2,21 +2,16 @@ import React, { useState, useEffect } from 'react';
 import 'tailwindcss/tailwind.css';
 import 'react-toastify/dist/ReactToastify.css';
 import queryString from 'query-string';
-import { FaBars, FaTimes } from 'react-icons/fa';
-import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
-import { ArrowLeft, Moon, Sun } from 'lucide-react';
-import TopicGrid from './TopicGrid'
-import logo from '../assets/dslogo.png'
-import { Button } from "./ui/button"
+import { useUser } from '@clerk/clerk-react';
+import TopicGrid from './TopicGrid';
+import Navbar from './Navbar';
 import RenderSubscription from './RenderSubscription';
 
 const ScenarioTestSeries = () => {
     const { isLoaded, isSignedIn, user } = useUser();
     const [difficulty, setDifficulty] = useState(null);
-      const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [subject, setSubject] = useState(null);
-
-     const [isDarkMode, setIsDarkMode] = useState(false);
+    const [isDarkMode, setIsDarkMode] = useState(false);
     const topics = {
       beginner: [
         { name: 'Basic Concepts', questionCount: 10, duration: 20, progress: 30 },
@@ -35,119 +30,51 @@ const ScenarioTestSeries = () => {
       ],
     };
 
-
     useEffect(() => {
+      // Check system preference for dark mode
+      const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+      setIsDarkMode(savedDarkMode ?? darkModePreference);
+
       if (isLoaded && isSignedIn) {
           const parsed = queryString.parse(window.location.search);
           const subject = parsed.subject;
           const difficulty = parsed.difficulty;
           setSubject(subject);
           setDifficulty(difficulty);
-          // loadQuestions(subject, difficulty);
       }
-  }, [isLoaded, isSignedIn]);
+    }, [isLoaded, isSignedIn]);
 
+    // Update localStorage when dark mode changes
+    useEffect(() => {
+      localStorage.setItem('darkMode', isDarkMode);
+    }, [isDarkMode]);
 
-  function backToHome(){
-    window.top.location.href = 'https://practice.datasenseai.com/';
-  }
+    function backToHome(){
+      window.top.location.href = 'https://practice.datasenseai.com/';
+    }
 
-
-
-//   if (!isSignedIn) {
-//     return (
-//         <div className="w-full h-screen flex flex-col items-center justify-center bg-gray-100">
-           
-//             <div className="bg-white p-8 rounded-lg shadow-md text-center">
-//                 <h2 className="text-2xl font-bold mb-4">Login Required</h2>
-//                 <h4 className="mb-6">Please sign in to access the Test Series.</h4>
-//                 <SignInButton mode="modal" redirectUrl={window.location.href}>
-//                     <button className="bg-oxford-blue text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300">
-//                         Sign In
-//                     </button>
-//                 </SignInButton>
-//             </div>
-//         </div>
-//     );
-// }
-
-    
-
-
-    
     return (
-    
-        <div className={`min-h-screen  ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-           <header className={`p-4 ${isDarkMode ? 'bg-oxford-blue text-white' : 'bg-oxford-blue text-gray-800'}`}>
-                <div className="container mx-auto flex justify-between items-center relative">
-                <div className="flex items-center">
-            {/* <button
-              onClick={backToHome}
-              className="mr-2 text-white hover:text-gray-300 transition-colors duration-200"
-              aria-label="Go back"
-            >
-              <ArrowLeft size={24} />
-            </button> */}
-            <img 
-              className="h-12 w-auto cursor-pointer"
-              src={logo}
-              alt="Datasense"
-              onClick={backToHome}
+      <div className={`min-h-screen ${isDarkMode ? 'dark bg-[#1a1a1a] text-white' : 'bg-white text-black'}`}>
+        <Navbar 
+          isDarkMode={isDarkMode} 
+          setIsDarkMode={setIsDarkMode} 
+          isLoaded={isLoaded} 
+          isSignedIn={isSignedIn} 
+          user={user} 
+          subject={subject} 
+        />
+        <div className="py-8">
+          <div className={`container mx-auto px-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+            <TopicGrid 
+              subject={subject} 
+              topics={topics} 
+              darkmode={isDarkMode} 
             />
           </div>
-                {/* <h3 className='text-white'>{(subject).toUpperCase()} Questions</h3> */}
-          
-                  
-                  <div className="md:hidden z-20">
-                    <button
-                      onClick={() => setIsMenuOpen(!isMenuOpen)}
-                      className="p-2 text-white"
-                      aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-                    >
-                      {isMenuOpen ? <FaTimes /> : <FaBars />}
-                    </button>
-                  </div>
-          
-                  <nav className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex absolute md:relative top-full left-0 right-0 md:top-auto ${isDarkMode ? 'bg-gray-800' : 'bg-gray-800'} md:bg-transparent z-10 flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 p-4 md:p-0`}>
-                    <ul className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
-                      <li>
-                      {isLoaded && isSignedIn && <RenderSubscription />}
-                      <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className={`${isDarkMode ? 'text-white hover:bg-[#2f2f2f]' : 'text-gray-700  hover:bg-gray-300'}`}
-          >
-            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5 text-white" />}
-          </Button>
-                      </li>
-                      <li className="w-full md:w-auto">
-                        {isLoaded && isSignedIn ? (
-                          <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
-                            <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-white'} md:${isDarkMode ? 'text-white' : 'text-white'}`}>
-                              Welcome, {user.firstName}
-                            </span>
-                            <UserButton afterSignOutUrl={`/scenario-area?subject=${subject}`} />
-                          </div>
-                        ) : (
-                          <SignInButton mode="modal" fallbackRedirectUrl={`/scenario-area?subject=${subject}`} >
-                            <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 text-sm w-full md:w-auto">
-                              Log In
-                            </button>
-                          </SignInButton>
-                        )}
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
-              </header>
-      <div className="py-8">
-        <div className="container mx-auto px-4">
-          <TopicGrid subject={subject} topics={topics} darkmode={isDarkMode} />
         </div>
       </div>
-    </div>
-      );
-    };
+    );
+};
 
 export default ScenarioTestSeries;

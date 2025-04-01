@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import 'tailwindcss/tailwind.css';
-import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
+import { useUser } from '@clerk/clerk-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import queryString from 'query-string';
-import img from '../assets/dslogo1.png'
-import img1 from '../assets/bgimg.jpg'
+// import img from '../assets/dslogo1.png';
+// import img from '../assets/logo.png';
 import { ArrowLeft, CheckCircle, XCircle, Loader2 } from 'lucide-react';
-
-
+import Navbar from './Navbar';
 
 const Quiz = () => {
     const parsed = queryString.parse(window.location.search);
@@ -25,7 +24,11 @@ const Quiz = () => {
     const [timer, setTimer] = useState(80);
     const [quizCompleted, setQuizCompleted] = useState(false);
     const [startTime, setStartTime] = useState(null);
+
+    const [isDarkMode, setIsDarkMode] = useState(false);
+
     const [totalScore, setTotalScore] = useState(0);   
+
 
     useEffect(() => {
         const parsed = queryString.parse(window.location.search);
@@ -201,19 +204,30 @@ const Quiz = () => {
         return;
     };
 
+    // Update the loading state colors
     if (questions.length === 0) {
         return (
-            <div className="w-full h-screen flex flex-col items-center justify-center">
-                <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
-                <h5 className="mt-4 text-2xl font-thin text-gray-700">Loading...</h5>
+            <div className={`min-h-screen ${isDarkMode ? 'bg-[#262626]' : 'bg-gray-100'}`}>
+                <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+                <div className="w-full h-[calc(100vh-4rem)] flex flex-col items-center justify-center">
+                    <Loader2 className="w-16 h-16 text-cyan-600 animate-spin" />
+                    <h5 className={`mt-4 text-2xl font-thin ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>
+                        Loading...
+                    </h5>
+                </div>
             </div>
         );
     }
 
+    // Update the quiz completed state colors
     if (quizCompleted) {
-            return (
-                <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-                    <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
+        return (
+            <div className={`min-h-screen ${isDarkMode ? 'bg-[#262626]' : 'bg-gray-100'}`}>
+                <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+                <div className="flex items-center justify-center p-4">
+                    <div className={`p-8 rounded-lg shadow-md w-full max-w-2xl ${
+                        isDarkMode ? 'bg-[#403f3f] text-white' : 'bg-white text-gray-900'
+                    }`}>
                         <h1 className="text-3xl font-semibold mb-6 text-gray-800">Quiz Completed</h1>
                         <h3 className="text-2xl mb-6 text-gray-700">
                             Your Score: <span className="font-semibold">{score}</span> / {questions.length}
@@ -247,32 +261,39 @@ const Quiz = () => {
                         </button>
                     </div>
                 </div>
-            );
-        }
-    
-        return (
-          <div
-                className="min-h-screen flex items-center justify-center p-4"
-            style={{ backgroundImage: `url(${img1})`, backgroundPosition: 'center', }}
-          >
-               <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-4xl">
+            </div>
+        );
+    }
+
+    // Update the main quiz view colors
+    return (
+        <div className={`min-h-screen ${isDarkMode ? 'bg-[#262626]' : 'bg-gray-100'}`}>
+            <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+            <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4">
+                <div className={`p-8 rounded-lg shadow-md w-full max-w-4xl ${
+                    isDarkMode ? 'bg-[#403f3f]' : 'bg-white'
+                }`}>
                     <div className="flex justify-between items-center mb-6">
-                    <img src={img} alt="Data Sense Logo" className="h-20" />
-                       
-                        <span className="text-sm font-semibold text-[#4B5563]
-                        ">Time Remaining  {timer}s</span>
+                        {/* <img src={img} alt="Data Sense Logo" className="h-20" /> */}
+                        <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-[#4B5563]'}`}>
+                            Time Remaining {timer}s
+                        </span>
                     </div>
-                    <div className="bg-gray-800 p-6 rounded-lg mb-6">
-                        <h1 className=" text-2xl font-semibold text-white">{questions[currentQuestionIndex].question}</h1>
+                    <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-gray-100'} p-6 rounded-lg mb-6`}>
+                        <h1 className={`text-2xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                            {questions[currentQuestionIndex].question}
+                        </h1>
                     </div>
-                    <div className="space-y-4 mb-8">
+                    <div className={`space-y-4 mb-8 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
                         {Object.entries(questions[currentQuestionIndex].options).map(([key, value]) => (
                             <div
                                 key={key}
                                 className={`p-3 rounded cursor-pointer transition-colors duration-300
                                     ${selectedOption === key
-                                        ? 'bg-cyan-500 text-white'
-                                        : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                                        ? 'bg-teal-600 hover:bg-[#008B8B] text-white'
+                                        : isDarkMode 
+                                            ? 'bg-[#333333] hover:bg-[#4a4a4a] text-white'
+                                            : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
                                     }`}
                                 onClick={() => selectOption(key)}
                             >
@@ -281,40 +302,32 @@ const Quiz = () => {
                         ))}
                     </div>
                     <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">
-                        Question {currentQuestionIndex + 1} of {questions.length}
-                    </span>
-
-                    <div className="flex space-x-2">
-                        {/* <button
-                            className="bg-cyan-500 text-white px-4 py-2 rounded hover:bg-cyan-600 transition duration-300"
-                            onClick={prevQuestion}
-                            disabled={currentQuestionIndex === 0}
-                        >
-                            Back
-                        </button> */}
-
-                        {currentQuestionIndex === questions.length - 1 ? (
-                            <button
-                                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300"
-                                onClick={submitQuiz}
-                            >
-                                Submit
-                            </button>
-                        ) : (
-                            <button
-                                className="bg-cyan-500 text-white px-4 py-2 rounded hover:bg-cyan-600 transition duration-300"
-                                onClick={nextQuestion}
-                            >
-                                Next
-                            </button>
-                        )}
+                        <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                            Question {currentQuestionIndex + 1} of {questions.length}
+                        </span>
+                        <div className="flex space-x-2">
+                            {currentQuestionIndex === questions.length - 1 ? (
+                                <button
+                                    className="bg-blue-500 hover:bg-[#003366] text-white px-4 py-2 rounded-xl transition duration-300"
+                                    onClick={submitQuiz}
+                                >
+                                    Submit
+                                </button>
+                            ) : (
+                                <button
+                                    className="bg-blue-500 hover:bg-[#003366] text-white px-4 py-2 rounded-xl transition duration-300"
+                                    onClick={nextQuestion}
+                                >
+                                    Next
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
-                </div>
-                <ToastContainer />
+                <ToastContainer theme={isDarkMode ? 'dark' : 'light'} />
             </div>
-        );
-    };
-    
-export default Quiz;
+        </div>
+    );
+};
+
+export default Quiz;

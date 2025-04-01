@@ -98,6 +98,7 @@ const App = () => {
         </Routes>
       </BrowserRouter>
     </NotificationProvider>
+
   );
 };
 
