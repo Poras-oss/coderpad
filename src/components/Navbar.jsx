@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { useUser, SignInButton, UserButton } from "@clerk/clerk-react";
 import { Moon, Sun } from "lucide-react";
@@ -6,6 +7,7 @@ import { Button } from "./ui/button";
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaYoutube, FaDiscord} from "react-icons/fa";
 import { IoIosNotifications } from "react-icons/io";
 import logo from "../assets/logo.png";
+
 
 const Navbar = ({ isDarkMode, setIsDarkMode }) => {
   const { isLoaded, isSignedIn, user } = useUser();

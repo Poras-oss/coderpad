@@ -9,8 +9,11 @@ import {
 } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { AlertCircle, AlertTriangle } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const SubscriptionDialogue = ({ isOpen, onClose, status }) => {
+  const navigate = useNavigate();
+
   const dialogContent = {
     'not_premium': {
       icon: <AlertCircle className="w-12 h-12 text-yellow-500 mb-4" />,
@@ -30,7 +33,7 @@ const SubscriptionDialogue = ({ isOpen, onClose, status }) => {
 
   const handleAction = () => {
     // Navigate to upgrade/renewal page
-    window.location.href = '/go-premium';
+    navigate("/go-premium"); // Redirects without full page reload
   };
 
   return (

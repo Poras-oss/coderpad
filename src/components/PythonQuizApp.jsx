@@ -5,9 +5,11 @@ import queryString from 'query-string';
 import { useUser } from '@clerk/clerk-react';
 import Split from 'react-split';
 import ReactPlayer from 'react-player';
-import { Loader2, Video, X, Play, Pause, RotateCcw } from 'lucide-react';
 import Navbar from './Navbar'; // Add this import if not present
 import '../styles/scrollbar.css';
+import { Loader2, Video, X, Play, Pause, RotateCcw  } from 'lucide-react';
+import { useNotification } from "../notification/NotificationProvider";
+
 
 const PythonQuizApp = () => {
   const { user, isLoaded } = useUser();
@@ -15,7 +17,7 @@ const PythonQuizApp = () => {
   const [quizData, setQuizData] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userCodes, setUserCodes] = useState({});
-   const userCodesRef = useRef({});
+  const userCodesRef = useRef({});
   const [feedback, setFeedback] = useState('');
   const [showFeedback, setShowFeedback] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,7 +40,10 @@ const PythonQuizApp = () => {
   const [submissions, setSubmissions] = useState([]);
   const [isQuizMode, setIsQuizMode] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
-    const [subscriptionStatus, setSubscriptionStatus] = useState('');
+  const [totalScore, setTotalScore] = useState(0);
+  const [subscriptionStatus, setSubscriptionStatus] = useState('');
+  const { showSuccess, showError, showWarning, showInfo } = useNotification()
+  
 
   // Stopwatch timer for practicing question
   const [timeInSeconds, setTimeInSeconds] = useState(0);
@@ -125,6 +130,7 @@ const PythonQuizApp = () => {
       }
   
       if (response?.data) {
+        setTotalScore(response.data.questions.length)
         setQuizData(response.data);
         const initialUserCodes = {};
         response.data.questions.forEach((question, index) => {
@@ -152,14 +158,14 @@ const PythonQuizApp = () => {
             setAuthError(true);
             break;
           case 403:
-            if (data.message === 'User not subscribed') {
-              setSubscriptionStatus('not_premium');
-              alert(`You're not a premium user`);
-              // setIsSubscriptionDialogueOpen(true);
-            } else if (data.message === 'Subscription expired') {
-              setSubscriptionStatus('Subscription expired');
-              alert('expired');
-              // setIsSubscriptionDialogueOpen(true);
+            if (data.message.includes("requires a")) {
+              showWarning(`Upgrade required: ${data.message}`)
+            } else if (data.message.includes("reached your limit")) {
+              showWarning(`Usage limit: ${data.message}`)
+            } else if (data.message.includes("Insufficient fuel")) {
+              showError(`Fuel error: ${data.message}`)
+            } else {
+              showError(data.message)
             }
             break;
           case 404:
@@ -313,6 +319,9 @@ const PythonQuizApp = () => {
         ...prevScores,
         [currentQuestionIndex]: 1
       }));
+      if(submissions.length == 0 && !isQuizMode){
+        creditFuel(user.id);
+      }
     } else {
       setFeedback('Some test cases failed.');
       setScores(prevScores => ({
@@ -351,6 +360,20 @@ const PythonQuizApp = () => {
     }
   };
 
+  const addToStreak = async (clerkId, questionId) => {
+      try {
+          const response = await axios.post('https://server.datasenseai.com/question-attempt/update-streak', {
+              clerkId,
+              subjectId: "python",
+              questionId,
+          });
+  
+          return response.data; // Return the response if needed elsewhere
+      } catch (error) {
+          console.error('Error saving streak:', error.response?.data || error.message);
+      }
+  };
+
   const handleTestCode = async () => {
     setShowFeedback(false);
     setFeedback('Running test cases...');
@@ -376,6 +399,9 @@ const PythonQuizApp = () => {
     setIsTesting(false);
 
     saveSubmission(user.id, questionID, allTestCasesPassed, userCodes[currentQuestionIndex]);
+    
+    //Increment the question solving streak
+    addToStreak(user.id, questionID);
 
     setSubmissions(prevSubmissions => [
       ...prevSubmissions,
@@ -387,6 +413,17 @@ const PythonQuizApp = () => {
       },
     ]);
   };
+
+    const creditFuel = async (clerkId) => {
+        const difficulty = quizData.questions[currentQuestionIndex].difficulty;
+        const response = await axios.post('https://server.datasenseai.com/fuel-engine/credit', {
+            clerkId,
+            key: 'practice'+difficulty,
+        });
+  
+        console.log('fuel credit pracictice'+difficulty, response.data);
+    };
+  
 
   const handleQuestionSelect = useCallback((index) => {
     setCurrentQuestionIndex(index);
@@ -402,12 +439,14 @@ const PythonQuizApp = () => {
       return;
     }
     setIsTimerRunning(false);
-    const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
+    const userScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const timeTaken = 3600 - timeRemaining;
     const uf = {
+      clerkId: user?.id,
       quizID: quizID,
       userID: `${userInfo.email}, ${userInfo.firstName}, ${userInfo.phone}`,
-      score: totalScore,
+      score: userScore,
+      totalscore: totalScore,
       duration: timeTaken
     };
     try {

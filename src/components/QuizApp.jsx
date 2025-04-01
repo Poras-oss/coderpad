@@ -7,13 +7,17 @@ import Split from 'react-split';
 import { Loader2, Video, X, BookOpen, Play, Pause, RotateCcw, Hash } from 'lucide-react';
 import ReactPlayer from 'react-player';
 import Bot from './Bot';
+
 import { Badge } from "./ui/badge";
 import SubscriptionDialogue from './SubscriptionDialogue';
 import Navbar from './Navbar';
 import '../styles/scrollbar.css';
+import { useNotification } from "../notification/NotificationProvider";
+
 
 export default function QuizApp() {
   const { user, isLoaded } = useUser();
+  const { showSuccess, showError, showWarning, showInfo } = useNotification()
 
   const [quizData, setQuizData] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -29,6 +33,7 @@ export default function QuizApp() {
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
   const [activeNestedTab, setActiveNestedTab] = useState('expected_output');
+  const [totalScore, setTotalScore] = useState(0);
 
   const [isSubscriptionDialogueOpen, setIsSubscriptionDialogueOpen] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState('');
@@ -169,6 +174,7 @@ export default function QuizApp() {
         }
 
         if (response?.data) {
+          setTotalScore(response.data.questions.length)
           setQuizData(response.data);
         }
 
@@ -189,12 +195,16 @@ export default function QuizApp() {
               setAuthError(true);
               break;
             case 403:
-              if (data.message === 'User not subscribed') {
-                setSubscriptionStatus('not_premium');
-                alert(`You're not a premium user`);
-              } else if (data.message === 'Subscription expired') {
-                setSubscriptionStatus('Subscription expired');
-                alert('expired');
+
+              if (data.message.includes("requires a")) {
+                showWarning(`Upgrade required: ${data.message}`)
+              } else if (data.message.includes("reached your limit")) {
+                showWarning(`Usage limit: ${data.message}`)
+              } else if (data.message.includes("Insufficient fuel")) {
+                showError(`Fuel error: ${data.message}`)
+              } else {
+                showError(data.message)
+
               }
               break;
             case 404:
@@ -266,6 +276,7 @@ export default function QuizApp() {
       await axios.post('https://server.datasenseai.com/question-attempt/add-solved', {
         clerkId,
         questionId,
+        subject: "mysql"
       });
     } catch (error) {
       console.error('Error saving solved question:', error.message);
@@ -284,6 +295,32 @@ export default function QuizApp() {
       console.error('Error saving submission history:', error.message);
     }
   };
+
+
+const addToStreak = async (clerkId, questionId) => {
+    try {
+        const response = await axios.post('https://server.datasenseai.com/question-attempt/update-streak', {
+            clerkId,
+            subjectId: "mysql",
+            questionId,
+        });
+        return response.data; // Return the response if needed elsewhere
+    } catch (error) {
+        console.error('Error saving streak:', error.response?.data || error.message);
+    }
+};
+
+  const creditFuel = async (clerkId) => {
+      const difficulty = quizData.questions[currentQuestionIndex].difficulty;
+      const response = await axios.post('https://server.datasenseai.com/fuel-engine/credit', {
+          clerkId,
+          key: 'practice'+difficulty,
+      });
+
+      console.log('fuel credit pracictice'+difficulty, response.data);
+  };
+
+
 
   const handleTestCode = async () => {
     setIsTesting(true);
@@ -316,6 +353,12 @@ export default function QuizApp() {
       setOutput(userAnswer);
 
       saveSubmission(user.id, questionID, isCorrect, userQueries[currentQuestionIndex]);
+
+
+      //Increment the question solving streak
+      addToStreak(user.id, questionID);
+  
+      // Add to submissions history
 
       setSubmissions(prevSubmissions => [
         ...prevSubmissions,
@@ -350,6 +393,11 @@ export default function QuizApp() {
 
       if (isCorrect) {
         setFeedback({ text: 'Correct! now submit the question', isCorrect: true, userAnswer: userAnswer });
+
+        if(submissions.length == 0 && !isQuizMode){
+          creditFuel(user.id);
+        }
+
       } else {
         setFeedback({
           text: 'Incorrect. Please try again.',
@@ -408,13 +456,15 @@ export default function QuizApp() {
       return;
     }
     setIsTimerRunning(false);
-    const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
+    const userScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const timeTaken = 3600 - timeRemaining; // in seconds
 
     const uf = {
+      clerkId: user?.id,
       quizID: quizID,
       userID: `${userInfo.email || ' '}, ${userInfo.firstName || ' '}, ${userInfo.phone || ' '}`,
-      score: totalScore,
+      score: userScore,
+      totalscore: totalScore,
       duration: timeTaken
     };
 
