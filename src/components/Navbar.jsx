@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useUser, SignInButton, UserButton } from "@clerk/clerk-react";
 import { Moon, Sun } from "lucide-react";
 import { FaBars, FaTimes } from "react-icons/fa";
@@ -11,6 +11,20 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
   const { isLoaded, isSignedIn, user } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCommunityOpen, setIsCommunityOpen] = useState(false);
+  const communityRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (communityRef.current && !communityRef.current.contains(event.target)) {
+        setIsCommunityOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleBackToHome = () => {
     window.location.href = "https://practice.datasenseai.com";
@@ -49,6 +63,7 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
           <nav className="hidden md:flex items-center space-x-4">
             {/* Join Community Button for desktop */}
             <div
+              ref={communityRef}
               className="relative flex items-center cursor-pointer"
               // onMouseEnter={() => setIsCommunityOpen(true)}
               // onMouseLeave={() => setIsCommunityOpen(false)}
@@ -131,22 +146,22 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
                     Join Community
                   </p>
                   <div className="flex space-x-4 p-2 rounded-xl bg-gradient-to-r from-teal-50 to-white">
-                    <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                    <a href="https://www.youtube.com/@Senseofdata" target="_blank" rel="noopener noreferrer" className="social-icon">
                       <FaYoutube className="text-teal-600 text-2xl" />
                     </a>
-                    <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                    <a href="https://www.linkedin.com/company/data-sense-lms/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="social-icon">
                       <FaLinkedin className="text-teal-600 text-2xl" />
                     </a>
-                    <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                    <a href="https://www.instagram.com/senseofdata/" target="_blank" rel="noopener noreferrer" className="social-icon">
                       <FaInstagram className="text-teal-600 text-2xl" />
                     </a>
-                    <a href="https://www.whatsapp.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                    <a href="https://chat.whatsapp.com/DYgDxOA8nBvJp4tPz5J6ox" target="_blank" rel="noopener noreferrer" className="social-icon">
                       <FaWhatsapp className="text-teal-600 text-2xl" />
                     </a>
-                    <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                    <a href="https://www.facebook.com/people/Data-Sense/61550202884240/?mibextid=LQQJ4d" target="_blank" rel="noopener noreferrer" className="social-icon">
                       <FaFacebook className="text-teal-600 text-2xl" />
                     </a>
-                    <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                    <a href="https://discord.gg/your-invite-link" target="_blank" rel="noopener noreferrer" className="social-icon">
                       <FaDiscord className="text-teal-600 text-2xl" />
                     </a>
                   </div>
