@@ -6,6 +6,7 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { Button } from "./ui/button";
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaYoutube, FaDiscord} from "react-icons/fa";
 import { IoIosNotifications } from "react-icons/io";
+import RenderSubscription from "./RenderSubscription";
 import logo from "../assets/logo.png";
 
 
@@ -63,6 +64,7 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-4">
+          {isLoaded && isSignedIn && <RenderSubscription />}
             {/* Join Community Button for desktop */}
             <div
               ref={communityRef}
@@ -75,6 +77,8 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
                 <IoIosNotifications className="text-[#008B8B] hover:text-white text-2xl transition-transform duration-300 hover:scale-110" />
                 <span className="absolute top-0 right-0 bg-red-500 h-3 w-3 rounded-full animate-pulse"></span>
               </div>
+
+            
               {isCommunityOpen && (
                 <div 
                   className="absolute top-12 right-0 bg-[#008B8B] p-4 rounded-lg shadow-xl flex flex-col items-center z-50 origin-top-right"
@@ -214,7 +218,10 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
           <div className="px-4 py-3 space-y-3">
             <div className="flex flex-col items-center space-y-3">
               {/* Join Community Button in mobile menu */}
+             
               <div className="relative w-full">
+
+
                 <button 
                   onClick={() => setIsCommunityOpen(!isCommunityOpen)}
                   className="w-full flex items-center justify-center space-x-2 bg-white hover:bg-teal-600 text-[#008B8B] font-medium py-2 px-4 rounded-lg transition-colors"
@@ -275,6 +282,7 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
                   </button>
                 </SignInButton>
               )}
+               {isLoaded && isSignedIn && <RenderSubscription />}
               <Button
                 variant="ghost"
                 size="icon"
