@@ -38,7 +38,7 @@ export default function QuizApp() {
   const [isSubscriptionDialogueOpen, setIsSubscriptionDialogueOpen] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState('');
 
-  const [timeRemaining, setTimeRemaining] = useState(60 * 60); // 60 minutes in seconds
+  const [timeRemaining, setTimeRemaining] = useState(45 * 60); // 60 minutes in seconds
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [scores, setScores] = useState({});
   const [canSubmit, setCanSubmit] = useState(false);
