@@ -161,45 +161,55 @@ const DataSkillsDashboard = () => {
       }`}
     >
       <AlertDialog open={showInstructions} onOpenChange={setShowInstructions}>
-        <AlertDialogContent className="max-w-md bg-white dark:bg-gray-800 shadow-lg">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl font-bold text-white">
-              Quiz Instructions
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-base mt-4 text-gray-700 dark:text-gray-300">
-              {quizType === "sql" &&
-                "This SQL quiz will test your knowledge of database queries. Make sure to:" +
-                  "\n\n• Write standard SQL syntax" +
-                  "\n• Test your queries before submitting" +
-                  "\n• Pay attention to the required output format"}
-              {quizType === "python" &&
-                "This Python programming quiz will test your coding skills. Remember to:" +
-                  "\n\n• Follow Python PEP 8 style guidelines" +
-                  "\n• Handle edge cases" +
-                  "\n• Use appropriate data structures"}
-              {quizType === "mcq" &&
-                "This multiple choice quiz will test your knowledge. Please note:" +
-                  "\n\n• Read all options carefully" +
-                  "\n• Only one answer is correct" +
-                  "\n• You cannot change your answer after submission"}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="space-x-2">
-            <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600">
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                setShowInstructions(false);
-                pendingNavigation && pendingNavigation();
-              }}
-              className="bg-blue-600 text-white hover:bg-blue-700"
-            >
-              Start Quiz
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+  <AlertDialogContent className="max-w-md bg-white dark:bg-gray-800 shadow-lg">
+    <AlertDialogHeader>
+      <AlertDialogTitle className="text-xl font-bold text-white">
+        Quiz Instructions
+      </AlertDialogTitle>
+      <AlertDialogDescription className="text-base mt-4 text-gray-700 dark:text-gray-300 whitespace-pre-line">
+        {quizType === "sql" &&
+          "This SQL quiz will test your knowledge of database queries. Make sure to:" +
+            "\n\n• Write standard SQL syntax" +
+            "\n• Test your queries before submitting" +
+            "\n• Pay attention to the required output format"}
+
+        {quizType === "python" &&
+          "This Python programming quiz will test your coding skills. Remember to:" +
+            "\n\n• Follow Python PEP 8 style guidelines" +
+            "\n• Handle edge cases" +
+            "\n• Use appropriate data structures"}
+
+        {quizType === "mcq" &&
+          "This multiple choice quiz will test your knowledge. Please note:" +
+            "\n\n• Read all options carefully" +
+            "\n• Only one answer is correct" +
+            "\n• You cannot change your answer after submission"}
+
+        {"\n\nGeneral Instructions:" +
+          "\n\n• This is a timed quiz and can only be attempted once." +
+          "\n• For coding questions, use the 'Run Code' button to check if your code works correctly." +
+          "\n• Once satisfied, use the 'Submit Code' button to submit your answer." +
+          "\n• You can re-submit a question if your first attempt was incorrect, as long as time hasn’t run out." +
+          "\n• Finally, make sure to submit the quiz using the 'Submit' button at the top right corner."}
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter className="space-x-2">
+      <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600">
+        Cancel
+      </AlertDialogCancel>
+      <AlertDialogAction
+        onClick={() => {
+          setShowInstructions(false);
+          pendingNavigation && pendingNavigation();
+        }}
+        className="bg-blue-600 text-white hover:bg-blue-700"
+      >
+        Start Quiz
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
+
 
       <Navbar 
         isDarkMode={isDarkMode} 

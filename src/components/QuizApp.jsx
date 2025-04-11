@@ -129,6 +129,14 @@ export default function QuizApp() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  //quiz time setter from api response
+
+  useEffect(() => {
+    if (quizData?.isTimerEnabled) {
+      setTimeRemaining(quizData.quizTime * 60);
+    }
+  }, [quizData]);
+
   const openVideoPopup = () => {
     const currentQuestion = quizData.questions[currentQuestionIndex];
     if (currentQuestion.video) {
