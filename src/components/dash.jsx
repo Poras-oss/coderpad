@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import queryString from "query-string";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useUser, SignInButton, UserButton } from "@clerk/clerk-react";
 import logo from "../assets/logo.png";
 import { Loader2, Moon, Sun } from "lucide-react";
@@ -17,7 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogCancel,
 } from "./ui/alert-dialog";
-import Navbar from "./Navbar"; // Add this import
+import Navbar from "./Navbar";
 
 const skills = ["Excel", "SQL", "Python", "PowerBI", "Tableau"];
 
@@ -33,6 +33,7 @@ import {
 const DataSkillsDashboard = () => {
   const { isLoaded, isSignedIn, user } = useUser();
   const navigateTo = useNavigate();
+  const location = useLocation();
   const [quizzes, setQuizzes] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState(null);
@@ -43,6 +44,17 @@ const DataSkillsDashboard = () => {
 
   const [showInstructions, setShowInstructions] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState(null);
+
+  // Check if running in iframe and break out if on /live-events route
+  useEffect(() => {
+    const isInIframe = window !== window.top;
+    const isLiveEventsRoute = location.pathname === "/live-events";
+    
+    if (isInIframe && isLiveEventsRoute) {
+      // Break out of the iframe by redirecting the parent window to this location
+      window.top.location.href = window.location.href;
+    }
+  }, [location]);
 
   useEffect(() => {
     fetchQuizzes();
@@ -189,7 +201,7 @@ const DataSkillsDashboard = () => {
           "\n\n• This is a timed quiz and can only be attempted once." +
           "\n• For coding questions, use the 'Run Code' button to check if your code works correctly." +
           "\n• Once satisfied, use the 'Submit Code' button to submit your answer." +
-          "\n• You can re-submit a question if your first attempt was incorrect, as long as time hasn’t run out." +
+          "\n• You can re-submit a question if your first attempt was incorrect, as long as time hasn't run out." +
           "\n• Finally, make sure to submit the quiz using the 'Submit' button at the top right corner."}
       </AlertDialogDescription>
     </AlertDialogHeader>
