@@ -108,13 +108,13 @@ const DataSkillsDashboard = () => {
 
     if (lowerCaseQuizName.includes("sql:")) {
       quizType = "sql";
-      navigationPath = `/quiz?quizID=${quizID}&userID=${userID}`;
+      navigationPath = `/quiz?quizID=${quizID}`;
     } else if (lowerCaseQuizName.includes("python:")) {
       quizType = "python";
-      navigationPath = `/pyQuiz?quizID=${quizID}&userID=${userID}`;
+      navigationPath = `/pyQuiz?quizID=${quizID}`;
     } else if (lowerCaseQuizName.includes("mcq:")) {
       quizType = "mcq";
-      navigationPath = `/mcqQuiz?quizID=${quizID}&userID=${userID}`;
+      navigationPath = `/mcqQuiz?quizID=${quizID}`;
     } else {
       alert("Unknown quiz type.");
       return;
