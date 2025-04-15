@@ -443,19 +443,19 @@ export default function QuizApp() {
     }
   
     // Check subscription status from localStorage
-    const subscriptionData = JSON.parse(localStorage.getItem('subscriptionStatus'));
+    // const subscriptionData = JSON.parse(localStorage.getItem('subscriptionStatus'));
   
-    if (!subscriptionData || subscriptionData.message === 'User not subscribed') {
-      setSubscriptionStatus('not_premium');
-      setIsSubscriptionDialogueOpen(true);
-      return;
-    }
+    // if (!subscriptionData || subscriptionData.message === 'User not subscribed') {
+    //   setSubscriptionStatus('not_premium');
+    //   setIsSubscriptionDialogueOpen(true);
+    //   return;
+    // }
   
-    if (subscriptionData.message === 'Subscription Expired') {
-      setSubscriptionStatus('expired');
-      setIsSubscriptionDialogueOpen(true);
-      return;
-    }
+    // if (subscriptionData.message === 'Subscription Expired') {
+    //   setSubscriptionStatus('expired');
+    //   setIsSubscriptionDialogueOpen(true);
+    //   return;
+    // }
   
     // Check if `userRegistered` exists in localStorage
     const userRegistered = localStorage.getItem('userRegistered');

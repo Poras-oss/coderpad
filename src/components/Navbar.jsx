@@ -64,7 +64,7 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-4">
-          {isLoaded && isSignedIn && <RenderSubscription />}
+          {/* {isLoaded && isSignedIn && <RenderSubscription />} */}
             {/* Join Community Button for desktop */}
             <div
               ref={communityRef}
@@ -282,7 +282,7 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
                   </button>
                 </SignInButton>
               )}
-               {isLoaded && isSignedIn && <RenderSubscription />}
+               {/* {isLoaded && isSignedIn && <RenderSubscription />} */}
               <Button
                 variant="ghost"
                 size="icon"
