@@ -744,7 +744,7 @@ const addToStreak = async (clerkId, questionId) => {
             </div>
           )}
 
-          <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex-grow`}>
+          <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex`}>
             {(isQuizMode ? ['Question', 'Tables'] : ['Question', 'Tables', 'Discussion', 'Solution', 'Submission', 'AI Help']).map((tab) => (
               <button
                 key={tab}
@@ -761,8 +761,8 @@ const addToStreak = async (clerkId, questionId) => {
               <>
                 <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
                   {currentQuestion.id && (
-                    <div className={`question-heading flex items-center p-4 mb-6 border-b ${
-                      isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'
+                    <div className={`question-heading flex items-center p-4 mb-6 ${
+                      isDarkMode ? ' bg-[#262626]' : ' bg-white'
                     }`}>
                       <Hash className={`mr-2 h-5 w-5 ${
                         isDarkMode ? 'text-gray-400' : 'text-gray-500'
