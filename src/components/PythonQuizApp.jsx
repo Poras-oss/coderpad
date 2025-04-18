@@ -788,9 +788,9 @@ const PythonQuizApp = () => {
   </div>
 )}
             {activeTab === 'solution' && (
-              <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+              <div className={`${isDarkMode ? 'bg-[#2f2c2c]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
                 <h3 className="text-lg font-bold mb-2">Solution</h3>
-                <pre className={`p-2 rounded ${isDarkMode ? 'bg-[#2f2c2c]' : 'bg-gray-200'}`}>
+                <pre className={`p-2 rounded ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}`}>
                   <code>{currentQuestion.solution || 'Solution not available'}</code>
                 </pre>
               </div>
