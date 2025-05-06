@@ -32,6 +32,7 @@ import {
   SheetTrigger,
 } from "./ui/sheet"
 import Navbar from './Navbar' // Add this import
+import { set } from 'lodash'
 
 const PREDEFINED_SUBTOPICS = ['Column Selection', 'filtering', 'multiple costraints', 'Custom Selection', 'Filtering', 'Condition', 'Aggregation', 'Group by', 'Filter', 'Top N', 'Rank', 'Group']
 const PREDEFINED_PYTHON_TOPICS = ['Array', 'String', 'Two Pointers', 'Sliding Window', 'Dictionary', 'List', 'Tuples', 'Regex']
@@ -60,15 +61,15 @@ export default function QuizApp() {
   const [availableCompanies, setAvailableCompanies] = useState([])
   const [bookmarkedQuizzes, setBookmarkedQuizzes] = useState(new Set())
   const [solvedQuestions, setSolvedQuestions] = useState(new Set())
-   const [paginationInfo, setPaginationInfo] = useState({
-    total: 0,
-    totalPages: 0,
-    currentPage: 1,
-    next: null,
-    previous: null
-  })
-  const [pageInput, setPageInput] = useState(paginationInfo.currentPage.toString());
-  const [currentPage, setCurrentPage] = useState(paginationInfo.currentPage);
+const [paginationInfo, setPaginationInfo] = useState({
+  total: 0,
+  totalPages: 0,
+  currentPage: parseInt(localStorage.getItem('currentPage') || '1', 10),
+  next: null,
+  previous: null
+});
+const [currentPage, setCurrentPage] = useState(parseInt(localStorage.getItem('currentPage') || '1', 10));
+const [pageInput, setPageInput] = useState((localStorage.getItem('currentPage') || '1'));
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   let subject = new URLSearchParams(window.location.search).get('subject') || 'mysql'
@@ -143,13 +144,17 @@ export default function QuizApp() {
           }
 
           setQuizzes(filteredQuizzes)
+          const savedPage = parseInt(localStorage.getItem('currentPage') || '1', 10);
+          // const newCurrentPage = currentPage || savedPage;
           setPaginationInfo({
             total: total || 0,
             totalPages: totalPages || 1,
-            currentPage: currentPage || 1,
+            currentPage: currentPage || savedPage,
             next,
             previous
           })
+          setCurrentPage(savedPage || currentPage)
+          
           
           const allCompanies = [...new Set(results.flatMap(quiz => Array.isArray(quiz.company) ? quiz.company : []))]
           setAvailableCompanies(allCompanies)
@@ -212,8 +217,14 @@ export default function QuizApp() {
     setFilters(prev => ({
       ...prev,
       [key]: value
-    }))
-    setPaginationInfo(prev => ({ ...prev, currentPage: 1 }))
+    }));
+    
+    // When changing filters, either reset to page 1 or keep current page based on your preference
+    const newPage = 1; // Reset to page 1 when filters change
+    setCurrentPage(newPage);
+    localStorage.setItem('currentPage', newPage.toString());
+    setPageInput(newPage.toString());
+    setPaginationInfo(prev => ({ ...prev, currentPage: newPage }));
   }
 
   const openVideoPopup = (quiz) => {
@@ -372,64 +383,7 @@ export default function QuizApp() {
     }
   }
 
-  // const handleStartQuiz = async (quizID, userID, quizName) => {
-  //   let route = '/quiz';
-  //   if (subject.toLowerCase() === 'python') {
-  //     route = '/pyQuiz';
-  //   }
 
-  //   if(!isSignedIn){
-  //     alert(`You're not logged in`)
-  //     return;
-  //   }
-  
-  //   // Check subscription status from localStorage
-  //   const subscriptionData = JSON.parse(localStorage.getItem('subscriptionStatus'));
-    
-  //   if (!subscriptionData || subscriptionData.message === 'User not subscribed') {
-  //     setSubscriptionStatus('not_premium');
-  //     setIsSubscriptionDialogueOpen(true);
-  //     return;
-  //   }
-    
-  //   if (subscriptionData.message === 'Subscription Expired') {
-  //     setSubscriptionStatus('expired');
-  //     setIsSubscriptionDialogueOpen(true);
-  //     return;
-  //   }
-  
-  //   // Check if `userRegistered` exists in localStorage
-  //   const userRegistered = localStorage.getItem('userRegistered');
-  
-  //   if (userRegistered === 'true') {
-  //     // User is already registered, start the quiz
-  //     window.open(`${route}?questionID=${quizID}&userID=${userID}`, '_blank');
-  //     return;
-  //   }
-  
-  //   // If `userRegistered` doesn't exist or is false, check with the server
-  //   try {
-  //     const response = await fetch(`https://server.datasenseai.com/user-details/profile-status/${userID}`);
-  //     const data = await response.json();
-  
-  //     if (response.ok) {
-  //       if (data.isProfileComplete) {
-  //         // Save the result in localStorage and start the quiz
-  //         localStorage.setItem('userRegistered', 'true');
-  //         window.open(`${route}?questionID=${quizID}&userID=${userID}`, '_blank');
-  //       } else {
-  //         // Show the UserDetailModal for incomplete profile
-  //         setIsModalOpen(true);
-  //       }
-  //     } else {
-  //       console.error('Failed to fetch profile status:', data.message);
-  //       alert('Login first!');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error while checking user profile status:', error);
-  //     alert('An unexpected error occurred. Please try again.');
-  //   }
-  // };
 
   const handleStartQuiz = async (quizID, userID, quizName) => {
     let route = '/quiz';
@@ -509,14 +463,17 @@ export default function QuizApp() {
   }
   
   const handlePageChange = useCallback((newPage) => {
-    setCurrentPage(newPage);
+
     setPageInput(newPage.toString()); 
-    if (newPage >= 1 && newPage <= paginationInfo.totalPages && newPage !== paginationInfo.currentPage) {
+    if (newPage >= 1 && newPage <= paginationInfo.totalPages && newPage !== currentPage) {
+      setCurrentPage(newPage);
+      localStorage.setItem('currentPage', newPage.toString());
+      setPageInput(newPage.toString());
       setPaginationInfo(prev => ({ ...prev, currentPage: newPage }));
-      // Scroll to top of the page when changing pages
       window.scrollTo(0, 0);
     }
-  }, [paginationInfo.totalPages, paginationInfo.currentPage]);
+  }, [paginationInfo.totalPages, currentPage]);
+
   const renderPaginationButtons = useCallback(() => {
     const pageNumbers = [];
     const totalPages = paginationInfo.totalPages;
@@ -595,6 +552,13 @@ export default function QuizApp() {
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
+
+  useEffect(() => {
+    const savedPage = localStorage.getItem('currentPage');
+    if (savedPage !== null) {
+      setCurrentPage(parseInt(savedPage, 10));
+    }
+  }, []);
 
   return (
 
