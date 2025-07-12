@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
-import MonacoEditor from './ResizableMonacoEditor'; 
+import MonacoEditor from './ResizableMonacoEditor';
 import queryString from 'query-string';
 import { useUser } from '@clerk/clerk-react';
 import Split from 'react-split';
 import ReactPlayer from 'react-player';
 import Navbar from './Navbar'; // Add this import if not present
 import '../styles/scrollbar.css';
-import { Loader2, Video, X, Play, Pause, RotateCcw  } from 'lucide-react';
+import { Loader2, Video, X, Play, Pause, RotateCcw, Menu } from 'lucide-react';
 import { useNotification } from "../notification/NotificationProvider";
+import { useNavigate, useLocation } from 'react-router-dom';
 
 
 const PythonQuizApp = () => {
@@ -43,16 +44,55 @@ const PythonQuizApp = () => {
   const [totalScore, setTotalScore] = useState(0);
   const [subscriptionStatus, setSubscriptionStatus] = useState('');
   const { showSuccess, showError, showWarning, showInfo } = useNotification()
-  
+
 
   // Stopwatch timer for practicing question
   const [timeInSeconds, setTimeInSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
 
-  const parsed = queryString.parse(window.location.search);
+  const navigate = useNavigate();
+  const location = useLocation();
+  // Sidebar state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [sidebarQuestions, setSidebarQuestions] = useState([]);
+  const [sidebarPage, setSidebarPage] = useState(1);
+  const [sidebarTotalPages, setSidebarTotalPages] = useState(1);
+  const [sidebarLoading, setSidebarLoading] = useState(false);
+  const QUESTIONS_PER_PAGE = 20;
+
+  // Parse questionID and userID from URL
+  const parsed = queryString.parse(location.search);
   const userID = parsed.userID;
   const quizID = parsed.quizID;
   const questionID = parsed.questionID;
+
+  // Fetch questions for sidebar
+  useEffect(() => {
+    if (!isSidebarOpen) return;
+    setSidebarLoading(true);
+    axios.get('https://server.datasenseai.com/test-series-coding/python', {
+      params: {
+        page: sidebarPage,
+        limit: QUESTIONS_PER_PAGE,
+      },
+    })
+      .then((response) => {
+        setSidebarQuestions(response.data.results || []);
+        setSidebarTotalPages(response.data.totalPages || 1);
+      })
+      .catch(() => setSidebarQuestions([]))
+      .finally(() => setSidebarLoading(false));
+  }, [isSidebarOpen, sidebarPage]);
+
+  // Helper for badge style
+  const getDifficultyStyle = (difficulty) => {
+    if (!difficulty) return isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-800';
+    const normalized = difficulty.toLowerCase();
+    if (normalized === 'advance' || normalized === 'advanced') return isDarkMode ? 'bg-red-900 text-red-300' : 'bg-red-100 text-red-800';
+    if (normalized === 'medium') return isDarkMode ? 'bg-yellow-900 text-yellow-300' : 'bg-yellow-100 text-yellow-800';
+    if (normalized === 'easy') return isDarkMode ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-800';
+    return isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-800';
+  };
 
   useEffect(() => {
     if (user) {
@@ -106,20 +146,20 @@ const PythonQuizApp = () => {
       console.log('No quiz or question ID provided');
       return;
     }
-  
+
     // Set loading state
     setLoading(true);
-  
+
     try {
       // Wait for user to be loaded
       if (!user?.id) {
         console.log('Waiting for user data...');
         return;
       }
-  
+
       const baseUrl = 'https://server.datasenseai.com';
       let response;
-  
+
       if (quizID) {
         setIsQuizMode(true);
         response = await axios.get(`${baseUrl}/python-quiz/${quizID}/${userID}`);
@@ -128,7 +168,7 @@ const PythonQuizApp = () => {
           params: { clerkId: user.id }
         });
       }
-  
+
       if (response?.data) {
         setTotalScore(response.data.questions.length)
         setQuizData(response.data);
@@ -139,7 +179,7 @@ const PythonQuizApp = () => {
         setUserCodes(initialUserCodes);
         userCodesRef.current = initialUserCodes;
       }
-  
+
     } catch (error) {
       console.error('Error details:', {
         message: error.message,
@@ -148,11 +188,11 @@ const PythonQuizApp = () => {
         questionID,
         responseData: error.response?.data
       });
-  
+
       // Handle different types of errors
       if (error.response) {
         const { status, data } = error.response;
-  
+
         switch (status) {
           case 401:
             setAuthError(true);
@@ -185,12 +225,12 @@ const PythonQuizApp = () => {
       setLoading(false);
     }
   }, [quizID, userID, questionID, user]);
-  
+
   useEffect(() => {
     if (user?.id && (quizID || questionID)) {
       fetchQuizData();
     }
-  
+
     // Cleanup function
     return () => {
       setQuizData(null);
@@ -210,7 +250,7 @@ const PythonQuizApp = () => {
         try {
           const response = await axios.get(
             `https://server.datasenseai.com/submission-history/get-submissions/${questionID}`,
-            { params: { clerkId: user.id} } // Use user.id as clerkId
+            { params: { clerkId: user.id } } // Use user.id as clerkId
           );
           setSubmissions(response.data.submissions);
           console.log(response);
@@ -229,7 +269,7 @@ const PythonQuizApp = () => {
   //   return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   // };
 
-  
+
   const getRelativeTime = (timestamp) => {
     const now = new Date();
     const submissionDate = new Date(timestamp);
@@ -237,7 +277,7 @@ const PythonQuizApp = () => {
     const diffInMinutes = Math.floor(diffInSeconds / 60);
     const diffInHours = Math.floor(diffInMinutes / 60);
     const diffInDays = Math.floor(diffInHours / 24);
-  
+
     if (diffInSeconds < 60) {
       return 'just now';
     } else if (diffInMinutes === 1) {
@@ -298,7 +338,7 @@ const PythonQuizApp = () => {
 
 
       return true;
-    
+
     } catch (error) {
       console.error('Error executing test cases:', error);
 
@@ -319,7 +359,7 @@ const PythonQuizApp = () => {
         ...prevScores,
         [currentQuestionIndex]: 1
       }));
-      if(submissions.length == 0 && !isQuizMode){
+      if (submissions.length == 0 && !isQuizMode) {
         creditFuel(user.id);
       }
     } else {
@@ -361,17 +401,17 @@ const PythonQuizApp = () => {
   };
 
   const addToStreak = async (clerkId, questionId) => {
-      try {
-          const response = await axios.post('https://server.datasenseai.com/question-attempt/update-streak', {
-              clerkId,
-              subjectId: "python",
-              questionId,
-          });
-  
-          return response.data; // Return the response if needed elsewhere
-      } catch (error) {
-          console.error('Error saving streak:', error.response?.data || error.message);
-      }
+    try {
+      const response = await axios.post('https://server.datasenseai.com/question-attempt/update-streak', {
+        clerkId,
+        subjectId: "python",
+        questionId,
+      });
+
+      return response.data; // Return the response if needed elsewhere
+    } catch (error) {
+      console.error('Error saving streak:', error.response?.data || error.message);
+    }
   };
 
   const handleTestCode = async () => {
@@ -399,7 +439,7 @@ const PythonQuizApp = () => {
     setIsTesting(false);
 
     saveSubmission(user.id, questionID, allTestCasesPassed, userCodes[currentQuestionIndex]);
-    
+
     //Increment the question solving streak
     addToStreak(user.id, questionID);
 
@@ -414,16 +454,16 @@ const PythonQuizApp = () => {
     ]);
   };
 
-    const creditFuel = async (clerkId) => {
-        const difficulty = quizData.questions[currentQuestionIndex].difficulty;
-        const response = await axios.post('https://server.datasenseai.com/fuel-engine/credit', {
-            clerkId,
-            key: 'practice'+difficulty,
-        });
-  
-        console.log('fuel credit pracictice'+difficulty, response.data);
-    };
-  
+  const creditFuel = async (clerkId) => {
+    const difficulty = quizData.questions[currentQuestionIndex].difficulty;
+    const response = await axios.post('https://server.datasenseai.com/fuel-engine/credit', {
+      clerkId,
+      key: 'practice' + difficulty,
+    });
+
+    console.log('fuel credit pracictice' + difficulty, response.data);
+  };
+
 
   const handleQuestionSelect = useCallback((index) => {
     setCurrentQuestionIndex(index);
@@ -465,7 +505,7 @@ const PythonQuizApp = () => {
       alert('Failed to submit quiz. Please try again.');
     }
     alert("The quiz is submitted");
-    
+
     window.location.href = `/live-events`;
   };
 
@@ -482,18 +522,18 @@ const PythonQuizApp = () => {
     setError(null);
     try {
       const response = await axios.get(`https://server.datasenseai.com/discussion-route/get-discussions/${questionID}`);
-     // Check if the response contains the "No discussions found" message
-  if (response.data.message === "No discussions found for this question") {
-    setComments([{ text: "No discussions found for this question", isPlaceholder: true }]);
-  } else {
-    setComments(response.data.comments || []);
-  }
-} catch (error) {
-  setError('Failed to load discussions');
-} finally {
-  setLoading(false);
-}
-  
+      // Check if the response contains the "No discussions found" message
+      if (response.data.message === "No discussions found for this question") {
+        setComments([{ text: "No discussions found for this question", isPlaceholder: true }]);
+      } else {
+        setComments(response.data.comments || []);
+      }
+    } catch (error) {
+      setError('Failed to load discussions');
+    } finally {
+      setLoading(false);
+    }
+
   };
 
 
@@ -507,22 +547,22 @@ const PythonQuizApp = () => {
         username: user.fullName, // Replace with actual user info from Clerk
         discussionText
       });
-       // If "No discussions found" placeholder is currently displayed, remove it
+      // If "No discussions found" placeholder is currently displayed, remove it
 
-       console.log(response);
-    
+      console.log(response);
 
-       
-         // Add the new comment to the comments array with default fields
-         const newComment = {
-           discussionText,
-           username: user.fullName, // Replace with the actual username
-           createdAt: new Date().toISOString(), // Use the current date and time
-         };
-   
-         setComments((prevComments) => [...prevComments, newComment]);
-         setDiscussionText(''); // Clear the input field
-       
+
+
+      // Add the new comment to the comments array with default fields
+      const newComment = {
+        discussionText,
+        username: user.fullName, // Replace with the actual username
+        createdAt: new Date().toISOString(), // Use the current date and time
+      };
+
+      setComments((prevComments) => [...prevComments, newComment]);
+      setDiscussionText(''); // Clear the input field
+
     } catch (error) {
       console.error(error);
       setError('Failed to add comment');
@@ -531,26 +571,26 @@ const PythonQuizApp = () => {
 
   useEffect(() => {
     let interval = null;
-    
+
     if (isRunning) {
       interval = setInterval(() => {
         setTimeInSeconds(prev => prev + 1);
       }, 1000);
     }
-    
+
     return () => {
       if (interval) clearInterval(interval);
     };
   }, [isRunning]);
-  
+
   const formatTime = (totalSeconds) => {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-    
+
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
-  
+
   const handleStart = () => setIsRunning(true);
   const handlePause = () => setIsRunning(false);
   const handleReset = () => {
@@ -573,8 +613,8 @@ const PythonQuizApp = () => {
         <div className="bg-white p-8 rounded-lg shadow-xl text-center">
           <h2 className="text-2xl font-bold mb-4">Please Use a PC</h2>
           <h5 className="mb-4">This quiz application is designed for larger screens. For the best experience, please use a PC or tablet.</h5>
-          <button 
-            onClick={() => setIsMobile(false)} 
+          <button
+            onClick={() => setIsMobile(false)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
           >
             Continue Anyway
@@ -586,50 +626,134 @@ const PythonQuizApp = () => {
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gradient-to-r from-cyan-500/10 via-transparent to-cyan-500/10 text-gray-900'}`}>
-      {/* Replace the old nav with Navbar component */}
-      <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
-
-      {/* Timer and Controls Section */}
-      <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center shadow-sm`}>
-        <h1 className="text-xl font-bold">Python Coderpad</h1>
-        <div className="flex items-center space-x-4">
-          {isTimerRunning && (
-            <div className="text-lg font-semibold">
-              Time remaining: {formatTime(timeRemaining)}
-            </div>
-          )}
-
-          {questionID && (
-            <>
-              <div className="text-lg font-mono">
-                {formatTime(timeInSeconds)}
-              </div>
-              <div className="flex items-center space-x-1">
-                <button
-                  onClick={!isRunning ? handleStart : handlePause}
-                  className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                  aria-label={!isRunning ? "Start timer" : "Pause timer"}
-                >
-                  {!isRunning ? <Play size={16} /> : <Pause size={16} />}
-                </button>
-                
-                <button
-                  onClick={handleReset}
-                  className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                  aria-label="Reset timer"
-                >
-                  <RotateCcw size={16} />
-                </button>
-              </div>
-            </>
-          )}
-
-          <button
-            onClick={openVideoPopup}
-            className={`p-2 rounded-full ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-[#262626]'}`}
+      {/* Sidebar overlay and sidebar */}
+      {isSidebarOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black bg-opacity-30 backdrop-blur-sm transition-all"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+          <aside
+            className={`fixed top-0 left-0 z-50 h-full w-80 max-w-full shadow-lg flex flex-col ${isDarkMode ? 'bg-[#232323] text-white' : 'bg-white text-black'}`}
+            style={{ minWidth: 320 }}
           >
-            <Video size={24} />
-          </button>
+            <div className={`flex items-center justify-between p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h2 className="text-lg font-bold">All Questions</h2>
+              <button
+                className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+                aria-label="Close sidebar"
+                onClick={() => setIsSidebarOpen(false)}
+              >
+                <X size={22} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-2">
+              {sidebarLoading ? (
+                <div className="flex justify-center items-center h-32">
+                  <Loader2 className="animate-spin h-6 w-6 text-cyan-600" />
+                </div>
+              ) : sidebarQuestions.length === 0 ? (
+                <div className="text-center text-gray-500 mt-8">No questions found.</div>
+              ) : (
+                <ul>
+                  {sidebarQuestions.map((q, idx) => (
+                    <li
+                      key={q._id}
+                      className={`mb-2 p-2 rounded cursor-pointer ${isDarkMode ? 'hover:bg-cyan-900' : 'hover:bg-cyan-100'} ${questionID === q._id ? (isDarkMode ? 'bg-cyan-800 font-bold' : 'bg-cyan-200 font-bold') : ''}`}
+                      onClick={() => {
+                        if (q._id !== questionID) {
+                          navigate(`/pyQuiz?questionID=${q._id}${userID ? `&userID=${userID}` : ''}`);
+                        }
+                        setIsSidebarOpen(false);
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="font-medium text-sm">{q.title || q.question_text?.slice(0, 60) || 'Untitled Question'}</div>
+                        {q.difficulty && (
+                          <span className={`ml-2 px-2 py-0.5 rounded text-xs font-semibold ${getDifficultyStyle(q.difficulty)}`}>{q.difficulty.charAt(0).toUpperCase() + q.difficulty.slice(1)}</span>
+                        )}
+                      </div>
+                      <div className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>{q.id ? q.id.toUpperCase() : ''}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className={`p-2 flex items-center justify-between ${isDarkMode ? 'border-t border-gray-700' : 'border-t border-gray-200'}`}>
+              <button
+                className={`px-3 py-1 rounded disabled:opacity-50 ${isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
+                onClick={() => setSidebarPage(p => Math.max(1, p - 1))}
+                disabled={sidebarPage === 1}
+              >
+                Prev
+              </button>
+              <span className="text-xs">Page {sidebarPage} of {sidebarTotalPages}</span>
+              <button
+                className={`px-3 py-1 rounded disabled:opacity-50 ${isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
+                onClick={() => setSidebarPage(p => Math.min(sidebarTotalPages, p + 1))}
+                disabled={sidebarPage === sidebarTotalPages}
+              >
+                Next
+              </button>
+            </div>
+          </aside>
+        </>
+      )}
+      {/* Blur main content when sidebar is open */}
+      <div className={isSidebarOpen ? 'filter blur-sm pointer-events-none select-none' : ''}>
+        {/* Replace the old nav with Navbar component */}
+        <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+        {/* Timer and Controls Section */}
+        <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center shadow-sm`}>
+          <div className="flex items-center gap-2">
+            <button
+              className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+              aria-label="Open sidebar"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu size={24} />
+            </button>
+            <h1 className="text-xl font-bold">Python Coderpad</h1>
+          </div>
+          <div className="flex items-center space-x-4">
+            {isTimerRunning && (
+              <div className="text-lg font-semibold">
+                Time remaining: {formatTime(timeRemaining)}
+              </div>
+            )}
+
+            {questionID && (
+              <>
+                <div className="text-lg font-mono">
+                  {formatTime(timeInSeconds)}
+                </div>
+                <div className="flex items-center space-x-1">
+                  <button
+                    onClick={!isRunning ? handleStart : handlePause}
+                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                    aria-label={!isRunning ? "Start timer" : "Pause timer"}
+                  >
+                    {!isRunning ? <Play size={16} /> : <Pause size={16} />}
+                  </button>
+
+                  <button
+                    onClick={handleReset}
+                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                    aria-label="Reset timer"
+                  >
+                    <RotateCcw size={16} />
+                  </button>
+                </div>
+              </>
+            )}
+
+            <button
+              onClick={openVideoPopup}
+              className={`p-2 rounded-full ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-[#262626]'}`}
+            >
+              <Video size={24} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -692,38 +816,37 @@ const PythonQuizApp = () => {
         {/* Left side: Question List and Details */}
         <div className="flex flex-col overflow-hidden">
           {/* Question List */}
-          <div className={`flex gap-10 ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 h-1/8 relative`}>
-  <ul className="flex flex-nowrap gap-4 py-2">
-    {quizData.questions.map((question, index) => (
-      <li
-        key={index}
-        className={`cursor-pointer py-2 px-4 rounded border ${
-          index === currentQuestionIndex
-            ? 'bg-teal-500 text-white'
-            : isDarkMode
-            ? 'bg-[#262626] text-white hover:bg-gray-600'
-            : 'bg-gray-300 text-gray-900 hover:bg-gray-400'
-        }`}
-        onClick={() => handleQuestionSelect(index)}
-      >
-        {index + 1}
-      </li>
-    ))}
-  </ul>
-</div>
+          {/* <div className={`flex gap-10 ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 h-1/8 relative`}>
+            <ul className="flex flex-nowrap gap-4 py-2">
+              {quizData.questions.map((question, index) => (
+                <li
+                  key={index}
+                  className={`cursor-pointer py-2 px-4 rounded border ${index === currentQuestionIndex
+                      ? 'bg-teal-500 text-white'
+                      : isDarkMode
+                        ? 'bg-[#262626] text-white hover:bg-gray-600'
+                        : 'bg-gray-300 text-gray-900 hover:bg-gray-400'
+                    }`}
+                  onClick={() => handleQuestionSelect(index)}
+                >
+                  {index + 1}
+                </li>
+              ))}
+            </ul>
+          </div> */}
 
           {/* Tabs */}
           <div className={`flex overflow-x-auto custom-scrollbar ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 py-2`}>
 
-          {(isQuizMode ? ['Question'] : ['Question', 'Discussion', 'Solution', 'Submission', 'AI Help']).map((tab) => (
-  <button
-    key={tab}
-    className={`py-2 px-4 ${activeTab === tab.toLowerCase() ? 'border-b-2 border-cyan-500' : ''}`}
-    onClick={() => setActiveTab(tab.toLowerCase())}
-  >
-    {tab}
-  </button>
-))}
+            {(isQuizMode ? ['Question'] : ['Question', 'Discussion', 'Solution', 'Submission', 'AI Help']).map((tab) => (
+              <button
+                key={tab}
+                className={`py-2 px-4 ${activeTab === tab.toLowerCase() ? 'border-b-2 border-cyan-500' : ''}`}
+                onClick={() => setActiveTab(tab.toLowerCase())}
+              >
+                {tab}
+              </button>
+            ))}
 
           </div>
 
@@ -749,86 +872,86 @@ const PythonQuizApp = () => {
             )}
             {!isQuizMode && (
               <>
-            {activeTab === 'discussion' && (
-  <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-    <h3 className="text-lg font-bold mb-4">Discussion</h3>
+                {activeTab === 'discussion' && (
+                  <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                    <h3 className="text-lg font-bold mb-4">Discussion</h3>
 
-    {loading ? (
-      <p>Loading discussions...</p>
-    ) : error ? (
-      <p className="text-red-500">{error}</p>
-    ) : comments.length === 0 ? (
-      <p>{comments[0]?.isPlaceholder ? comments[0].text : "No discussions yet. Be the first to comment!"}</p>
-    ) : (
-      <div className="mb-4 max-h-60 overflow-y-auto custom-scrollbar space-y-2">
-        {comments.slice().reverse().map((comment, index) => (
-          <div key={index} className="p-2 rounded-md border border-gray-300">
-            <p className="font-semibold">{comment.username}:</p>
-            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{comment.discussionText}</p>
-            <p className="text-sm text-gray-500">{new Date(comment.createdAt).toLocaleString()}</p>
-          </div>
-        ))}
-      </div>
-    )}
+                    {loading ? (
+                      <p>Loading discussions...</p>
+                    ) : error ? (
+                      <p className="text-red-500">{error}</p>
+                    ) : comments.length === 0 ? (
+                      <p>{comments[0]?.isPlaceholder ? comments[0].text : "No discussions yet. Be the first to comment!"}</p>
+                    ) : (
+                      <div className="mb-4 max-h-60 overflow-y-auto custom-scrollbar space-y-2">
+                        {comments.slice().reverse().map((comment, index) => (
+                          <div key={index} className="p-2 rounded-md border border-gray-300">
+                            <p className="font-semibold">{comment.username}:</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{comment.discussionText}</p>
+                            <p className="text-sm text-gray-500">{new Date(comment.createdAt).toLocaleString()}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
-    <textarea
-      className={`w-full p-2 rounded ${isDarkMode ? 'bg-[#403f3f] text-white' : 'bg-gray-100 text-black'}`}
-      rows="3"
-      placeholder="Add to the discussion..."
-      value={discussionText}
-      onChange={(e) => setDiscussionText(e.target.value)}
-    ></textarea>
-    <button
-      className="mt-2 bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-600 "
-      onClick={handleDiscussionSubmit}
-      disabled={!discussionText.trim()}
-    >
-      Submit
-    </button>
-  </div>
-)}
-            {activeTab === 'solution' && (
-              <div className={`${isDarkMode ? 'bg-[#2f2c2c]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                <h3 className="text-lg font-bold mb-2">Solution</h3>
-                <pre className={`p-2 rounded ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}`}>
-                  <code>{currentQuestion.solution || 'Solution not available'}</code>
-                </pre>
-              </div>
+                    <textarea
+                      className={`w-full p-2 rounded ${isDarkMode ? 'bg-[#403f3f] text-white' : 'bg-gray-100 text-black'}`}
+                      rows="3"
+                      placeholder="Add to the discussion..."
+                      value={discussionText}
+                      onChange={(e) => setDiscussionText(e.target.value)}
+                    ></textarea>
+                    <button
+                      className="mt-2 bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-600 "
+                      onClick={handleDiscussionSubmit}
+                      disabled={!discussionText.trim()}
+                    >
+                      Submit
+                    </button>
+                  </div>
+                )}
+                {activeTab === 'solution' && (
+                  <div className={`${isDarkMode ? 'bg-[#2f2c2c]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                    <h3 className="text-lg font-bold mb-2">Solution</h3>
+                    <pre className={`p-2 rounded ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}`}>
+                      <code>{currentQuestion.solution || 'Solution not available'}</code>
+                    </pre>
+                  </div>
+                )}
+                {activeTab === 'submission' && (
+                  <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                    <h3 className="text-lg font-bold mb-4">Submissions</h3>
+
+                    {submissions.length > 0 ? (
+                      submissions.slice().reverse().map((submission, index) => (
+                        <div key={index} className="mb-4 p-4 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className={`font-semibold ${submission.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                              {submission.isCorrect ? 'Correct' : 'Incorrect'}
+                            </span>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              {getRelativeTime(submission.submittedAt)}
+                            </span>
+                          </div>
+                          <pre className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-100'} p-3 rounded overflow-x-auto`}>
+                            {submission.submittedCode}
+                          </pre>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 dark:text-gray-400">No submissions yet.</p>
+                    )}
+                  </div>
+                )}
+                {activeTab === 'ai help' && (
+                  <div className={`rounded-lg p-4 mb-4 shadow-md h-[460px] ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
+                    <Bot isDarkMode={isDarkMode} />
+                  </div>
+                )}
+              </>
             )}
-              {activeTab === 'submission' && (
-      <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-        <h3 className="text-lg font-bold mb-4">Submissions</h3>
-
-        {submissions.length > 0 ? (
-          submissions.slice().reverse().map((submission, index) => (
-            <div key={index} className="mb-4 p-4 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm">
-              <div className="flex justify-between items-center mb-2">
-                <span className={`font-semibold ${submission.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
-                  {submission.isCorrect ? 'Correct' : 'Incorrect'}
-                </span>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                {getRelativeTime(submission.submittedAt)}
-                </span>
-              </div>
-              <pre className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-100'} p-3 rounded overflow-x-auto`}>
-                {submission.submittedCode}
-              </pre>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-500 dark:text-gray-400">No submissions yet.</p>
-        )}
-      </div>
-    )}
-            {activeTab === 'ai help' && (
-        <div className={`rounded-lg p-4 mb-4 shadow-md h-[460px] ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
-          <Bot isDarkMode={isDarkMode} />
-        </div>
-      )}
-            </>
-            )}
           </div>
-          
+
         </div>
 
         {/* Right side: Code Editor and Results */}
@@ -836,9 +959,9 @@ const PythonQuizApp = () => {
           <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-t-lg p-2 flex justify-between items-center`}>
             <span className="text-lg font-semibold">Python</span>
             <div className="flex space-x-2">
-        
+
               {quizID && timeRemaining > 0 && (
-                <button 
+                <button
                   onClick={handleSubmitQuiz}
                   className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
                 >
@@ -913,7 +1036,7 @@ const PythonQuizApp = () => {
               }}
             />
             <div className="flex flex-col">
-             <div className="flex mt-2 space-x-2">
+              <div className="flex mt-2 space-x-2">
                 <button
                   className={`flex-1 ${isSubmitting ? 'bg-teal-500' : 'bg-teal-600'} text-white px-4 py-2 rounded hover:bg-teal-700 focus:outline-none flex items-center justify-center`}
                   onClick={handleRunCode}
@@ -929,7 +1052,7 @@ const PythonQuizApp = () => {
                     </>
                   ) : 'Run Code'}
                 </button>
-             
+
                 <button
                   className={`flex-1 ${isTesting ? 'bg-blue-500' : 'bg-blue-600'} text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none flex items-center justify-center`}
                   onClick={handleTestCode}
@@ -946,23 +1069,23 @@ const PythonQuizApp = () => {
                   ) : 'Submit Code'}
                 </button>
               </div>
-            <div className={`mt-1 ${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded p-2 flex-grow overflow-y-auto custom-scrollbar`}>
-              <h1 className='text-lg font-semibold'>Output</h1>
-              {showFeedback && (
-                <div className={`p-2 rounded mb-2 ${feedback.includes('Correct answer!') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                  {feedback}
-                </div>
-              )}
-              {userOutput && (
-                <div>
-                  <h3 className="text-lg font-bold mb-2">Your Output:</h3>
-                  <pre className={`p-2 rounded ${isDarkMode ? 'bg-[#2f2c2c]' : 'bg-gray-200'}`}>
-                    <code>{userOutput}</code>
-                  </pre>
-                </div>
-              )}
+              <div className={`mt-1 ${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded p-2 flex-grow overflow-y-auto custom-scrollbar`}>
+                <h1 className='text-lg font-semibold'>Output</h1>
+                {showFeedback && (
+                  <div className={`p-2 rounded mb-2 ${feedback.includes('Correct answer!') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {feedback}
+                  </div>
+                )}
+                {userOutput && (
+                  <div>
+                    <h3 className="text-lg font-bold mb-2">Your Output:</h3>
+                    <pre className={`p-2 rounded ${isDarkMode ? 'bg-[#2f2c2c]' : 'bg-gray-200'}`}>
+                      <code>{userOutput}</code>
+                    </pre>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
           </Split>
         </div>
       </Split>

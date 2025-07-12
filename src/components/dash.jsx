@@ -19,7 +19,8 @@ import {
 } from "./ui/alert-dialog";
 import Navbar from "./Navbar";
 
-const skills = ["Excel", "SQL", "Python", "PowerBI", "Tableau"];
+const skills = ["SQL", "Python"];
+// const skills = ["Excel", "SQL", "Python", "PowerBI", "Tableau"];
 
 import {
   FaSun,
