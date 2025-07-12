@@ -35,7 +35,7 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
 
   return (
     <header className="sticky top-0 w-full bg-[#008B8B] shadow-lg z-50">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-0">
         <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
           <div className="flex items-center">

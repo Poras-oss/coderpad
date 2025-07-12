@@ -4,7 +4,7 @@ import MonacoEditor from './ResizableMonacoEditor';
 import queryString from 'query-string';
 import { useUser } from '@clerk/clerk-react';
 import Split from 'react-split';
-import { Loader2, Video, X, BookOpen, Play, Pause, RotateCcw, Hash } from 'lucide-react';
+import { Loader2, Video, X, BookOpen, Play, Pause, RotateCcw, Hash, Menu } from 'lucide-react';
 import ReactPlayer from 'react-player';
 import Bot from './Bot';
 
@@ -13,6 +13,7 @@ import SubscriptionDialogue from './SubscriptionDialogue';
 import Navbar from './Navbar';
 import '../styles/scrollbar.css';
 import { useNotification } from "../notification/NotificationProvider";
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
 
 export default function QuizApp() {
@@ -26,7 +27,7 @@ export default function QuizApp() {
   const [saveStatus, setSaveStatus] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [buttonText, setButtonText] = useState('Save Results');
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [output, setOutput] = useState(null);
   const [isTesting, setIsTesting] = useState(false);
@@ -44,7 +45,11 @@ export default function QuizApp() {
   const [canSubmit, setCanSubmit] = useState(false);
   const [userInfo, setUserInfo] = useState('');
 
-  const parsed = queryString.parse(window.location.search);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Parse questionID and userID from URL
+  const parsed = queryString.parse(location.search);
   const userID = parsed.userID;
   const quizID = parsed.quizID;
   const questionID = parsed.questionID;
@@ -61,6 +66,30 @@ export default function QuizApp() {
 
   const [timeInSeconds, setTimeInSeconds] = useState(0);
   const [isStopwatchRunning, setisStopwatchRunning] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [sidebarQuestions, setSidebarQuestions] = useState([]);
+  const [sidebarPage, setSidebarPage] = useState(1);
+  const [sidebarTotalPages, setSidebarTotalPages] = useState(1);
+  const [sidebarLoading, setSidebarLoading] = useState(false);
+  const QUESTIONS_PER_PAGE = 20;
+
+  // Fetch questions for sidebar
+  useEffect(() => {
+    if (!isSidebarOpen) return;
+    setSidebarLoading(true);
+    axios.get('https://server.datasenseai.com/test-series-coding/mysql', {
+      params: {
+        page: sidebarPage,
+        limit: QUESTIONS_PER_PAGE,
+      },
+    })
+      .then((response) => {
+        setSidebarQuestions(response.data.results || []);
+        setSidebarTotalPages(response.data.totalPages || 1);
+      })
+      .catch(() => setSidebarQuestions([]))
+      .finally(() => setSidebarLoading(false));
+  }, [isSidebarOpen, sidebarPage]);
 
   useEffect(() => {
     if (activeTab === 'discussion') {
@@ -305,27 +334,27 @@ export default function QuizApp() {
   };
 
 
-const addToStreak = async (clerkId, questionId) => {
+  const addToStreak = async (clerkId, questionId) => {
     try {
-        const response = await axios.post('https://server.datasenseai.com/question-attempt/update-streak', {
-            clerkId,
-            subjectId: "mysql",
-            questionId,
-        });
-        return response.data; // Return the response if needed elsewhere
+      const response = await axios.post('https://server.datasenseai.com/question-attempt/update-streak', {
+        clerkId,
+        subjectId: "mysql",
+        questionId,
+      });
+      return response.data; // Return the response if needed elsewhere
     } catch (error) {
-        console.error('Error saving streak:', error.response?.data || error.message);
+      console.error('Error saving streak:', error.response?.data || error.message);
     }
-};
+  };
 
   const creditFuel = async (clerkId) => {
-      const difficulty = quizData.questions[currentQuestionIndex].difficulty;
-      const response = await axios.post('https://server.datasenseai.com/fuel-engine/credit', {
-          clerkId,
-          key: 'practice'+difficulty,
-      });
+    const difficulty = quizData.questions[currentQuestionIndex].difficulty;
+    const response = await axios.post('https://server.datasenseai.com/fuel-engine/credit', {
+      clerkId,
+      key: 'practice' + difficulty,
+    });
 
-      console.log('fuel credit pracictice'+difficulty, response.data);
+    console.log('fuel credit pracictice' + difficulty, response.data);
   };
 
 
@@ -365,7 +394,7 @@ const addToStreak = async (clerkId, questionId) => {
 
       //Increment the question solving streak
       addToStreak(user.id, questionID);
-  
+
       // Add to submissions history
 
       setSubmissions(prevSubmissions => [
@@ -402,7 +431,7 @@ const addToStreak = async (clerkId, questionId) => {
       if (isCorrect) {
         setFeedback({ text: 'Correct! now submit the question', isCorrect: true, userAnswer: userAnswer });
 
-        if(submissions.length == 0 && !isQuizMode){
+        if (submissions.length == 0 && !isQuizMode) {
           creditFuel(user.id);
         }
 
@@ -588,6 +617,16 @@ const addToStreak = async (clerkId, questionId) => {
     setTimeInSeconds(0);
   };
 
+  // Add a helper function for badge style (copied from TestSeriesCoderpadHome.jsx)
+  const getDifficultyStyle = (difficulty) => {
+    if (!difficulty) return isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-800';
+    const normalized = difficulty.toLowerCase();
+    if (normalized === 'advance' || normalized === 'advanced') return isDarkMode ? 'bg-red-900 text-red-300' : 'bg-red-100 text-red-800';
+    if (normalized === 'medium') return isDarkMode ? 'bg-yellow-900 text-yellow-300' : 'bg-yellow-100 text-yellow-800';
+    if (normalized === 'easy') return isDarkMode ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-800';
+    return isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-800';
+  };
+
   if (!quizData) return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
       <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
@@ -616,630 +655,745 @@ const addToStreak = async (clerkId, questionId) => {
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-black'}`}>
-      <Navbar
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-      />
-
-      <div className={`${isDarkMode ? 'bg-[rgb(64,63,63)]' : 'bg-gray-200'} p-4 flex justify-between items-center shadow-sm`}>
-        <h1 className="text-xl font-bold">SQL Coderpad</h1>
-        <div className="flex items-center space-x-4">
-          {isTimerRunning && (
-            <div className="text-lg font-semibold">
-              Time remaining: {formatTime(timeRemaining)}
-            </div>
-          )}
-
-        {questionID && (
-          <>
-            <div className="text-lg font-mono">
-              {formatTime(timeInSeconds)}
-            </div>
-            <div className="flex items-center space-x-1">
+      {/* Restore Navbar at the top */}
+      <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+      {/* Sidebar overlay and sidebar */}
+      {isSidebarOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black bg-opacity-30 backdrop-blur-sm transition-all"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+          <aside
+            className={`fixed top-0 left-0 z-50 h-full w-80 max-w-full shadow-lg flex flex-col ${isDarkMode ? 'bg-[#232323] text-white' : 'bg-white text-black'}`}
+            style={{ minWidth: 320 }}
+          >
+            <div className={`flex items-center justify-between p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h2 className="text-lg font-bold">All Questions</h2>
               <button
-                onClick={!isStopwatchRunning ? handleStart : handlePause}
-                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                aria-label={!isStopwatchRunning ? "Start timer" : "Pause timer"}
+                className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+                aria-label="Close sidebar"
+                onClick={() => setIsSidebarOpen(false)}
               >
-                {!isStopwatchRunning ? <Play size={16} /> : <Pause size={16} />}
-              </button>
-
-              <button
-                onClick={handleReset}
-                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                aria-label="Reset timer"
-              >
-                <RotateCcw size={16} />
+                <X size={22} />
               </button>
             </div>
-          </>
-        )}
+            <div className="flex-1 overflow-y-auto p-2">
+              {sidebarLoading ? (
+                <div className="flex justify-center items-center h-32">
+                  <Loader2 className="animate-spin h-6 w-6 text-cyan-600" />
+                </div>
+              ) : sidebarQuestions.length === 0 ? (
+                <div className="text-center text-gray-500 mt-8">No questions found.</div>
+              ) : (
+                <ul>
+                  {sidebarQuestions.map((q, idx) => (
+                    <li
+                      key={q._id}
+                      className={`mb-2 p-2 rounded cursor-pointer ${isDarkMode ? 'hover:bg-cyan-900' : 'hover:bg-cyan-100'} ${currentQuestion && q._id === currentQuestion._id ? (isDarkMode ? 'bg-cyan-800 font-bold' : 'bg-cyan-200 font-bold') : ''}`}
+                      onClick={async () => {
+                        if (q._id !== questionID) {
+                          // Update the URL to the new questionID, preserving userID
+                          navigate(`/quiz?questionID=${q._id}${userID ? `&userID=${userID}` : ''}`);
+                        }
+                        setIsSidebarOpen(false);
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="font-medium text-sm">{q.title || q.question_text?.slice(0, 60) || 'Untitled Question'}</div>
+                        {q.difficulty && (
+                          <span className={`ml-2 px-2 py-0.5 rounded text-xs font-semibold ${getDifficultyStyle(q.difficulty)}`}>{q.difficulty.charAt(0).toUpperCase() + q.difficulty.slice(1)}</span>
+                        )}
+                      </div>
+                      <div className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>{q.id ? q.id.toUpperCase() : ''}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className={`p-2 flex items-center justify-between ${isDarkMode ? 'border-t border-gray-700' : 'border-t border-gray-200'}`}>
+              <button
+                className={`px-3 py-1 rounded disabled:opacity-50 ${isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
+                onClick={() => setSidebarPage(p => Math.max(1, p - 1))}
+                disabled={sidebarPage === 1}
+              >
+                Prev
+              </button>
+              <span className="text-xs">Page {sidebarPage} of {sidebarTotalPages}</span>
+              <button
+                className={`px-3 py-1 rounded disabled:opacity-50 ${isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
+                onClick={() => setSidebarPage(p => Math.min(sidebarTotalPages, p + 1))}
+                disabled={sidebarPage === sidebarTotalPages}
+              >
+                Next
+              </button>
+            </div>
+          </aside>
+        </>
+      )}
+      {/* Blur main content when sidebar is open */}
+      <div className={isSidebarOpen ? 'filter blur-sm pointer-events-none select-none' : ''}>
+        {/* Header with menu button */}
+        <div className={`${isDarkMode ? 'bg-[rgb(64,63,63)]' : 'bg-gray-200'} p-4 flex justify-between items-center shadow-sm`}>
+          <div className="flex items-center gap-2">
+            <button
+              className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+              aria-label="Open sidebar"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu size={24} />
+            </button>
+            <h1 className="text-xl font-bold">SQL Coderpad</h1>
+          </div>
+          <div className="flex items-center space-x-4">
+            {isTimerRunning && (
+              <div className="text-lg font-semibold">
+                Time remaining: {formatTime(timeRemaining)}
+              </div>
+            )}
 
-        <button
-          onClick={openVideoPopup}
-          className={`p-2 rounded-full ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-[#262626]'}`}
+            {questionID && (
+              <>
+                <div className="text-lg font-mono">
+                  {formatTime(timeInSeconds)}
+                </div>
+                <div className="flex items-center space-x-1">
+                  <button
+                    onClick={!isStopwatchRunning ? handleStart : handlePause}
+                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                    aria-label={!isStopwatchRunning ? "Start timer" : "Pause timer"}
+                  >
+                    {!isStopwatchRunning ? <Play size={16} /> : <Pause size={16} />}
+                  </button>
+
+                  <button
+                    onClick={handleReset}
+                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                    aria-label="Reset timer"
+                  >
+                    <RotateCcw size={16} />
+                  </button>
+                </div>
+              </>
+            )}
+
+            <button
+              onClick={openVideoPopup}
+              className={`p-2 rounded-full ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-[#262626]'}`}
+            >
+              <Video size={24} />
+            </button>
+          </div>
+        </div>
+
+        <Split
+          className={`flex h-[calc(100vh-8rem)] split-wrapper ${isDarkMode ? 'dark' : ''}`}
+          sizes={[50, 50]}
+          minSize={300}
+          expandToMin={false}
+          gutterSize={4} // Reduced from 10 to 4 for a sleeker look
+          gutterAlign="center"
+          snapOffset={30}
+          dragInterval={1}
+          direction="horizontal"
+          cursor="col-resize"
+          style={{
+            // Add inline styles for the split container
+            '--gutter-bg': isDarkMode ? '#60a5fa' : '#4a5568',
+            '--gutter-hover': isDarkMode ? '#3b82f6' : '#60a5fa',
+          }}
+          gutter={(index, direction) => {
+            const gutter = document.createElement('div');
+            gutter.className = `gutter gutter-${direction}`;
+            // Add inline styles for the gutter
+            Object.assign(gutter.style, {
+              position: 'relative',
+              backgroundColor: 'transparent',
+              cursor: 'col-resize',
+            });
+
+            // Add the visual indicator
+            const indicator = document.createElement('div');
+            Object.assign(indicator.style, {
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '4px',
+              height: '50px',
+              borderRadius: '3px',
+              backgroundColor: 'var(--gutter-bg)',
+              opacity: '0.5',
+              transition: 'opacity 0.2s, background-color 0.2s',
+            });
+
+            // Add hover effect
+            gutter.addEventListener('mouseenter', () => {
+              indicator.style.opacity = '0.8';
+              indicator.style.backgroundColor = 'var(--gutter-hover)';
+            });
+            gutter.addEventListener('mouseleave', () => {
+              indicator.style.opacity = '0.5';
+              indicator.style.backgroundColor = 'var(--gutter-bg)';
+            });
+
+            gutter.appendChild(indicator);
+            return gutter;
+          }}
         >
-          <Video size={24} />
-        </button>
-      </div>
-      </div>
-
-      <Split
-        className={`flex h-[calc(100vh-8rem)] split-wrapper ${isDarkMode ? 'dark' : ''}`}
-        sizes={[50, 50]}
-        minSize={300}
-        expandToMin={false}
-        gutterSize={4} // Reduced from 10 to 4 for a sleeker look
-        gutterAlign="center"
-        snapOffset={30}
-        dragInterval={1}
-        direction="horizontal"
-        cursor="col-resize"
-        style={{
-          // Add inline styles for the split container
-          '--gutter-bg': isDarkMode ? '#60a5fa' : '#4a5568',
-          '--gutter-hover': isDarkMode ? '#3b82f6' : '#60a5fa',
-        }}
-        gutter={(index, direction) => {
-          const gutter = document.createElement('div');
-          gutter.className = `gutter gutter-${direction}`;
-          // Add inline styles for the gutter
-          Object.assign(gutter.style, {
-            position: 'relative',
-            backgroundColor: 'transparent',
-            cursor: 'col-resize',
-          });
-
-          // Add the visual indicator
-          const indicator = document.createElement('div');
-          Object.assign(indicator.style, {
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '4px',
-            height: '50px',
-            borderRadius: '3px',
-            backgroundColor: 'var(--gutter-bg)',
-            opacity: '0.5',
-            transition: 'opacity 0.2s, background-color 0.2s',
-          });
-
-          // Add hover effect
-          gutter.addEventListener('mouseenter', () => {
-            indicator.style.opacity = '0.8';
-            indicator.style.backgroundColor = 'var(--gutter-hover)';
-          });
-          gutter.addEventListener('mouseleave', () => {
-            indicator.style.opacity = '0.5';
-            indicator.style.backgroundColor = 'var(--gutter-bg)';
-          });
-
-          gutter.appendChild(indicator);
-          return gutter;
-        }}
-      >
-        <div className="flex flex-col overflow-hidden">
-          {quizID && (
-            <div className={`flex gap-10 ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 h-1/8 relative`}>
-              {/* <div className="overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 hover:scrollbar-thumb-gray-100"> */}
+          <div className="flex flex-col overflow-hidden">
+            {quizID && (
+              <div className={`flex gap-10 ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 h-1/8 relative`}>
+                {/* <div className="overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 hover:scrollbar-thumb-gray-100"> */}
                 <ul className="flex flex-nowrap gap-4 py-2">
                   {quizData.questions.map((question, index) => (
                     <li
                       key={index}
-                      className={`cursor-pointer py-2 px-4 rounded border ${
-                        index === currentQuestionIndex
+                      className={`cursor-pointer py-2 px-4 rounded border ${index === currentQuestionIndex
                           ? 'bg-teal-500 text-white'
                           : isDarkMode
-                          ? 'bg-[#262626] text-white hover:bg-gray-600'
-                          : 'bg-gray-300 text-gray-900 hover:bg-gray-400'
-                      }`}
+                            ? 'bg-[#262626] text-white hover:bg-gray-600'
+                            : 'bg-gray-300 text-gray-900 hover:bg-gray-400'
+                        }`}
                       onClick={() => handleQuestionSelect(index)}
                     >
                       {index + 1}
                     </li>
                   ))}
                 </ul>
-              {/* </div> */}
+                {/* </div> */}
+              </div>
+            )}
+
+            <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex`}>
+              {(isQuizMode ? ['Question', 'Tables'] : ['Question', 'Tables', 'Discussion', 'Solution', 'Submission', 'AI Help']).map((tab) => (
+                <button
+                  key={tab}
+                  className={`py-2 px-4 ${activeTab === tab.toLowerCase() ? 'border-b-2 border-teal-500' : ''}`}
+                  onClick={() => setActiveTab(tab.toLowerCase())}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
-          )}
 
-          <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex`}>
-            {(isQuizMode ? ['Question', 'Tables'] : ['Question', 'Tables', 'Discussion', 'Solution', 'Submission', 'AI Help']).map((tab) => (
-              <button
-                key={tab}
-                className={`py-2 px-4 ${activeTab === tab.toLowerCase() ? 'border-b-2 border-teal-500' : ''}`}
-                onClick={() => setActiveTab(tab.toLowerCase())}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-
-          <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex-grow overflow-y-auto custom-scrollbar`}>
-            {activeTab === 'question' && (
-              <>
-                <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                  {currentQuestion.id && (
-                    <div className={`question-heading flex items-center p-4 mb-6 ${
-                      isDarkMode ? ' bg-[#262626]' : ' bg-white'
-                    }`}>
-                      <Hash className={`mr-2 h-5 w-5 ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                      }`} />
-                      <h2 className={`text-xl font-bold ${
-                        isDarkMode ? 'text-white' : 'text-gray-800'
-                      }`}>
-                        {currentQuestion.id.toUpperCase()}. {currentQuestion.title}
-                      </h2>
-                    </div>
-                  )}
-                  {currentQuestion.scenario && (
-                    <div
-                      className="scenario-text mb-4 text-md"
-                      dangerouslySetInnerHTML={{ __html: currentQuestion.scenario.replace(/\n/g, '<br>') }}
-                    />
-                  )}
-                  <div className="mb-6 mt-6">
-                    <div className="flex">
-                      <div className={`w-1 mr-4 ${isDarkMode ? 'bg-teal-500' : 'bg-teal-600'}`}></div>
+            <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex-grow overflow-y-auto custom-scrollbar`}>
+              {activeTab === 'question' && (
+                <>
+                  <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                    {currentQuestion.id && (
+                      <div className={`question-heading flex items-center p-4 mb-6 ${isDarkMode ? ' bg-[#262626]' : ' bg-white'
+                        }`}>
+                        <Hash className={`mr-2 h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                          }`} />
+                        <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'
+                          }`}>
+                          {currentQuestion.id.toUpperCase()}. {currentQuestion.title}
+                        </h2>
+                      </div>
+                    )}
+                    {currentQuestion.scenario && (
                       <div
-                        className="question-text flex-1 p-4"
-                        dangerouslySetInnerHTML={{ __html: currentQuestion.question_text.replace(/\n/g, '<br>') }}
+                        className="scenario-text mb-4 text-md"
+                        dangerouslySetInnerHTML={{ __html: currentQuestion.scenario.replace(/\n/g, '<br>') }}
                       />
-                    </div>
-                  </div>
-                  {currentQuestion['data-overview'] && (
-                    <div className="mt-6">
-                      <div className={`border rounded-lg overflow-hidden ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white'}>
-                            {(() => {
-                              const parsedData = parseDataOverview(currentQuestion['data-overview']);
-                              return Array.from(parsedData.entries()).map(([key, value], rowIndex) => (
-                                <tr key={rowIndex} className={rowIndex % 2 === 1 ? (isDarkMode ? 'bg-gray-900' : 'bg-gray-50') : ''}>
-                                  <td
-                                    className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
-                                    dangerouslySetInnerHTML={{ __html: key }}
-                                  ></td>
-                                  <td
-                                    className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}
-                                    dangerouslySetInnerHTML={{
-                                      __html: typeof value === 'object' ? JSON.stringify(value) : value,
-                                    }}
-                                  ></td>
-                                </tr>
-                              ));
-                            })()}
-                          </tbody>
-                        </table>
+                    )}
+                    <div className="mb-6 mt-6">
+                      <div className="flex">
+                        <div className={`w-1 mr-4 ${isDarkMode ? 'bg-teal-500' : 'bg-teal-600'}`}></div>
+                        <div
+                          className="question-text flex-1 p-4"
+                          dangerouslySetInnerHTML={{ __html: currentQuestion.question_text.replace(/\n/g, '<br>') }}
+                        />
                       </div>
                     </div>
-                  )}
-                  {(currentQuestion.common_mistakes || currentQuestion.interview_probability || currentQuestion.ideal_time || currentQuestion.roles) && (
-                    <div className="mt-6">
-                      <h4 className="text-lg font-semibold mb-2">Additional Information</h4>
-                      <div className={`border rounded-lg overflow-hidden ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white'}>
-                            {currentQuestion.common_mistakes && (
-                              <tr>
-                                <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                                  Common Mistakes
-                                </td>
-                                <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
-                                  {currentQuestion.common_mistakes}
-                                </td>
-                              </tr>
-                            )}
-                            {currentQuestion.interview_probability && (
-                              <tr className={isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}>
-                                <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                                  Interview Probability
-                                </td>
-                                <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
-                                  {currentQuestion.interview_probability}
-                                </td>
-                              </tr>
-                            )}
-                            {currentQuestion.ideal_time && (
-                              <tr>
-                                <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                                  Ideal Time
-                                </td>
-                                <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
-                                  {currentQuestion.ideal_time}
-                                </td>
-                              </tr>
-                            )}
-                            {currentQuestion.roles && (
-                              <tr className={isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}>
-                                <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                                  Job Roles
-                                </td>
-                                <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
-                                  {currentQuestion.roles}
-                                </td>
-                              </tr>
-                            )}
-                            {currentQuestion.subtopics && (
-                              <tr className={isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}>
-                                <td
-                                  className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
-                                    isDarkMode ? 'text-gray-300' : 'text-gray-900'
-                                  }`}
-                                >
-                                  Sub topics
-                                </td>
-                                <td
-                                  className={`px-6 py-4 whitespace-normal text-sm ${
-                                    isDarkMode ? 'text-gray-300' : 'text-gray-500'
-                                  }`}
-                                >
-                                  <div className="flex flex-wrap gap-2">
-                                    {currentQuestion.subtopics &&
-                                      currentQuestion.subtopics.map((subtopic, subIndex) => (
-                                        <Badge
-                                          key={subIndex}
-                                          variant="secondary"
-                                          className={`flex items-center ${
-                                            isDarkMode
-                                              ? 'bg-blue-900 text-blue-200'
-                                              : 'bg-blue-100 text-blue-700'
-                                          }`}
-                                        >
-                                          <BookOpen className="h-3 w-3 mr-1" />
-                                          {subtopic}
-                                        </Badge>
-                                      ))}
-                                  </div>
-                                </td>
-                              </tr>
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-
-            {activeTab === 'tables' && (
-              <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                <h3 className="text-lg font-bold mb-2">Tables</h3>
-                <div className={`mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  <p className="text-sm italic mb-2">Note: Only the top 10 rows of each table are displayed except Expected Answer</p>
-                </div>
-                <div className="tabs-container">
-                  <div className="flex space-x-4 border-b mb-4">
-                    <button
-                      className={`py-2 px-4 ${
-                        activeNestedTab === 'expected_output'
-                          ? 'border-b-2 border-blue-500 text-black-500'
-                          : 'text-gray-500'
-                      }`}
-                      onClick={() => setActiveNestedTab('expected_output')}
-                    >
-                      Expected Answer
-                    </button>
-                    {currentQuestion.table_data &&
-                      currentQuestion.table_data.map((table, tableIndex) => (
-                        <button
-                          key={tableIndex}
-                          className={`py-2 px-4 ${
-                            activeNestedTab === table.table_name
-                              ? 'border-b-2 border-blue-500 text-black-500'
-                              : 'text-gray-500'
-                          }`}
-                          onClick={() => setActiveNestedTab(table.table_name)}
-                        >
-                          {table.table_name}
-                        </button>
-                      ))}
-                  </div>
-                  {activeNestedTab === 'expected_output' && currentQuestion.expected_output && (
-                    <div>
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
-                          <tr>
-                            {currentQuestion.expected_output.columns.map((column, columnIndex) => (
-                              <th
-                                key={columnIndex}
-                                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                              >
-                                {column}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
-                          {currentQuestion.expected_output.rows.map((row, rowIndex) => (
-                            <tr key={rowIndex}>
-                              {row.map((value, cellIndex) => (
-                                <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
-                                  {value}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                  {currentQuestion.table_data &&
-                    currentQuestion.table_data.map((table, tableIndex) =>
-                      activeNestedTab === table.table_name ? (
-                        <div key={tableIndex} className="mb-4">
-                          <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                              <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
-                                <tr>
-                                  {table.columns.map((column, columnIndex) => (
-                                    <th key={columnIndex} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                                      {column}
-                                    </th>
-                                  ))}
-                                </tr>
-                              </thead>
-                              <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
-                                {table.rows.slice(0, 10).map((row, rowIndex) => (
-                                  <tr key={rowIndex}>
-                                    {row.map((cell, cellIndex) => (
-                                      <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
-                                        {typeof cell === 'object' ? JSON.stringify(cell) : cell}
-                                      </td>
-                                    ))}
+                    {currentQuestion['data-overview'] && (
+                      <div className="mt-6">
+                        <div className={`border rounded-lg overflow-hidden ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white'}>
+                              {(() => {
+                                const parsedData = parseDataOverview(currentQuestion['data-overview']);
+                                return Array.from(parsedData.entries()).map(([key, value], rowIndex) => (
+                                  <tr key={rowIndex} className={rowIndex % 2 === 1 ? (isDarkMode ? 'bg-gray-900' : 'bg-gray-50') : ''}>
+                                    <td
+                                      className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
+                                      dangerouslySetInnerHTML={{ __html: key }}
+                                    ></td>
+                                    <td
+                                      className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}
+                                      dangerouslySetInnerHTML={{
+                                        __html: typeof value === 'object' ? JSON.stringify(value) : value,
+                                      }}
+                                    ></td>
                                   </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
+                                ));
+                              })()}
+                            </tbody>
+                          </table>
                         </div>
-                      ) : null
-                    )}
-                </div>
-              </div>
-            )}
-
-            {!isQuizMode && (
-              <>
-                {activeTab === 'discussion' && (
-                  <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                    <h3 className="text-lg font-bold mb-4">Discussion</h3>
-                    {loading ? (
-                      <p>Loading discussions...</p>
-                    ) : error ? (
-                      <p className="text-red-500">{error}</p>
-                    ) : comments.length === 0 ? (
-                      <p>{comments[0]?.isPlaceholder ? comments[0].text : "No discussions yet. Be the first to comment!"}</p>
-                    ) : (
-                      <div className="mb-4 max-h-60 overflow-y-auto space-y-2">
-                        {comments.slice().reverse().map((comment, index) => (
-                          <div key={index} className="p-2 rounded-md border border-gray-300">
-                            <p className="font-semibold">{comment.username}:</p>
-                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{comment.discussionText}</p>
-                            <p className="text-sm text-gray-500">{new Date(comment.createdAt).toLocaleString()}</p>
-                          </div>
-                        ))}
                       </div>
                     )}
-                    <textarea
-                      className={`w-full p-2 rounded ${isDarkMode ? 'bg-[#403f3f] text-white' : 'bg-gray-100 text-black'}`}
-                      rows="3"
-                      placeholder="Add to the discussion..."
-                      value={discussionText}
-                      onChange={(e) => setDiscussionText(e.target.value)}
-                    ></textarea>
-                    <button
-                      className="mt-2 bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-600 "
-                      onClick={handleDiscussionSubmit}
-                      disabled={!discussionText.trim()}
-                    >
-                      Submit
-                    </button>
-                  </div>
-                )}
-
-                {activeTab === 'solution' && (
-                  <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                    <h3 className="text-lg font-bold mb-2">Solution</h3>
-                    <pre className={`p-2 rounded ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}`}>
-                      <code>{currentQuestion.solution || 'Solution not available for this question.'}</code>
-                    </pre>
-                  </div>
-                )}
-
-                {activeTab === 'submission' && (
-                  <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
-                    <h3 className="text-lg font-bold mb-4">Submissions</h3>
-                    {submissions.length > 0 ? (
-                      submissions.slice().reverse().map((submission, index) => (
-                        <div key={index} className="mb-4 p-4 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className={`font-semibold ${submission.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
-                              {submission.isCorrect ? 'Correct' : 'Incorrect'}
-                            </span>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                              {getRelativeTime(submission.submittedAt)}
-                            </span>
-                          </div>
-                          <pre className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-100'} p-3 rounded overflow-x-auto`}>
-                            {submission.submittedCode}
-                          </pre>
+                    {(currentQuestion.common_mistakes || currentQuestion.interview_probability || currentQuestion.ideal_time || currentQuestion.roles) && (
+                      <div className="mt-6">
+                        <h4 className="text-lg font-semibold mb-2">Additional Information</h4>
+                        <div className={`border rounded-lg overflow-hidden ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white'}>
+                              {currentQuestion.common_mistakes && (
+                                <tr>
+                                  <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
+                                    Common Mistakes
+                                  </td>
+                                  <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                                    {currentQuestion.common_mistakes}
+                                  </td>
+                                </tr>
+                              )}
+                              {currentQuestion.interview_probability && (
+                                <tr className={isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}>
+                                  <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
+                                    Interview Probability
+                                  </td>
+                                  <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                                    {currentQuestion.interview_probability}
+                                  </td>
+                                </tr>
+                              )}
+                              {currentQuestion.ideal_time && (
+                                <tr>
+                                  <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
+                                    Ideal Time
+                                  </td>
+                                  <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                                    {currentQuestion.ideal_time}
+                                  </td>
+                                </tr>
+                              )}
+                              {currentQuestion.roles && (
+                                <tr className={isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}>
+                                  <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
+                                    Job Roles
+                                  </td>
+                                  <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                                    {currentQuestion.roles}
+                                  </td>
+                                </tr>
+                              )}
+                              {currentQuestion.subtopics && (
+                                <tr className={isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}>
+                                  <td
+                                    className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'
+                                      }`}
+                                  >
+                                    Sub topics
+                                  </td>
+                                  <td
+                                    className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                                      }`}
+                                  >
+                                    <div className="flex flex-wrap gap-2">
+                                      {currentQuestion.subtopics &&
+                                        currentQuestion.subtopics.map((subtopic, subIndex) => (
+                                          <Badge
+                                            key={subIndex}
+                                            variant="secondary"
+                                            className={`flex items-center ${isDarkMode
+                                                ? 'bg-blue-900 text-blue-200'
+                                                : 'bg-blue-100 text-blue-700'
+                                              }`}
+                                          >
+                                            <BookOpen className="h-3 w-3 mr-1" />
+                                            {subtopic}
+                                          </Badge>
+                                        ))}
+                                    </div>
+                                  </td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
                         </div>
-                      ))
-                    ) : (
-                      <p className="text-gray-500 dark:text-gray-400">No submissions yet.</p>
+                      </div>
                     )}
                   </div>
-                )}
-
-                {activeTab === 'ai help' && (
-                  <div className={`relative rounded-lg p-4 mb-4 shadow-md h-[460px] overflow-hidden ${
-                    isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-                  }`}>
-                    <div className="absolute inset-0 backdrop-filter backdrop-blur-md bg-opacity-50 bg-gray-200 dark:bg-gray-700 dark:bg-opacity-50"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <h2 className={`text-4xl font-bold ${
-                        isDarkMode ? 'text-white' : 'text-gray-800'
-                      }`}>
-                        Coming Soon
-                      </h2>
-                    </div>
-                    <div className="relative z-10 opacity-50">
-                      <Bot size={24} className={isDarkMode ? 'text-white' : 'text-gray-900'} />
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 flex flex-col`}>
-          <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-t-lg p-2 flex justify-between items-center`}>
-            <span className="font-semibold">MySQL</span>
-            <div className="flex space-x-2">
-              {quizID && timeRemaining > 0 && (
-                <button
-                  onClick={handleSubmitQuiz}
-                  className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
-                >
-                  Submit Quiz
-                </button>
+                </>
               )}
-            </div>
-          </div>
-          <Split
-            className="flex-grow h-full"
-            direction="vertical"
-            sizes={[70, 30]}
-            minSize={100}
-            gutterSize={10}
-            gutterAlign="center"
-          >
-            <MonacoEditor
-              width="auto"
-              height="auto"
-              language="sql"
-              theme={isDarkMode ? "vs-dark" : "light"}
-              value={userQueries[currentQuestionIndex]}
-              onChange={(value) => {
-                const newQueries = [...userQueries];
-                newQueries[currentQuestionIndex] = value || '';
-                setUserQueries(newQueries);
-              }}
-              options={{
-                minimap: { enabled: false },
-                scrollBeyondLastLine: false,
-                fontSize: 14,
-              }}
-            />
-            <div className="flex flex-col">
-              <div className="flex mt-2 space-x-2">
-                <button
-                  className={`flex-1 ${isRunning ? 'bg-teal-500' : 'bg-teal-600'} text-white px-4 py-2 rounded hover:bg-teal-700 focus:outline-none flex items-center justify-center`}
-                  onClick={handleRunCode}
-                  disabled={isRunning || isTesting}
-                >
-                  {isRunning ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Running...
-                    </>
-                  ) : 'Run Code'}
-                </button>
 
-                <button
-                  className={`flex-1 ${isTesting ? 'bg-blue-500' : 'bg-blue-600'} text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none flex items-center justify-center`}
-                  onClick={handleTestCode}
-                  disabled={isRunning || isTesting}
-                >
-                  {isTesting ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Testing...
-                    </>
-                  ) : 'Submit Code'}
-                </button>
-              </div>
-              <div className={`mt-4 ${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded p-4 flex-grow overflow-y-auto`}>
-                {feedback && (
-                  <div className={`mb-4 p-2 rounded ${feedback.isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {feedback.text}
+              {activeTab === 'tables' && (
+                <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                  <h3 className="text-lg font-bold mb-2">Tables</h3>
+                  <div className={`mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <p className="text-sm italic mb-2">Note: Only the top 10 rows of each table are displayed except Expected Answer</p>
                   </div>
-                )}
-                {output !== null && (
-                  <div className="mt-2 flex flex-col space-y-4">
-                    <div className="font-semibold">OUTPUT</div>
-                    <div className="overflow-x-auto">
-                      {output.error ? (
-                        <div className="text-red-600 bg-white-50 border border-grey-400 rounded-md p-4">
-                          <p>{output.message}</p>
-                          <p><strong>Details:</strong> {output.details}</p>
-                          <p><strong>Error Code:</strong> {output.code}</p>
-                        </div>
-                      ) : Array.isArray(output) && output.length > 0 ? (
-                        <table className="w-full border-collapse">
-                          <thead>
-                            <tr className={isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}>
-                              {Object.keys(output[0]).map((header, index) => (
-                                <th key={index} className="border px-4 py-2">{header}</th>
+                  <div className="tabs-container">
+                    <div className="flex space-x-4 border-b mb-4">
+                      <button
+                        className={`py-2 px-4 ${activeNestedTab === 'expected_output'
+                            ? 'border-b-2 border-blue-500 text-black-500'
+                            : 'text-gray-500'
+                          }`}
+                        onClick={() => setActiveNestedTab('expected_output')}
+                      >
+                        Expected Answer
+                      </button>
+                      {currentQuestion.table_data &&
+                        currentQuestion.table_data.map((table, tableIndex) => (
+                          <button
+                            key={tableIndex}
+                            className={`py-2 px-4 ${activeNestedTab === table.table_name
+                                ? 'border-b-2 border-blue-500 text-black-500'
+                                : 'text-gray-500'
+                              }`}
+                            onClick={() => setActiveNestedTab(table.table_name)}
+                          >
+                            {table.table_name}
+                          </button>
+                        ))}
+                    </div>
+                    {activeNestedTab === 'expected_output' && currentQuestion.expected_output && (
+                      <div>
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+                            <tr>
+                              {currentQuestion.expected_output.columns.map((column, columnIndex) => (
+                                <th
+                                  key={columnIndex}
+                                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                                >
+                                  {column}
+                                </th>
                               ))}
                             </tr>
                           </thead>
-                          <tbody>
-                            {output.map((row, rowIndex) => (
-                              <tr key={rowIndex} className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
-                                {Object.values(row).map((cell, cellIndex) => (
-                                  <td key={cellIndex} className="border px-4 py-2 whitespace-nowrap">
-                                    {typeof cell === 'object' ? JSON.stringify(cell) : cell}
+                          <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
+                            {currentQuestion.expected_output.rows.map((row, rowIndex) => (
+                              <tr key={rowIndex}>
+                                {row.map((value, cellIndex) => (
+                                  <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
+                                    {value}
                                   </td>
                                 ))}
                               </tr>
                             ))}
                           </tbody>
                         </table>
+                      </div>
+                    )}
+                    {currentQuestion.table_data &&
+                      currentQuestion.table_data.map((table, tableIndex) =>
+                        activeNestedTab === table.table_name ? (
+                          <div key={tableIndex} className="mb-4">
+                            <div className="overflow-x-auto">
+                              <table className="min-w-full divide-y divide-gray-200">
+                                <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+                                  <tr>
+                                    {table.columns.map((column, columnIndex) => (
+                                      <th key={columnIndex} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                        {column}
+                                      </th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
+                                  {table.rows.slice(0, 10).map((row, rowIndex) => (
+                                    <tr key={rowIndex}>
+                                      {row.map((cell, cellIndex) => (
+                                        <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
+                                          {typeof cell === 'object' ? JSON.stringify(cell) : cell}
+                                        </td>
+                                      ))}
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        ) : null
+                      )}
+                  </div>
+                </div>
+              )}
+
+              {!isQuizMode && (
+                <>
+                  {activeTab === 'discussion' && (
+                    <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                      <h3 className="text-lg font-bold mb-4">Discussion</h3>
+                      {loading ? (
+                        <p>Loading discussions...</p>
+                      ) : error ? (
+                        <p className="text-red-500">{error}</p>
+                      ) : comments.length === 0 ? (
+                        <p>{comments[0]?.isPlaceholder ? comments[0].text : "No discussions yet. Be the first to comment!"}</p>
                       ) : (
-                        <p>{output}</p>
+                        <div className="mb-4 max-h-60 overflow-y-auto space-y-2">
+                          {comments.slice().reverse().map((comment, index) => (
+                            <div key={index} className="p-2 rounded-md border border-gray-300">
+                              <p className="font-semibold">{comment.username}:</p>
+                              <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{comment.discussionText}</p>
+                              <p className="text-sm text-gray-500">{new Date(comment.createdAt).toLocaleString()}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <textarea
+                        className={`w-full p-2 rounded ${isDarkMode ? 'bg-[#403f3f] text-white' : 'bg-gray-100 text-black'}`}
+                        rows="3"
+                        placeholder="Add to the discussion..."
+                        value={discussionText}
+                        onChange={(e) => setDiscussionText(e.target.value)}
+                      ></textarea>
+                      <button
+                        className="mt-2 bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-600 "
+                        onClick={handleDiscussionSubmit}
+                        disabled={!discussionText.trim()}
+                      >
+                        Submit
+                      </button>
+                    </div>
+                  )}
+
+                  {activeTab === 'solution' && (
+                    <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                      <h3 className="text-lg font-bold mb-2">Solution</h3>
+                      <pre className={`p-2 rounded ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}`}>
+                        <code>{currentQuestion.solution || 'Solution not available for this question.'}</code>
+                      </pre>
+                    </div>
+                  )}
+
+                  {activeTab === 'submission' && (
+                    <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+                      <h3 className="text-lg font-bold mb-4">Submissions</h3>
+                      {submissions.length > 0 ? (
+                        submissions.slice().reverse().map((submission, index) => (
+                          <div key={index} className="mb-4 p-4 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className={`font-semibold ${submission.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                                {submission.isCorrect ? 'Correct' : 'Incorrect'}
+                              </span>
+                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                                {getRelativeTime(submission.submittedAt)}
+                              </span>
+                            </div>
+                            <pre className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-100'} p-3 rounded overflow-x-auto`}>
+                              {submission.submittedCode}
+                            </pre>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-500 dark:text-gray-400">No submissions yet.</p>
                       )}
                     </div>
-                  </div>
+                  )}
+
+                  {activeTab === 'ai help' && (
+                    <div className={`relative rounded-lg p-4 mb-4 shadow-md h-[460px] overflow-hidden ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+                      }`}>
+                      <div className="absolute inset-0 backdrop-filter backdrop-blur-md bg-opacity-50 bg-gray-200 dark:bg-gray-700 dark:bg-opacity-50"></div>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <h2 className={`text-4xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'
+                          }`}>
+                          Coming Soon
+                        </h2>
+                      </div>
+                      <div className="relative z-10 opacity-50">
+                        <Bot size={24} className={isDarkMode ? 'text-white' : 'text-gray-900'} />
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 flex flex-col`}>
+            <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-t-lg p-2 flex justify-between items-center`}>
+              <span className="font-semibold">MySQL</span>
+              <div className="flex space-x-2">
+                {quizID && timeRemaining > 0 && (
+                  <button
+                    onClick={handleSubmitQuiz}
+                    className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
+                  >
+                    Submit Quiz
+                  </button>
                 )}
               </div>
             </div>
-          </Split>
-        </div>
-      </Split>
+            <Split
+              className="flex-grow h-full"
+              direction="vertical"
+              sizes={[70, 30]}
+              minSize={100}
+              gutterSize={10}
+              gutterAlign="center"
+              style={{
+                '--gutter-bg': isDarkMode ? '#60a5fa' : '#4a5568',
+                '--gutter-hover': isDarkMode ? '#3b82f6' : '#60a5fa',
+              }}
+              gutter={(index, direction) => {
+                const gutter = document.createElement('div');
+                gutter.className = `gutter gutter-${direction}`;
+                Object.assign(gutter.style, {
+                  position: 'relative',
+                  backgroundColor: 'transparent',
+                  cursor: 'row-resize', // For vertical split, use row-resize
+                  height: '10px',
+                  width: '100%',
+                  zIndex: 10,
+                });
 
-      {isVideoPopupOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg relative w-11/12 max-w-4xl">
-            <button
-              onClick={closeVideoPopup}
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white"
+                const indicator = document.createElement('div');
+                Object.assign(indicator.style, {
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '50px',
+                  height: '4px',
+                  borderRadius: '3px',
+                  backgroundColor: 'var(--gutter-bg)',
+                  opacity: '0.5',
+                  transition: 'opacity 0.2s, background-color 0.2s',
+                });
+
+                gutter.addEventListener('mouseenter', () => {
+                  indicator.style.opacity = '0.8';
+                  indicator.style.backgroundColor = 'var(--gutter-hover)';
+                });
+                gutter.addEventListener('mouseleave', () => {
+                  indicator.style.opacity = '0.5';
+                  indicator.style.backgroundColor = 'var(--gutter-bg)';
+                });
+
+                gutter.appendChild(indicator);
+                return gutter;
+              }}
             >
-              <X size={24} />
-            </button>
-            <div className="aspect-w-16 aspect-h-9">
-              <ReactPlayer
-                url={currentVideoUrl}
-                width="100%"
-                height="100%"
-                controls
-                playing
+              <MonacoEditor
+                width="auto"
+                height="auto"
+                language="sql"
+                theme={isDarkMode ? "vs-dark" : "light"}
+                value={userQueries[currentQuestionIndex]}
+                onChange={(value) => {
+                  const newQueries = [...userQueries];
+                  newQueries[currentQuestionIndex] = value || '';
+                  setUserQueries(newQueries);
+                }}
+                options={{
+                  minimap: { enabled: false },
+                  scrollBeyondLastLine: false,
+                  fontSize: 14,
+                }}
               />
+              <div className="flex flex-col">
+                <div className="flex mt-2 space-x-2">
+                  <button
+                    className={`flex-1 ${isRunning ? 'bg-teal-500' : 'bg-teal-600'} text-white px-4 py-2 rounded hover:bg-teal-700 focus:outline-none flex items-center justify-center`}
+                    onClick={handleRunCode}
+                    disabled={isRunning || isTesting}
+                  >
+                    {isRunning ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Running...
+                      </>
+                    ) : 'Run Code'}
+                  </button>
+
+                  <button
+                    className={`flex-1 ${isTesting ? 'bg-blue-500' : 'bg-blue-600'} text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none flex items-center justify-center`}
+                    onClick={handleTestCode}
+                    disabled={isRunning || isTesting}
+                  >
+                    {isTesting ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Testing...
+                      </>
+                    ) : 'Submit Code'}
+                  </button>
+                </div>
+                <div className={`mt-4 ${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded p-4 flex-grow overflow-y-auto max-h-[300px]`}>
+                  {feedback && (
+                    <div className={`mb-4 p-2 rounded ${feedback.isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      {feedback.text}
+                    </div>
+                  )}
+                  {output !== null && (
+                    <div className="mt-2 flex flex-col space-y-4">
+                      <div className="font-semibold">OUTPUT</div>
+                      <div className="overflow-x-auto">
+                        {output.error ? (
+                          <div className="text-red-600 bg-white-50 border border-grey-400 rounded-md p-4">
+                            <p>{output.message}</p>
+                            <p><strong>Details:</strong> {output.details}</p>
+                            <p><strong>Error Code:</strong> {output.code}</p>
+                          </div>
+                        ) : Array.isArray(output) && output.length > 0 ? (
+                          <table className="w-full border-collapse">
+                            <thead>
+                              <tr className={isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}>
+                                {Object.keys(output[0]).map((header, index) => (
+                                  <th key={index} className="border px-4 py-2">{header}</th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {output.map((row, rowIndex) => (
+                                <tr key={rowIndex} className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
+                                  {Object.values(row).map((cell, cellIndex) => (
+                                    <td key={cellIndex} className="border px-4 py-2 whitespace-nowrap">
+                                      {typeof cell === 'object' ? JSON.stringify(cell) : cell}
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        ) : (
+                          <p>{output}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Split>
+          </div>
+        </Split>
+
+        {isVideoPopupOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg relative w-11/12 max-w-4xl">
+              <button
+                onClick={closeVideoPopup}
+                className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white"
+              >
+                <X size={24} />
+              </button>
+              <div className="aspect-w-16 aspect-h-9">
+                <ReactPlayer
+                  url={currentVideoUrl}
+                  width="100%"
+                  height="100%"
+                  controls
+                  playing
+                />
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
