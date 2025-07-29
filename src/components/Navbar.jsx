@@ -266,7 +266,7 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
 
               {isLoaded && isSignedIn ? (
                 <>
-                  <span className="text-white text-sm">
+                  <span className="text-white text-sm font-mono">
                     Welcome, {user.firstName}
                   </span>
                   <UserButton afterSignOutUrl={`/live-events`} />
