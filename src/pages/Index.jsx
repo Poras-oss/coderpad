@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-// import CyberLoader from '@/components/home/CyberLoader';
 import CyberLoader from '../components/home/CyberLoader';
 import ThreeBackground from '../components/home/ThreeBackground';
 import CyberNav from '../components/home/CyberNav';
@@ -10,9 +9,9 @@ import { LayoutDashboard } from 'lucide-react';
 import GlobeLottie from '../components/home/GlobeLottie';
 import PathTrackerHUD from '../components/home/PathTrackerHUD';
 import FuturisticGlitchPopup from '../components/home/FuturisticGlitchPopup';
+import ComingSoonGlitchPopup from '../components/home/ComingSoonGlitchPopup';
 import CyberCoreHUD from '../components/home/CyberCoreHUD';
 import WorldMapHUD from '../components/home/WorldMapHUD';
-// import buttonClickSound from '../../assets/mp3/button-click.mp3';
 import buttonClickSound from '../assets/mp3/button-click.mp3';
 import QuestionProgressCircle from '../components/home/QuestionProgressCircle';
 
@@ -261,6 +260,7 @@ const Chatbot = () => {
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [popupOpen, setPopupOpen] = useState(false);
+  const [comingSoonPopupOpen, setComingSoonPopupOpen] = useState(false);
   const [popupBadge, setPopupBadge] = useState('SQL');
   const [popupDesc, setPopupDesc] = useState('');
   const [popupLink, setPopupLink] = useState('');
@@ -295,10 +295,6 @@ const Index = () => {
       description: 'Start a custom test tailored to your skills and interests.',
       yesLink: 'https://assessment.datasenseai.com/',
     },
-    'Mock Quiz': {
-      description: 'Take a mock quiz to practice and improve your performance.',
-      yesLink: '#',
-    },
     'Practice Question': {
       description: 'Practice with individual questions to sharpen your knowledge.',
       yesLink: '/practice-area?subject=sql',
@@ -316,6 +312,12 @@ const Index = () => {
     setPopupDesc(popupData[badgeType]?.description || 'Are you ready to proceed?');
     setPopupLink(popupData[badgeType]?.yesLink || '/');
     setPopupOpen(true);
+  };
+
+  // Helper to open coming soon popup for Mock Quiz
+  const handleOpenComingSoonPopup = () => {
+    playButtonClick();
+    setComingSoonPopupOpen(true);
   };
   
   return (
@@ -451,7 +453,7 @@ const Index = () => {
                     size="sm"
                     className="flex-1 max-w-[140px]"
                     style={{ animationDelay: '0s' }}
-                    onClick={() => handleOpenPopup('Mock Quiz')}
+                    onClick={handleOpenComingSoonPopup}
                   >
                     Mock Tests
                   </CyberButton>
@@ -567,7 +569,7 @@ const Index = () => {
                       size="md"
                       className="w-48"
                       style={{ animationDelay: '0s' }}
-                      onClick={() => handleOpenPopup('Mock Quiz')}
+                      onClick={handleOpenComingSoonPopup}
                     >
                       Mock Tests
                     </CyberButton>
@@ -622,13 +624,20 @@ const Index = () => {
         )}
       </div>
       
-      {/* Popup - Always render */}
+      {/* Popups - Always render */}
       <FuturisticGlitchPopup 
         open={popupOpen} 
         onClose={() => setPopupOpen(false)} 
         badgeType={popupBadge} 
         description={popupDesc} 
         yesLink={popupLink} 
+      />
+      
+      <ComingSoonGlitchPopup 
+        open={comingSoonPopupOpen} 
+        onClose={() => setComingSoonPopupOpen(false)} 
+        badgeType="Mock Quiz"
+        description="Mock Tests are currently under development. We're working hard to bring you comprehensive mock tests soon!"
       />
     </div>
   );

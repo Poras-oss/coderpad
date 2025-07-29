@@ -11,7 +11,7 @@ import buttonClickSound from '../../assets/mp3/button-click.mp3';
  * @param {function} props.onClose
  * @param {'Python'|'SQL'} props.badgeType
  */
-const FuturisticGlitchPopup = ({ open, onClose, badgeType, description, yesLink }) => {
+const ComingSoonGlitchPopup = ({ open, onClose, badgeType, description, yesLink }) => {
   const [show, setShow] = useState(open);
   const [triggerGlitch, setTriggerGlitch] = useState(false);
   const audioRef = useRef(null);
@@ -95,4 +95,4 @@ const FuturisticGlitchPopup = ({ open, onClose, badgeType, description, yesLink 
   );
 };
 
-export default FuturisticGlitchPopup;
+export default ComingSoonGlitchPopup;

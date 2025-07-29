@@ -82,6 +82,11 @@ const App = () => {
     <NotificationProvider>
       <BrowserRouter>
         <Routes>
+          {/* currently we have removed the framer landing page and created our own(react) 
+
+              if we need that back, we have to place two files in /public directory(home.html and script.js) which is currenly preresent
+              as a repo in datasense org github(practice-backup-framer)
+          */}
           {/* <Route path="/" element={<iframe src="/home.html" style={{ width: '100%', height: '100vh', border: 'none' }} title="External Page" />} /> */}
           <Route path="/" element={<Index />} />
           <Route path="/live-events" element={<DataSkillsDashboard />} />
