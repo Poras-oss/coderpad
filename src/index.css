@@ -100,3 +100,366 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 } */
+
+@layer base {
+  :root {
+    /* Cyberpunk Dark Theme */
+    --background: 210 100% 3%;
+    --foreground: 180 100% 90%;
+
+    --card: 210 100% 4%;
+    --card-foreground: 180 100% 90%;
+
+    --popover: 210 100% 4%;
+    --popover-foreground: 180 100% 90%;
+
+    /* Cyan Primary Colors */
+    --primary: 180 100% 50%;
+    --primary-foreground: 210 100% 3%;
+    --primary-glow: 180 100% 70%;
+
+    --secondary: 210 20% 15%;
+    --secondary-foreground: 180 100% 80%;
+
+    --muted: 210 20% 8%;
+    --muted-foreground: 180 50% 60%;
+
+    --accent: 195 100% 60%;
+    --accent-foreground: 210 100% 3%;
+
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 180 100% 90%;
+
+    --border: 180 50% 20%;
+    --input: 210 20% 12%;
+    --ring: 180 100% 50%;
+
+    --radius: 0.5rem;
+
+    /* Cyberpunk Specific Colors */
+    --cyber-grid: 180 100% 15%;
+    --cyber-accent: 300 100% 70%;
+    --cyber-warning: 60 100% 60%;
+    --cyber-success: 120 100% 50%;
+    --cyber-glow: 180 100% 50%;
+
+    /* Gradients */
+    --gradient-cyber: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    --gradient-glow: linear-gradient(180deg, transparent, hsl(var(--primary) / 0.1));
+    --gradient-dark: linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)));
+    
+    /* Animations */
+    --transition-cyber: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --glow-animation: 0 0 20px hsl(var(--primary) / 0.5);
+    --scan-line-speed: 2s;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  /* Dark mode inherits the cyberpunk theme */
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-mono overflow-hidden;
+    background: linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)));
+  }
+
+  html, body, #root {
+    height: 100vh;
+    overflow: hidden;
+  }
+}
+
+@layer components {
+  /* Cyberpunk Animation Classes */
+  .cyber-glow {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3), 
+                0 0 40px hsl(var(--primary) / 0.1),
+                inset 0 0 20px hsl(var(--primary) / 0.05);
+  }
+
+  .cyber-border {
+    border: 1px solid hsl(var(--primary) / 0.3);
+    position: relative;
+  }
+
+  .cyber-border::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 1px solid hsl(var(--primary));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .cyber-border:hover::before {
+    opacity: 1;
+  }
+
+  .scan-line {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scan-line::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      hsl(var(--primary) / 0.3), 
+      transparent
+    );
+    animation: scan 3s infinite linear;
+  }
+
+  .glitch-text {
+    position: relative;
+  }
+
+  .glitch-text::before,
+  .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .glitch-text::before {
+    animation: glitch 2s infinite;
+    color: hsl(var(--accent));
+    z-index: -1;
+  }
+
+  .glitch-text::after {
+    animation: glitch 3s infinite;
+    color: hsl(var(--cyber-accent));
+    z-index: -2;
+  }
+
+  .hud-overlay {
+    border: 1px solid hsl(var(--primary) / 0.4);
+    background: linear-gradient(135deg, 
+      hsl(var(--background) / 0.8), 
+      hsl(var(--muted) / 0.4)
+    );
+    backdrop-filter: blur(10px);
+  }
+}
+
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
+
+  .animate-scan {
+    animation: scan 3s linear infinite;
+  }
+
+  .animate-glitch {
+    animation: glitch 2s infinite;
+  }
+
+  .text-cyber {
+    background: var(--gradient-cyber);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Keyframe Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse-glow {
+  0% { 
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+  100% { 
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.8), 
+                0 0 60px hsl(var(--primary) / 0.4);
+  }
+}
+
+@keyframes scan {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes matrix-rain {
+  0% { transform: translateY(-100vh); opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+/* Glitch Popup Animation */
+@keyframes glitch-popup {
+  0% { filter: blur(8px) brightness(1.2); opacity: 0; transform: scale(0.95) skewX(-8deg); }
+  10% { filter: blur(2px) brightness(1.1); opacity: 0.7; transform: scale(1.02) skewX(2deg); }
+  20% { filter: blur(0.5px) brightness(1.05); opacity: 1; transform: scale(1) skewX(-1deg); }
+  100% { filter: none; opacity: 1; transform: none; }
+}
+.animate-glitch-popup {
+  animation: glitch-popup 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Glitch Text Animations */
+@keyframes glitch-main {
+  0%, 100% { transform: translate(0); }
+  10% { transform: translate(-2px, 1px); }
+  20% { transform: translate(2px, -1px); }
+  30% { transform: translate(-1px, 2px); }
+  40% { transform: translate(1px, -2px); }
+  50% { transform: translate(-2px, -1px); }
+  60% { transform: translate(2px, 1px); }
+  70% { transform: translate(-1px, -2px); }
+  80% { transform: translate(1px, 2px); }
+  90% { transform: translate(-2px, 1px); }
+}
+@keyframes glitch-red {
+  0%, 100% { transform: translate(0); opacity: 0.8; }
+  10% { transform: translate(-3px, 2px); opacity: 0.9; }
+  20% { transform: translate(3px, -2px); opacity: 0.7; }
+  30% { transform: translate(-2px, 3px); opacity: 0.8; }
+  40% { transform: translate(2px, -3px); opacity: 0.9; }
+  50% { transform: translate(-3px, -2px); opacity: 0.6; }
+  60% { transform: translate(3px, 2px); opacity: 0.8; }
+  70% { transform: translate(-2px, -3px); opacity: 0.9; }
+  80% { transform: translate(2px, 3px); opacity: 0.7; }
+  90% { transform: translate(-3px, 2px); opacity: 0.8; }
+}
+@keyframes glitch-blue {
+  0%, 100% { transform: translate(0); opacity: 0.8; }
+  15% { transform: translate(2px, -3px); opacity: 0.9; }
+  25% { transform: translate(-2px, 3px); opacity: 0.7; }
+  35% { transform: translate(3px, -2px); opacity: 0.8; }
+  45% { transform: translate(-3px, 2px); opacity: 0.9; }
+  55% { transform: translate(2px, 3px); opacity: 0.6; }
+  65% { transform: translate(-2px, -3px); opacity: 0.8; }
+  75% { transform: translate(3px, 2px); opacity: 0.9; }
+  85% { transform: translate(-3px, -2px); opacity: 0.7; }
+  95% { transform: translate(2px, -3px); opacity: 0.8; }
+}
+@keyframes glitch-cyan {
+  0%, 100% { transform: translate(0); opacity: 0.6; }
+  12% { transform: translate(1px, -2px); opacity: 0.8; }
+  24% { transform: translate(-1px, 2px); opacity: 0.5; }
+  36% { transform: translate(2px, -1px); opacity: 0.7; }
+  48% { transform: translate(-2px, 1px); opacity: 0.8; }
+  60% { transform: translate(1px, 2px); opacity: 0.4; }
+  72% { transform: translate(-1px, -2px); opacity: 0.7; }
+  84% { transform: translate(2px, 1px); opacity: 0.8; }
+  96% { transform: translate(-2px, -1px); opacity: 0.6; }
+}
+.animate-glitch-main {
+  animation: glitch-main 0.3s infinite linear;
+}
+.animate-glitch-red {
+  animation: glitch-red 0.4s infinite linear;
+}
+.animate-glitch-blue {
+  animation: glitch-blue 0.35s infinite linear;
+}
+.animate-glitch-cyan {
+  animation: glitch-cyan 0.45s infinite linear;
+}
+
+/* Holographic Panel Animations */
+@keyframes holographicGlow {
+  0% { opacity: 0.1; transform: scale(1); }
+  100% { opacity: 0.3; transform: scale(1.02); }
+}
+@keyframes scanLine {
+  0% { top: -2px; }
+  100% { top: 100%; }
+}
+
+/* Cyberpunk Chatbot Scrollbar */
+#chatbot-messages::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+
+#chatbot-messages::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00fff7 0%, #00bfff 100%);
+  border-radius: 8px;
+  box-shadow: 0 0 8px #00fff7cc;
+  animation: cyber-scroll-glow 2s infinite alternate;
+}
+
+#chatbot-messages::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #00fff7 40%, #00bfff 100%);
+  box-shadow: 0 0 16px #00fff7;
+}
+
+#chatbot-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes cyber-scroll-glow {
+  0% { box-shadow: 0 0 8px #00fff7cc; }
+  100% { box-shadow: 0 0 16px #00fff7; }
+}
+
+/* For Firefox */
+#chatbot-messages {
+  scrollbar-width: thin;
+  scrollbar-color: #00fff7 #0a1a22;
+}
+
+@keyframes spin-slow {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+}
+.animate-spin-slow {
+  animation: spin-slow 4s linear infinite;
+}
+
+/* src/index.css or src/App.css */
+.font-black-ops-one {
+  font-family: 'Black Ops One', system-ui, sans-serif;
+}

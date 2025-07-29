@@ -21,6 +21,7 @@ import Dashboard from './components/Dashboard';
 import { useUser } from "@clerk/clerk-react";
 import { NotificationProvider } from "./notification/NotificationProvider";
 import NavSwitcher from './components/DashAndBadgeSwitch';
+import Index from './pages/Index';
 
 // Define custom hook outside the component
 const useSubscriptionPolling = (clerkId) => {
@@ -81,7 +82,8 @@ const App = () => {
     <NotificationProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<iframe src="/home.html" style={{ width: '100%', height: '100vh', border: 'none' }} title="External Page" />} />
+          {/* <Route path="/" element={<iframe src="/home.html" style={{ width: '100%', height: '100vh', border: 'none' }} title="External Page" />} /> */}
+          <Route path="/" element={<Index />} />
           <Route path="/live-events" element={<DataSkillsDashboard />} />
           <Route path="/quiz" element={<QuizApp />} />
           <Route path="/pyQuiz" element={<PythonQuizApp />} />

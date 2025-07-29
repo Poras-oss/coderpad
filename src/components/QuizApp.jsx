@@ -654,7 +654,7 @@ export default function QuizApp() {
   }
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-black'}`}>
+    <div className={`font-sans min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-black'}`}>
       {/* Restore Navbar at the top */}
       <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
       {/* Sidebar overlay and sidebar */}

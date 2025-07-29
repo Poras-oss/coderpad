@@ -563,7 +563,7 @@ const [pageInput, setPageInput] = useState((localStorage.getItem('currentPage') 
   return (
 
     
-    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[#141414]' : 'bg-gray-200'}`}>
+    <div className={`font-sans flex flex-col min-h-screen ${isDarkMode ? 'dark bg-[#141414]' : 'bg-gray-200'}`}>
       {/* Replace old header with Navbar component */}
       <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 
