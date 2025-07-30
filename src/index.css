@@ -1,3 +1,16 @@
+html,
+body,
+#root {
+  /* This makes the app container fill the browser window */
+  height: 100%; 
+  margin: 0;
+  padding: 0;
+  /* Use the CSS variable for height, with a fallback to dvh */
+  height: var(--app-height, 100dvh);
+  /* Prevents accidental scrolling on the body itself */
+  overflow: hidden; 
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -185,10 +198,10 @@ button:focus-visible {
     background: linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)));
   }
 
-  html, body, #root {
+  /* html, body, #root {
     height: 100vh;
     overflow: hidden;
-  }
+  } */
 }
 
 @layer components {

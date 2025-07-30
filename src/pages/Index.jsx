@@ -14,6 +14,7 @@ import CyberCoreHUD from '../components/home/CyberCoreHUD';
 import WorldMapHUD from '../components/home/WorldMapHUD';
 import buttonClickSound from '../assets/mp3/button-click.mp3';
 import QuestionProgressCircle from '../components/home/QuestionProgressCircle';
+import AppHeightController from '../components/home/AppHeightController';
 
 // Custom hook to detect mobile devices
 const useIsMobile = () => {
@@ -321,7 +322,9 @@ const Index = () => {
   };
   
   return (
-    <div className="min-h-[100dvh] relative overflow-auto">
+    <div className="relative w-full h-full">
+
+      <AppHeightController />
       {/* Three.js Background - Always render */}
       <ThreeBackground />
       
@@ -371,10 +374,10 @@ const Index = () => {
       
       {/* Main Content */}
       <audio ref={buttonclickRef} src={buttonClickSound} preload="auto" />
-      <div className="flex flex-col min-h-[100dvh] relative overflow-auto">
+      <div className="flex flex-col h-full relative overflow-auto">
         {/* Mobile Layout */}
         {isMobile ? (
-          <div className="flex flex-col min-h-[100dvh] p-4 pt-20">
+          <div className="flex flex-col h-full p-4 pt-20">
             {/* Title Area */}
             <div className="text-center mb-20 pt-8">
               <div className="relative w-fit mx-auto">
@@ -396,12 +399,22 @@ const Index = () => {
                     size="sm"
                     className="flex-1 max-w-[200px]"
                     style={{ animationDelay: '0s' }}
+                    onClick={() => handleOpenPopup('Practice Question')}
+                  >
+                    Practice Question
+                  </CyberButton>
+                  
+                  <CyberButton 
+                    variant="primary" 
+                    size="sm"
+                    className="flex-1 max-w-[200px]"
+                    style={{ animationDelay: '0s' }}
                     onClick={() => handleOpenPopup('SQL')}
                   >
                     Join Live Tests
                   </CyberButton>
                   
-                  <CyberButton 
+                  {/* <CyberButton 
                     variant="primary" 
                     size="sm"
                     className="flex-1 max-w-[140px]"
@@ -409,7 +422,7 @@ const Index = () => {
                     onClick={() => handleOpenPopup('Custom Test')}
                   >
                     Custom Test
-                  </CyberButton>
+                  </CyberButton> */}
                 </div>
                 
                 {/* Second row - Dashboard button (circular) */}
@@ -458,7 +471,7 @@ const Index = () => {
                     Mock Tests
                   </CyberButton>
                   
-                  <CyberButton 
+                  {/* <CyberButton 
                     variant="primary" 
                     size="sm"
                     className="flex-1 max-w-[200px]"
@@ -466,6 +479,15 @@ const Index = () => {
                     onClick={() => handleOpenPopup('Practice Question')}
                   >
                     Practice Question
+                  </CyberButton> */}
+                  <CyberButton 
+                    variant="primary" 
+                    size="sm"
+                    className="flex-1 max-w-[140px]"
+                    style={{ animationDelay: '0s' }}
+                    onClick={() => handleOpenPopup('Custom Test')}
+                  >
+                    Custom Test
                   </CyberButton>
                 </div>
               </div>
