@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { useUser } from '@clerk/clerk-react'
-import { Filter, Loader2, ChevronLeft, ChevronRight, Star, Briefcase, Hash } from 'lucide-react'
+import { Filter, Loader2, ChevronLeft, ChevronRight, Star, Briefcase, Hash, X } from 'lucide-react'
 import ReactPlayer from 'react-player/youtube'
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
@@ -494,25 +494,44 @@ const [pageInput, setPageInput] = useState((localStorage.getItem('currentPage') 
           onClick={() => handlePageChange(1)}
           variant="outline"
           size="sm"
-          className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+          className={isDarkMode
+            ? 'bg-[#2f2f2f] border-[#3f3f3f] text-white'
+            : 'bg-white border-[#3f3f3f] text-black'
+          } 
         >
           1
         </Button>
       );
       if (startPage > 2) {
-        pageNumbers.push(<span key="ellipsis1">...</span>);
+        pageNumbers.push(<span key="ellipsis1" className={isDarkMode ? 'text-white' : 'text-black'}>...</span>);
       }
     }
 
     // Show page numbers
     for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(
+        // <Button
+        //   key={i}
+        //   onClick={() => handlePageChange(i)}
+        //   variant={i === currentPage ? "default" : "outline"}
+        //   size="sm"
+        //   className={isDarkMode
+        //     ? 'bg-[#2f2f2f] border-[#3f3f3f] text-white'
+        //     : 'bg-white border-[#3f3f3f] text-black'
+        //   }
+        // >
+        //   {i}
+        // </Button>
         <Button
           key={i}
           onClick={() => handlePageChange(i)}
-          variant={i === currentPage ? "default" : "outline"}
+          variant="outline" // Set a consistent base variant
           size="sm"
-          className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+          className={
+            i === currentPage
+              ? (isDarkMode ? 'bg-white text-white border-[#3f3f3f]' : 'bg-[#2f2f2f] text-white border-[#3f3f3f]') // Active page style
+              : (isDarkMode ? 'bg-[#2f2f2f] border-[#3f3f3f] text-white' : 'bg-white border-[#3f3f3f] text-black') // Inactive page style
+          }
         >
           {i}
         </Button>
@@ -530,7 +549,10 @@ const [pageInput, setPageInput] = useState((localStorage.getItem('currentPage') 
           onClick={() => handlePageChange(totalPages)}
           variant="outline"
           size="sm"
-          className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+          className={isDarkMode
+            ? 'bg-[#2f2f2f] border-[#3f3f3f] text-white'
+            : 'bg-white border-[#3f3f3f] text-black'
+          }
         >
           {totalPages}
         </Button>
@@ -928,7 +950,7 @@ const [pageInput, setPageInput] = useState((localStorage.getItem('currentPage') 
       </svg>
     )}
   </button>
-  <Input
+  {/* <Input
     type="text"
     placeholder="Search questions..."
     value={filters.search}
@@ -938,11 +960,22 @@ const [pageInput, setPageInput] = useState((localStorage.getItem('currentPage') 
         ? 'bg-[#2f2f2f] border-[#3f3f3f] text-white' 
         : 'bg-white border-gray-200'
     }`}
+  /> */}
+  <Input
+    type="text"
+    placeholder="Search questions..."
+    value={filters.search}
+    onChange={(e) => updateFilters('search', e.target.value)}
+    className={`w-full ${
+      isDarkMode 
+        ? 'bg-[#2f2f2f] border-[#3f3f3f] text-white' 
+        : 'bg-white border-gray-200'
+    } focus-visible:ring-0`} // Add this class
   />
 </div>
 
         {/* Questions List */}
-        <ScrollArea className="h-[calc(100vh-120px)]">
+        {/* <ScrollArea className="h-[calc(100vh-120px)]"> */}
           <div className="p-4">
             {isLoading ? (
               <div className="flex flex-col items-center justify-center p-8">
@@ -1023,7 +1056,7 @@ const [pageInput, setPageInput] = useState((localStorage.getItem('currentPage') 
               </>
             )}
           </div>
-        </ScrollArea>
+        {/* </ScrollArea> */}
       </div>
     </main>
 
@@ -1034,7 +1067,10 @@ const [pageInput, setPageInput] = useState((localStorage.getItem('currentPage') 
         disabled={paginationInfo.currentPage === 1}
         variant="outline"
         size="sm"
-        className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+        className={isDarkMode
+          ? 'bg-[#2f2f2f] border-[#3f3f3f] text-white'
+          : 'bg-white border-[#3f3f3f] text-black'
+        }
       >
         <ChevronLeft className="h-4 w-4" />
         <span className="hidden sm:inline ml-1">Previous</span>
@@ -1047,7 +1083,10 @@ const [pageInput, setPageInput] = useState((localStorage.getItem('currentPage') 
         disabled={paginationInfo.currentPage === paginationInfo.totalPages}
         variant="outline"
         size="sm"
-        className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+        className={isDarkMode
+          ? 'bg-[#2f2f2f] border-[#3f3f3f] text-white'
+          : 'bg-white border-[#3f3f3f] text-black'
+        }
       >
         <span className="hidden sm:inline mr-1">Next</span>
         <ChevronRight className="h-4 w-4" />
@@ -1063,14 +1102,17 @@ const [pageInput, setPageInput] = useState((localStorage.getItem('currentPage') 
           className={`w-16 ${
             isDarkMode
               ? 'bg-[#2f2f2f] border-[#3f3f3f] text-white'
-              : 'bg-white border-gray-200'
+              : 'bg-white border-[#3f3f3f] text-black'
           }`}
         />
         <Button
           onClick={handleGoToPage}
           variant="outline"
           size="sm"
-          className={isDarkMode ? 'text-white border-[#2f2f2f]' : ''}
+          className={isDarkMode
+          ? 'bg-[#2f2f2f] border-[#3f3f3f] text-white'
+          : 'bg-white border-[#3f3f3f] text-black'
+        }
         >
           Go
         </Button>

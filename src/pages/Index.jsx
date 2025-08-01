@@ -322,7 +322,7 @@ const Index = () => {
   };
   
   return (
-    <div className="relative w-full h-full">
+    <div className="relative landing-page-body w-full h-full">
 
       <AppHeightController />
       {/* Three.js Background - Always render */}
@@ -403,7 +403,7 @@ const Index = () => {
                   >
                     Practice Question
                   </CyberButton>
-                  
+
                   <CyberButton 
                     variant="primary" 
                     size="sm"
