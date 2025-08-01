@@ -173,7 +173,7 @@ const DataSkillsDashboard = () => {
         isDarkMode ? "bg-[#262626] text-white" : "bg-gray-100 text-black"
       }`}
     >
-      <AlertDialog open={showInstructions} onOpenChange={setShowInstructions}>
+      {/* <AlertDialog open={showInstructions} onOpenChange={setShowInstructions}>
   <AlertDialogContent className="max-w-md bg-white dark:bg-gray-800 shadow-lg">
     <AlertDialogHeader>
       <AlertDialogTitle className="text-xl font-bold text-white">
@@ -208,6 +208,82 @@ const DataSkillsDashboard = () => {
     </AlertDialogHeader>
     <AlertDialogFooter className="space-x-2">
       <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600">
+        Cancel
+      </AlertDialogCancel>
+      <AlertDialogAction
+        onClick={() => {
+          setShowInstructions(false);
+          pendingNavigation && pendingNavigation();
+        }}
+        className="bg-blue-600 text-white hover:bg-blue-700"
+      >
+        Start Quiz
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog> */}
+      <AlertDialog open={showInstructions} onOpenChange={setShowInstructions}>
+  <AlertDialogContent className={`max-w-lg shadow-xl border-none ${
+    isDarkMode ? 'bg-[#262626] text-gray-50' : 'bg-white text-gray-900'
+  }`}>
+    <AlertDialogHeader>
+      <AlertDialogTitle className="text-2xl font-bold">
+        Quiz Instructions
+      </AlertDialogTitle>
+      <AlertDialogDescription asChild>
+        <div className={`mt-4 space-y-4 text-sm `}>
+          {/* Instructions specific to the quiz type */}
+          <div className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            {quizType === "sql" && (
+              <div>
+                <p>This SQL quiz will test your knowledge of database queries. Make sure to:</p>
+                <ul className="list-disc list-inside pl-4 mt-2 space-y-1">
+                  <li>Write standard SQL syntax</li>
+                  <li>Test your queries before submitting</li>
+                  <li>Pay attention to the required output format</li>
+                </ul>
+              </div>
+            )}
+
+            {quizType === "python" && (
+              <div>
+                <p>This Python programming quiz will test your coding skills. Remember to:</p>
+                <ul className="list-disc list-inside pl-4 mt-2 space-y-1">
+                  <li>Follow Python PEP 8 style guidelines</li>
+                  <li>Handle edge cases</li>
+                  <li>Use appropriate data structures</li>
+                </ul>
+              </div>
+            )}
+
+            {quizType === "mcq" && (
+              <div>
+                <p>This multiple-choice quiz will test your knowledge. Please note:</p>
+                <ul className="list-disc list-inside pl-4 mt-2 space-y-1">
+                  <li>Read all options carefully</li>
+                  <li>Only one answer is correct</li>
+                  <li>You cannot change your answer after submission</li>
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {/* General Instructions */}
+          <div>
+            <p className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>General Instructions:</p>
+            <ul className={`list-disc list-inside pl-4 mt-2 space-y-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              <li>This is a timed quiz and can only be attempted once.</li>
+              <li>For coding questions, use the 'Run Code' button to check if your code works correctly.</li>
+              <li>Once satisfied, use the 'Submit Code' button to submit your answer.</li>
+              <li>You can re-submit a question if your first attempt was incorrect, as long as time hasn't run out.</li>
+              <li>Finally, make sure to submit the quiz using the 'Submit' button at the top right corner.</li>
+            </ul>
+          </div>
+        </div>
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter className="mt-6">
+      <AlertDialogCancel className={`border ${isDarkMode ? 'bg-transparent border-gray-600 hover:bg-gray-700' : 'bg-transparent border-gray-300 hover:bg-gray-100'}`}>
         Cancel
       </AlertDialogCancel>
       <AlertDialogAction
