@@ -38,7 +38,7 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
       <div className="container mx-auto px-0">
         <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
-          <div className="flex items-center">
+          <div className="flex items-center pl-6">
             <img
               className="h-10 w-auto cursor-pointer"
               src={logo}
@@ -63,7 +63,7 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-4">
+          <nav className="hidden md:flex items-center space-x-4 pr-6">
           {/* {isLoaded && isSignedIn && <RenderSubscription />} */}
             {/* Join Community Button for desktop */}
             <div

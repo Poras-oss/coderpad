@@ -686,28 +686,61 @@ export default function QuizApp() {
               ) : sidebarQuestions.length === 0 ? (
                 <div className="text-center text-gray-500 mt-8">No questions found.</div>
               ) : (
+                // <ul>
+                //   {sidebarQuestions.map((q, idx) => (
+                //     <li
+                //       key={q._id}
+                //       className={`mb-2 p-2 rounded cursor-pointer ${isDarkMode ? 'hover:bg-cyan-900' : 'hover:bg-cyan-100'} ${currentQuestion && q._id === currentQuestion._id ? (isDarkMode ? 'bg-cyan-800 font-bold' : 'bg-cyan-200 font-bold') : ''}`}
+                //       onClick={async () => {
+                //         if (q._id !== questionID) {
+                //           // Update the URL to the new questionID, preserving userID
+                //           navigate(`/quiz?questionID=${q._id}${userID ? `&userID=${userID}` : ''}`);
+                //         }
+                //         setIsSidebarOpen(false);
+                //       }}
+                //     >
+                //       <div className="flex items-center justify-between">
+                //         <div className="font-medium text-sm">{q.title || q.question_text?.slice(0, 60) || 'Untitled Question'}</div>
+                //         {q.difficulty && (
+                //           <span className={`ml-2 px-2 py-0.5 rounded text-xs font-semibold ${getDifficultyStyle(q.difficulty)}`}>{q.difficulty.charAt(0).toUpperCase() + q.difficulty.slice(1)}</span>
+                //         )}
+                //       </div>
+                //       <div className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>{q.id ? q.id.toUpperCase() : ''}</div>
+                //     </li>
+                //   ))}
+                // </ul>
+
                 <ul>
-                  {sidebarQuestions.map((q, idx) => (
-                    <li
-                      key={q._id}
-                      className={`mb-2 p-2 rounded cursor-pointer ${isDarkMode ? 'hover:bg-cyan-900' : 'hover:bg-cyan-100'} ${currentQuestion && q._id === currentQuestion._id ? (isDarkMode ? 'bg-cyan-800 font-bold' : 'bg-cyan-200 font-bold') : ''}`}
-                      onClick={async () => {
-                        if (q._id !== questionID) {
-                          // Update the URL to the new questionID, preserving userID
-                          navigate(`/quiz?questionID=${q._id}${userID ? `&userID=${userID}` : ''}`);
-                        }
-                        setIsSidebarOpen(false);
-                      }}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium text-sm">{q.title || q.question_text?.slice(0, 60) || 'Untitled Question'}</div>
+                  {sidebarQuestions.map((q, idx) => {
+                    // Calculate the sequential question number
+                    const questionNumber = (sidebarPage - 1) * QUESTIONS_PER_PAGE + idx + 1;
+                    return (
+                      <li
+                        key={q._id}
+                        className={`p-3 rounded cursor-pointer flex items-start justify-between ${isDarkMode ? 'hover:bg-cyan-900' : 'hover:bg-cyan-100'} ${currentQuestion && q._id === currentQuestion._id ? (isDarkMode ? 'bg-cyan-800 font-bold' : 'bg-cyan-200 font-bold') : ''}`}
+                        onClick={async () => {
+                          if (q._id !== questionID) {
+                            navigate(`/quiz?questionID=${q._id}${userID ? `&userID=${userID}` : ''}`);
+                          }
+                          setIsSidebarOpen(false);
+                        }}
+                      >
+                        <div className="flex items-start gap-3 flex-1">
+                          <span className={`text-sm font-mono mt-0.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            {questionNumber}.
+                          </span>
+                          <span className="font-medium text-sm">
+                            {q.title || q.question_text?.slice(0, 60) || 'Untitled Question'}
+                          </span>
+                        </div>
                         {q.difficulty && (
-                          <span className={`ml-2 px-2 py-0.5 rounded text-xs font-semibold ${getDifficultyStyle(q.difficulty)}`}>{q.difficulty.charAt(0).toUpperCase() + q.difficulty.slice(1)}</span>
+                          <span className={`ml-4 px-2 py-0.5 rounded text-xs font-semibold shrink-0 ${getDifficultyStyle(q.difficulty)}`}>
+                            {q.difficulty.charAt(0).toUpperCase() + q.difficulty.slice(1)}
+                          </span>
                         )}
-                      </div>
-                      <div className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>{q.id ? q.id.toUpperCase() : ''}</div>
-                    </li>
-                  ))}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>
