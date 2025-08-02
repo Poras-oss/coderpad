@@ -296,7 +296,7 @@ const socialLinks = [
   { icon: FaLinkedin, title: "LinkedIn", url: "https://www.linkedin.com/company/data-sense-lms/" },
   { icon: FaFacebook, title: "Facebook", url: "https://www.facebook.com/people/Data-Sense/61550202884240/?mibextid=LQQJ4d" },
   { icon: FaInstagram, title: "Instagram", url: "https://www.instagram.com/senseofdata/" },
-  { icon: FaWhatsapp, title: "WhatsApp", url: "https://chat.whatsapp.com/DYgDxOA8nBvJp4tPz5J6ox" },
+  { icon: FaWhatsapp, title: "WhatsApp", url: "https://chat.whatsapp.com/D9gTjEcWKzeELJw9qZc8aJ" },
 ];
 
 const CyberNav = () => {
