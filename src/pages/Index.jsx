@@ -15,6 +15,8 @@ import WorldMapHUD from '../components/home/WorldMapHUD';
 import buttonClickSound from '../assets/mp3/button-click.mp3';
 import QuestionProgressCircle from '../components/home/QuestionProgressCircle';
 import AppHeightController from '../components/home/AppHeightController';
+import ScannerButton from '../components/home/ScannerButton';
+import { getChatbotResponse } from './chatbot';
 
 // Custom hook to detect mobile devices
 const useIsMobile = () => {
@@ -180,9 +182,10 @@ const Chatbot = () => {
 
     setTimeout(() => {
       const isGreeting = /quiz|test|hello|hi/i.test(trimmedInput);
-      const aiResponse = isGreeting
-        ? 'Ready to help you with data challenges!'
-        : 'I am your AI assistant. Ask me anything about data, gaming, or this dashboard!';
+      // const aiResponse = isGreeting
+      //   ? 'Ready to help you with data challenges!'
+      //   : 'I am your AI assistant. Ask me anything about data, gaming, or this dashboard!';
+      const aiResponse = getChatbotResponse(trimmedInput);
       setMessages((prev) => [...prev, { text: aiResponse, isUser: false }]);
     }, 700);
   };
@@ -300,6 +303,10 @@ const Index = () => {
       description: 'Practice with individual questions to sharpen your knowledge.',
       yesLink: '/practice-area?subject=sql',
     },
+    'DataSense Gaming Arena': {
+      description: 'Enter the DataSense Gaming Arena for interactive challenges.',
+      yesLink: 'https://battleground.datasenseai.com/start',
+    },
   };
 
   if (isLoading) {
@@ -378,8 +385,8 @@ const Index = () => {
         {/* Mobile Layout */}
         {isMobile ? (
           <div className="flex flex-col h-full p-4 pt-20">
-            {/* Title Area */}
-            <div className="text-center mb-20 pt-8">
+            {/* Title Area - Reduced margin bottom */}
+            <div className="text-center mb-12 pt-8">
               <div className="relative w-fit mx-auto">
                 <div className="absolute inset-0 blur-xl rounded-lg pointer-events-none"></div>
                 <h1 className="text-3xl sm:text-4xl font-black-ops-one font-bold text-primary mb-3">
@@ -389,8 +396,8 @@ const Index = () => {
               </div>
             </div>
             
-            {/* Button Area */}
-            <div className="flex-1 flex items-center justify-center mb-20">
+            {/* Button Area - Moved up and reduced margin bottom */}
+            <div className="flex-1 flex items-start justify-center mb-6 pt-4">
               <div className="space-y-6">
                 {/* First row - Two buttons */}
                 <div className="flex gap-4 justify-center">
@@ -413,16 +420,6 @@ const Index = () => {
                   >
                     Join Live Tests
                   </CyberButton>
-                  
-                  {/* <CyberButton 
-                    variant="primary" 
-                    size="sm"
-                    className="flex-1 max-w-[140px]"
-                    style={{ animationDelay: '0s' }}
-                    onClick={() => handleOpenPopup('Custom Test')}
-                  >
-                    Custom Test
-                  </CyberButton> */}
                 </div>
                 
                 {/* Second row - Dashboard button (circular) */}
@@ -471,15 +468,6 @@ const Index = () => {
                     Mock Tests
                   </CyberButton>
                   
-                  {/* <CyberButton 
-                    variant="primary" 
-                    size="sm"
-                    className="flex-1 max-w-[200px]"
-                    style={{ animationDelay: '0s' }}
-                    onClick={() => handleOpenPopup('Practice Question')}
-                  >
-                    Practice Question
-                  </CyberButton> */}
                   <CyberButton 
                     variant="primary" 
                     size="sm"
@@ -491,6 +479,18 @@ const Index = () => {
                   </CyberButton>
                 </div>
               </div>
+            </div>
+            
+            {/* Scanner Buttons Area - New section between buttons and chatbot */}
+            <div className="flex justify-center gap-8 mb-16">
+              <ScannerButton 
+                onClick={() => handleOpenPopup('DataSense Gaming Arena')}
+                description="DataSense Gaming Arena" 
+              />
+              <ScannerButton 
+                onClick={() => handleOpenPopup('DataSense Gaming Arena')}
+                description="Scan to Enter Gaming Arena" 
+              />
             </div>
             
             {/* Chatbot Area */}
@@ -610,8 +610,14 @@ const Index = () => {
                 </div>
                 
                 {/* Chatbot - Fixed height, won't push content */}
-                <div className="mb-6">
+                <div className="flex flex-col sm:flex-row gap-10 items-center justify-center mb-6">
+                  <ScannerButton 
+                    onClick={() => handleOpenPopup('DataSense Gaming Arena')}
+                    description="DataSense Gaming Arena" />
                   <Chatbot />
+                  <ScannerButton 
+                    onClick={() => handleOpenPopup('DataSense Gaming Arena')}
+                    description="Scan to Enter Gaming Arena" />
                 </div>
               </div>
             </div>

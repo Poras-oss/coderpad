@@ -11,7 +11,7 @@ import Bot from './Bot';
 import { Badge } from "./ui/badge";
 import SubscriptionDialogue from './SubscriptionDialogue';
 import Navbar from './Navbar';
-import '../styles/scrollbar.css';
+// import '../styles/scrollbar.css';
 import { useNotification } from "../notification/NotificationProvider";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
@@ -73,6 +73,40 @@ export default function QuizApp() {
   const [sidebarLoading, setSidebarLoading] = useState(false);
   const QUESTIONS_PER_PAGE = 20;
 
+  // Add to the component's state
+  const [selectedDifficulty, setSelectedDifficulty] = useState(null);
+
+  const handleDifficultySelect = (difficulty) => {
+    // If the clicked difficulty is already selected, deselect it (set to null)
+    if (selectedDifficulty === difficulty) {
+      setSelectedDifficulty(null);
+    } else {
+      // Otherwise, select the new difficulty
+      setSelectedDifficulty(difficulty);
+    }
+    // Reset to the first page whenever a filter changes
+    setSidebarPage(1); 
+  };
+
+  // Fetch questions for sidebar
+  // useEffect(() => {
+  //   if (!isSidebarOpen) return;
+  //   setSidebarLoading(true);
+  //   axios.get('https://server.datasenseai.com/test-series-coding/mysql', {
+  //     params: {
+  //       page: sidebarPage,
+  //       limit: QUESTIONS_PER_PAGE,
+  //       difficulty: selectedDifficulty || undefined, // Add this line
+  //     },
+  //   })
+  //     .then((response) => {
+  //       setSidebarQuestions(response.data.results || []);
+  //       setSidebarTotalPages(response.data.totalPages || 1);
+  //     })
+  //     .catch(() => setSidebarQuestions([]))
+  //     .finally(() => setSidebarLoading(false));
+  // }, [isSidebarOpen, sidebarPage, selectedDifficulty]); // Add selectedDifficulty to dependencies
+
   // Fetch questions for sidebar
   useEffect(() => {
     if (!isSidebarOpen) return;
@@ -81,6 +115,8 @@ export default function QuizApp() {
       params: {
         page: sidebarPage,
         limit: QUESTIONS_PER_PAGE,
+        // ✅ Corrected parameter name to match the API expectation
+        difficulties: selectedDifficulty || undefined, 
       },
     })
       .then((response) => {
@@ -89,7 +125,7 @@ export default function QuizApp() {
       })
       .catch(() => setSidebarQuestions([]))
       .finally(() => setSidebarLoading(false));
-  }, [isSidebarOpen, sidebarPage]);
+  }, [isSidebarOpen, sidebarPage, selectedDifficulty]);
 
   useEffect(() => {
     if (activeTab === 'discussion') {
@@ -678,6 +714,52 @@ export default function QuizApp() {
                 <X size={22} />
               </button>
             </div>
+
+            {/* Add the difficulty slicer here */}
+            {/* <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700">
+              {['Easy', 'Medium', 'Advanced'].map((difficulty) => (
+                <button
+                  key={difficulty}
+                  onClick={() => handleDifficultySelect(difficulty.toLowerCase())}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    selectedDifficulty === difficulty.toLowerCase()
+                      ? difficulty.toLowerCase() === 'easy'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                        : difficulty.toLowerCase() === 'medium'
+                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                      : isDarkMode
+                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {difficulty}
+                </button>
+              ))}
+            </div> */}
+
+            <div className={`flex items-center justify-around p-2 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              {['Easy', 'Medium', 'Advanced'].map((difficulty) => (
+                <button
+                  key={difficulty}
+                  onClick={() => handleDifficultySelect(difficulty.toLowerCase())}
+                  className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out w-full mx-1 ${
+                    selectedDifficulty === difficulty.toLowerCase()
+                      ? difficulty.toLowerCase() === 'easy'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 shadow-md'
+                        : difficulty.toLowerCase() === 'medium'
+                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 shadow-md'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 shadow-md'
+                      : isDarkMode
+                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                  }`}
+                >
+                  {difficulty}
+                </button>
+              ))}
+            </div>
+
             <div className="flex-1 overflow-y-auto p-2">
               {sidebarLoading ? (
                 <div className="flex justify-center items-center h-32">
@@ -769,13 +851,16 @@ export default function QuizApp() {
         {/* Header with menu button */}
         <div className={`${isDarkMode ? 'bg-[rgb(64,63,63)]' : 'bg-gray-200'} p-4 flex justify-between items-center shadow-sm`}>
           <div className="flex items-center gap-2">
-            <button
-              className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
-              aria-label="Open sidebar"
-              onClick={() => setIsSidebarOpen(true)}
-            >
-              <Menu size={24} />
-            </button>
+            {/* This condition ensures the Menu button only shows for practice questions, not in a quiz. */}
+            {questionID && (
+              <button
+                className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+                aria-label="Open sidebar"
+                onClick={() => setIsSidebarOpen(true)}
+              >
+                <Menu size={24} />
+              </button>
+            )}
             <h1 className="text-xl font-bold">SQL Coderpad</h1>
           </div>
           <div className="flex items-center space-x-4">
@@ -876,25 +961,30 @@ export default function QuizApp() {
         >
           <div className="flex flex-col overflow-hidden">
             {quizID && (
-              <div className={`flex gap-10 ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 h-1/8 relative`}>
-                {/* <div className="overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 hover:scrollbar-thumb-gray-100"> */}
-                <ul className="flex flex-nowrap gap-4 py-2">
-                  {quizData.questions.map((question, index) => (
-                    <li
-                      key={index}
-                      className={`cursor-pointer py-2 px-4 rounded border ${index === currentQuestionIndex
-                          ? 'bg-teal-500 text-white'
-                          : isDarkMode
+              <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 h-1/8 relative`}>
+                <div 
+                  className="overflow-x-auto whitespace-nowrap py-2 scrollbar-thin 
+                             scrollbar-track-gray-200 scrollbar-thumb-gray-400 hover:scrollbar-thumb-gray-500 
+                             dark:scrollbar-track-gray-700 dark:scrollbar-thumb-gray-500 dark:hover:scrollbar-thumb-gray-400"
+                >
+                  <ul className="flex flex-nowrap gap-4">
+                    {quizData.questions.map((question, index) => (
+                      <li
+                        key={index}
+                        className={`cursor-pointer py-2 px-4 rounded border ${
+                          index === currentQuestionIndex
+                            ? 'bg-teal-500 text-white'
+                            : isDarkMode
                             ? 'bg-[#262626] text-white hover:bg-gray-600'
                             : 'bg-gray-300 text-gray-900 hover:bg-gray-400'
                         }`}
-                      onClick={() => handleQuestionSelect(index)}
-                    >
-                      {index + 1}
-                    </li>
-                  ))}
-                </ul>
-                {/* </div> */}
+                        onClick={() => handleQuestionSelect(index)}
+                      >
+                        {index + 1}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             )}
 
@@ -910,8 +1000,7 @@ export default function QuizApp() {
               ))}
             </div>
 
-            <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex-grow overflow-y-auto custom-scrollbar`}>
-              {activeTab === 'question' && (
+            <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex-grow overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400 hover:scrollbar-thumb-gray-500 dark:scrollbar-thumb-gray-600 dark:hover:scrollbar-thumb-gray-500`}>              {activeTab === 'question' && (
                 <>
                   <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
                     {currentQuestion.id && (
