@@ -143,6 +143,8 @@ export default {
 			}
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwindcss-scrollbar'),
+  ],
 }
 
