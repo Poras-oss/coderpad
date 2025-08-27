@@ -1056,6 +1056,7 @@ export default function QuizApp() {
                         </div>
                       </div>
                     )}
+                   
                     {(currentQuestion.common_mistakes || currentQuestion.interview_probability || currentQuestion.ideal_time || currentQuestion.roles) && (
                       <div className="mt-6">
                         <h4 className="text-lg font-semibold mb-2">Additional Information</h4>
@@ -1082,6 +1083,17 @@ export default function QuizApp() {
                                   </td>
                                 </tr>
                               )}
+                               {/* Show Year if available */}
+                                {currentQuestion.year && (
+                                <tr>
+                                  <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
+                                  Year
+                                  </td>
+                                  <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                                  {currentQuestion.year}
+                                  </td>
+                                </tr>
+                                )}
                               {currentQuestion.ideal_time && (
                                 <tr>
                                   <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
