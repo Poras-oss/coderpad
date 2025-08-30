@@ -4,7 +4,8 @@ import {
   Routes,
   Route,
 } from 'react-router-dom';
-import QuizApp from './components/QuizApp';
+// import QuizApp from './components/QuizApp';
+import QuizApp from './components/QuizApp copy'
 import PythonQuizApp from './components/PythonQuizApp';
 import Quiz from './components/Quiz';
 import Leaderboard from './components/Leaderboard';
