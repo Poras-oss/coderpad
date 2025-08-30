@@ -34,7 +34,8 @@ import {
 import Navbar from './Navbar' // Add this import
 import { set } from 'lodash'
 
-const PREDEFINED_SUBTOPICS = ['Column Selection', 'filtering', 'multiple costraints', 'Custom Selection', 'Filtering', 'Condition', 'Aggregation', 'Group by', 'Filter', 'Top N', 'Rank', 'Group']
+// const PREDEFINED_SUBTOPICS = ['Column Selection', 'filtering', 'multiple costraints', 'Custom Selection', 'Filtering', 'Condition', 'Aggregation', 'Group by', 'Filter', 'Top N', 'Rank', 'Group']
+const PREDEFINED_SUBTOPICS = ['Selection', 'Filtering', 'Sorting', 'Limit', 'Aggregation', 'Group By', 'Having', 'Joins', 'Self Join', 'Cross Join', 'Conditional Statements', 'Case When', 'Date Functions', 'String Functions', 'Numeric Functions', 'Subquery', 'CTE', 'Ranking Functions', 'Window Functions', 'Top N', 'UNION', 'Regular Expressions']
 const PREDEFINED_PYTHON_TOPICS = ['Array', 'String', 'Two Pointers', 'Sliding Window', 'Dictionary', 'List', 'Tuples', 'Regex']
 
 export default function QuizApp() {

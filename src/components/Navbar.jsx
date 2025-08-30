@@ -1,7 +1,6 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useUser, SignInButton, UserButton } from "@clerk/clerk-react";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, LayoutDashboard } from "lucide-react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { Button } from "./ui/button";
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaYoutube, FaDiscord} from "react-icons/fa";
@@ -190,6 +189,14 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
 
             {isLoaded && isSignedIn ? (
               <div className="flex items-center space-x-4">
+                {/* Add Dashboard button */}
+                <a
+                  href="https://dashboard.datasenseai.com/practice-dashboard"
+                  className="flex items-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span>Dashboard</span>
+                </a>
                 <span className="text-white text-sm">
                   Welcome, {user.firstName}
                 </span>
@@ -266,6 +273,14 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
 
               {isLoaded && isSignedIn ? (
                 <>
+                  {/* Add Dashboard button in mobile menu */}
+                  <a
+                    href="/dashboard" // Replace with your dashboard route
+                    className="w-full flex items-center justify-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                  >
+                    <LayoutDashboard className="h-4 w-4" />
+                    <span>Dashboard</span>
+                  </a>
                   <span className="text-white text-sm font-mono">
                     Welcome, {user.firstName}
                   </span>
