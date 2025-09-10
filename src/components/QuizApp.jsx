@@ -7,6 +7,7 @@ import Split from 'react-split';
 import { Loader2, Video, X, BookOpen, Play, Pause, RotateCcw, Hash, Menu } from 'lucide-react';
 import ReactPlayer from 'react-player';
 import Bot from './Bot';
+import Chatbot from './Chatbot';
 
 import { Badge } from "./ui/badge";
 import SubscriptionDialogue from './SubscriptionDialogue';
@@ -1323,19 +1324,13 @@ export default function QuizApp() {
                   )}
 
                   {activeTab === 'ai help' && (
-                    <div className={`relative rounded-lg p-4 mb-4 shadow-md h-[460px] overflow-hidden ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-                      }`}>
-                      <div className="absolute inset-0 backdrop-filter backdrop-blur-md bg-opacity-50 bg-gray-200 dark:bg-gray-700 dark:bg-opacity-50"></div>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <h2 className={`text-4xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'
-                          }`}>
-                          Coming Soon
-                        </h2>
-                      </div>
-                      <div className="relative z-10 opacity-50">
-                        <Bot size={24} className={isDarkMode ? 'text-white' : 'text-gray-900'} />
-                      </div>
-                    </div>
+                    <Chatbot
+                      questionText={currentQuestion.question_text}
+                      dataOverview={currentQuestion['data-overview']}
+                      expectedAnswer={currentQuestion.expected_output}
+                      isDarkMode={isDarkMode}
+                      chatId={questionID}
+                    />
                   )}
                 </>
               )}
