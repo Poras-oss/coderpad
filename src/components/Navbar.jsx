@@ -7,6 +7,7 @@ import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaYoutube, FaDiscord} 
 import { IoIosNotifications } from "react-icons/io";
 import RenderSubscription from "./RenderSubscription";
 import logo from "../assets/logo.png";
+import logoNew from "../assets/coderpadLogo.png";
 
 
 const Navbar = ({ isDarkMode, setIsDarkMode }) => {
@@ -37,13 +38,41 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
       <div className="container mx-auto px-0">
         <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
-          <div className="flex items-center pl-6">
+          <div className="flex items-center pl-6 gap-5">
             <img
-              className="h-10 w-auto cursor-pointer"
+              className="h-10 w-auto cursor-pointer pr-4"
               src={logo}
               alt="Datasense"
               onClick={handleBackToHome}
             />
+            {/* <a className="hidden md:block text-white hover:underline text-lg" href="https://dashboard.datasenseai.com/practice-dashboard">Dashboard</a>
+            <a className="hidden md:block text-white hover:underline text-lg" href="/practice-area?subject=sql">Practice</a>
+            <a className="hidden md:block text-white hover:underline text-lg" href="/live-events">Live Quiz</a>
+            <a className="hidden md:block text-white hover:underline text-lg" href="https://assessment.datasenseai.com/">Create Quiz</a> */}
+            <a
+              className="relative text-white text-lg font-medium transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
+              href="https://dashboard.datasenseai.com/practice-dashboard"
+            >
+              Dashboard
+            </a>
+            <a
+              className="relative text-white text-lg font-medium transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
+              href="/practice-area?subject=sql"
+            >
+              Practice
+            </a>
+            <a
+              className="relative text-white text-lg font-medium transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
+              href="/live-events"
+            >
+              Live Quiz
+            </a>
+            <a
+              className="relative text-white text-lg font-medium transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
+              href="https://assessment.datasenseai.com/"
+            >
+              Create Quiz
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -186,11 +215,15 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
                 <Moon className="h-5 w-5" />
               )}
             </Button>
+            <button className="hover:bg-[#03E9E9] hover:text-gray-900 text-white font-medium flex py-2 px-2 rounded-lg transition-colors gap-2" onClick={() => (window.location.href = '/pricing')}>
+              <img className="h-6 w-6" src={logoNew} alt="Logo" />
+              Upgrade to Pro
+            </button>
 
             {isLoaded && isSignedIn ? (
               <div className="flex items-center space-x-4">
                 {/* Add Dashboard button */}
-                <a
+                {/* <a
                   href="https://dashboard.datasenseai.com/practice-dashboard"
                   className="flex items-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
                 >
@@ -199,7 +232,7 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
                 </a>
                 <span className="text-white text-sm">
                   Welcome, {user.firstName}
-                </span>
+                </span> */}
                 <UserButton afterSignOutUrl={`/live-events`} />
               </div>
             ) : (

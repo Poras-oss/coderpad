@@ -13,6 +13,7 @@ import QuizHome from './components/QuizHome';
 import Instructions from './components/Instructions';
 import DataSkillsDashboard from './components/dash';
 import TestSeriesCoderpadHome from './components/TestSeriesCoderpadHome';
+import QuestionGallery from './components/QuestionGallery';
 import TestSeriesMcqHome from './components/TestSeriesMcqHome';
 import McqTestSeries from './components/McqTestSeries';
 import ScenarioTestSeries from './components/ScenarioTestSeries';
@@ -23,6 +24,7 @@ import { useUser } from "@clerk/clerk-react";
 import { NotificationProvider } from "./notification/NotificationProvider";
 import NavSwitcher from './components/DashAndBadgeSwitch';
 import Index from './pages/Index';
+import Pricing from './components/Pricing';
 
 // Define custom hook outside the component
 const useSubscriptionPolling = (clerkId) => {
@@ -96,13 +98,15 @@ const App = () => {
           <Route path="/mcqQuiz" element={<Quiz />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/instructions" element={<Instructions />} />
-          <Route path="/practice-area" element={<TestSeriesCoderpadHome />} />
+          <Route path="/practice-area" element={<QuestionGallery />} />
+          <Route path="/question-area" element={<TestSeriesCoderpadHome />} />
           <Route path="/quiz-area" element={<TestSeriesMcqHome />} />
           <Route path="/mcq" element={<McqTestSeries />} />
           <Route path="/scenario-area" element={<ScenarioTestSeries />} />
           <Route path="/scenario-quiz" element={<ScenarioQuiz />} />
           <Route path="/go-premium" element={<PaymentPlan />} />
           <Route path="/dashboard" element={<NavSwitcher />} />
+          <Route path="/pricing" element={<Pricing />} />
         </Routes>
       </BrowserRouter>
     </NotificationProvider>
