@@ -59,6 +59,8 @@ export default function QuizApp() {
   const userID = parsed.userID;
   const quizID = parsed.quizID;
   const questionID = parsed.questionID;
+  const subtopic = parsed.subtopic;
+
   const [discussionText, setDiscussionText] = useState('');
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -105,7 +107,7 @@ export default function QuizApp() {
 
   useEffect(() => {
     const updateCount = () => {
-        const min = 387;
+        const min = 2800;
         const max = 2999;
         const count = Math.floor(Math.random() * (max - min + 1)) + min;
         setOnlineCount(count);
@@ -168,12 +170,33 @@ export default function QuizApp() {
     setSidebarPage(1);
   };
 
+  // useEffect(() => {
+  //   const fetchQuestionList = async () => {
+  //     try {
+  //       const response = await axios.get('https://server.datasenseai.com/test-series-coding/mysql', {
+  //         params: { limit: 1000 }
+  //       });
+  //       if (response.data && Array.isArray(response.data.results)) {
+  //         setQuestionList(response.data.results);
+  //       }
+  //     } catch (err) {
+  //       console.error("Failed to fetch the question list for navigation:", err);
+  //     }
+  //   };
+  //   fetchQuestionList();
+  // }, []);
+
   useEffect(() => {
     const fetchQuestionList = async () => {
       try {
-        const response = await axios.get('https://server.datasenseai.com/test-series-coding/mysql', {
-          params: { limit: 1000 }
-        });
+        // MODIFICATION: Build params dynamically based on subtopic
+        const params = { limit: 1000 };
+        if (subtopic) {
+          params.subtopics = subtopic;
+        }
+
+        const response = await axios.get('https://server.datasenseai.com/test-series-coding/mysql', { params });
+
         if (response.data && Array.isArray(response.data.results)) {
           setQuestionList(response.data.results);
         }
@@ -182,7 +205,7 @@ export default function QuizApp() {
       }
     };
     fetchQuestionList();
-  }, []);
+  }, [subtopic]); // MODIFICATION: Re-run this effect if the subtopic changes
 
   useEffect(() => {
     if (questionList.length > 0 && questionID) {
@@ -191,13 +214,35 @@ export default function QuizApp() {
     }
   }, [questionList, questionID]);
 
+  // const handleNavigation = (offset) => {
+  //   if (currentQuestionNavIndex !== -1) {
+  //     const newIndex = currentQuestionNavIndex + offset;
+  //     if (newIndex >= 0 && newIndex < questionList.length) {
+  //       const targetQuestionId = questionList[newIndex]._id;
+  //       navigate(`/quiz?questionID=${targetQuestionId}${userID ? `&userID=${userID}` : ''}`);
+  //     }
+  //   }
+  // };
   const handleNavigation = (offset) => {
     if (currentQuestionNavIndex !== -1) {
       const newIndex = currentQuestionNavIndex + offset;
       if (newIndex >= 0 && newIndex < questionList.length) {
         const targetQuestionId = questionList[newIndex]._id;
-        navigate(`/quiz?questionID=${targetQuestionId}${userID ? `&userID=${userID}` : ''}`);
+        // MODIFICATION: Preserve the subtopic parameter on navigation
+        let newUrl = `/quiz?questionID=${targetQuestionId}`;
+        if (userID) newUrl += `&userID=${userID}`;
+        if (subtopic) newUrl += `&subtopic=${encodeURIComponent(subtopic)}`;
+        navigate(newUrl);
       }
+    }
+  };
+
+  const handleQuizNavigation = (offset) => {
+    const newIndex = currentQuestionIndex + offset;
+    // Ensure the new index is within the bounds of the questions array
+    if (newIndex >= 0 && newIndex < quizData.questions.length) {
+      // Use the existing function to select the question, which also resets feedback and output
+      handleQuestionSelect(newIndex); 
     }
   };
 
@@ -835,11 +880,11 @@ export default function QuizApp() {
           )}
           <h1 className="text-lg font-medium text-gray-900 dark:text-white">SQL Coderpad</h1>
 
-          {questionID && (
+          {(quizID || questionID) && (
             <div className="flex items-center gap-1">
               <button
-                onClick={() => handleNavigation(-1)}
-                disabled={currentQuestionNavIndex <= 0}
+                onClick={() => (quizID ? handleQuizNavigation(-1) : handleNavigation(-1))}
+                disabled={quizID ? currentQuestionIndex <= 0 : currentQuestionNavIndex <= 0}
                 className="p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Previous Question"
                 title="Previous Question"
@@ -847,8 +892,12 @@ export default function QuizApp() {
                 <ChevronLeft size={25} />
               </button>
               <button
-                onClick={() => handleNavigation(1)}
-                disabled={currentQuestionNavIndex === -1 || currentQuestionNavIndex >= questionList.length - 1}
+                onClick={() => (quizID ? handleQuizNavigation(1) : handleNavigation(1))}
+                disabled={
+                  quizID
+                    ? currentQuestionIndex >= quizData.questions.length - 1
+                    : (currentQuestionNavIndex === -1 || currentQuestionNavIndex >= questionList.length - 1)
+                }
                 className="p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Next Question"
                 title="Next Question"
@@ -1062,7 +1111,7 @@ export default function QuizApp() {
                                                 <button
                                                     key={index}
                                                     className={`flex-shrink-0 h-8 w-8 text-sm rounded-md flex items-center justify-center transition-colors ${
-                                                        index === currentQuestionNavIndex
+                                                        index === currentQuestionIndex 
                                                             ? 'bg-teal-500 text-white font-semibold shadow-md'
                                                             : 'bg-gray-100 dark:bg-[#252526] hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300'
                                                     }`}
@@ -1502,13 +1551,22 @@ export default function QuizApp() {
                                         <ThumbsDown size={18} />
                                     </button>
                                     {/* MODIFICATION: Added onClick to open discussion tab */}
-                                    <button 
+                                    {/* <button 
                                       onClick={() => setActiveTab('discussion')}
                                       className='p-2 rounded-md flex items-center space-x-2 transition-colors text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700'
                                       aria-label="Open discussion tab"
                                     >
                                       <MessageCircle size={18} />
-                                    </button>
+                                    </button> */}
+                                    {questionID && (
+                                      <button 
+                                        onClick={() => setActiveTab('discussion')}
+                                        className='p-2 rounded-md flex items-center space-x-2 transition-colors text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                        aria-label="Open discussion tab"
+                                      >
+                                        <MessageCircle size={18} />
+                                      </button>
+                                    )}
 
                                     <div className="w-[1px] h-6 bg-gray-200 dark:bg-[#333333] mx-1"></div>
 
