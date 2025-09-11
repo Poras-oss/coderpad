@@ -3064,7 +3064,7 @@ export default function QuestionGallery() {
                         <span
                           className={`text-xs px-5 py-2 rounded-lg backdrop-blur font-bold bg-[#FFF9D8] text-[#FFB039]`}
                         >
-                          ★ 4.6 (11.9k+)
+                          ★ 4.6 (3.5k+)
                         </span>
                       </div>
                     </div>
@@ -3092,7 +3092,7 @@ export default function QuestionGallery() {
                         <Star className="h-4 w-4" /> 500 Problems
                       </div>
                       <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4" /> 95.0k Learners
+                        <Users className="h-4 w-4" /> 28.5k Learners
                       </div>
                       <div className="flex items-center gap-2">
                         <Flag className="h-4 w-4" /> Advanced Level
