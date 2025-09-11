@@ -107,13 +107,13 @@ export default function QuizApp() {
 
   useEffect(() => {
     const updateCount = () => {
-        const min = 2800;
-        const max = 2999;
+        const min = 101;
+        const max = 299;
         const count = Math.floor(Math.random() * (max - min + 1)) + min;
         setOnlineCount(count);
     };
     updateCount();
-    const intervalId = setInterval(updateCount, 3000);
+    const intervalId = setInterval(updateCount, 900000);
     return () => clearInterval(intervalId);
   }, []);
 
