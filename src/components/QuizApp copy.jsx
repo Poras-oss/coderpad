@@ -7,7 +7,7 @@ import { useUser, UserButton } from "@clerk/clerk-react";
 import Split from 'react-split';
 import { Loader2, Video, X, BookOpen, Play, Pause, RotateCcw, Hash, Menu, CheckCircle2, XCircle, Send, Sun, Moon, LayoutDashboard, ChevronLeft, ChevronRight, FileText, Table2, MessageSquare, KeyRound, History, Sparkles, ThumbsUp, ThumbsDown, Share2, Link, Briefcase, ChevronUp, ChevronDown, Clock, Timer, MessageCircle, Gauge, Calendar, NotebookText, Building2 } from 'lucide-react';
 import ReactPlayer from 'react-player';
-import Bot from './Bot';
+import Chatbot from './Chatbot'; // MODIFICATION: Imported Chatbot
 
 import { Badge } from "./ui/badge";
 import SubscriptionDialogue from './SubscriptionDialogue';
@@ -1081,8 +1081,8 @@ export default function QuizApp() {
                                         // MODIFICATION: Updated AI Help tab to trigger premium popup
                                         onClick={() => {
                                             if (tab === 'AI Help') {
-                                                setPremiumFeatureName('AI Help');
-                                                setIsPremiumPopupOpen(true);
+                                                setActiveTab(tab.toLowerCase());
+                                                setIsFolded(false);
                                             } else {
                                                 setActiveTab(tab.toLowerCase());
                                                 setIsFolded(false);
@@ -1136,15 +1136,8 @@ export default function QuizApp() {
                                                     ? 'border-b-2 border-teal-500 text-gray-900 dark:text-white'
                                                     : 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
                                             }`}
-                                            // MODIFICATION: Updated AI Help tab to trigger premium popup
-                                            onClick={() => {
-                                                if (tab === 'AI Help') {
-                                                    setPremiumFeatureName('AI Help');
-                                                    setIsPremiumPopupOpen(true);
-                                                } else {
-                                                    setActiveTab(tab.toLowerCase());
-                                                }
-                                            }}
+                                            // MODIFICATION: Logic updated to just switch tab for AI Help
+                                            onClick={() => setActiveTab(tab.toLowerCase())}
                                         >
                                             <span className="flex items-center gap-2">
                                             {tab === 'Question' && <FileText className="h-5 w-5 text-[#14B8A6]" />}
@@ -1508,19 +1501,16 @@ export default function QuizApp() {
                                             </div>
                                         )}
 
+                                        {/* MODIFICATION: Replaced "Coming Soon" with the Chatbot component */}
                                         {activeTab === 'ai help' && (
-                                            <div className="space-y-4">
-                                                <div className="relative rounded-lg p-8 text-center bg-gray-50 dark:bg-[#252526]">
-                                                    <div className="absolute inset-0 backdrop-filter backdrop-blur-md bg-opacity-50"></div>
-                                                    <div className="relative z-10">
-                                                        <Bot size={48} className="mx-auto mb-4 text-gray-400" />
-                                                        <h2 className="text-2xl font-bold text-gray-600 dark:text-gray-400">
-                                                            AI Help Coming Soon
-                                                        </h2>
-                                                        <p className="text-gray-500 mt-2">We're working on bringing you AI-powered assistance for solving coding problems.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <Chatbot
+                                                questionText={currentQuestion.question_text}
+                                                dataOverview={currentQuestion['data-overview']}
+                                                expectedAnswer={currentQuestion.expected_output}
+                                                isDarkMode={isDarkMode}
+                                                chatId={questionID}
+                                                user={user}
+                                            />
                                         )}
                                     </>
                                 )}
