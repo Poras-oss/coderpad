@@ -27,7 +27,7 @@ const Chatbot = ({ questionText, dataOverview, expectedAnswer, isDarkMode, chatI
     }
     setMessages([{
       role: 'assistant',
-      content: 'Hello! I\'m here to help you with your questions. Feel free to ask me anything!'
+      content: "Hello! I'm here to help you with your questions. Feel free to ask me anything! (Tip: No need to start with 'hi' or 'hello'—just drop your question directly.)"
     }]);
   }, [chatId]);
 
@@ -106,11 +106,12 @@ const Chatbot = ({ questionText, dataOverview, expectedAnswer, isDarkMode, chatI
           Data Overview: ${dataOverview}
           Expected Answer: ${JSON.stringify(expectedAnswer)}
           Instructions:
-          - Provide brief and concise responses.
-          - If providing SQL queries, format them in a markdown code block.
-          - Do not provide the final solution query directly unless explicitly asked. Guide the user instead.
-          - Focus on directly answering the user's question.
-          - Maintain context from previous messages in this conversation.`
+            - NEVER provide the final solution query directly. Your primary goal is to guide the student.
+            - Ask leading questions to help the student break down the problem into smaller steps.
+            - If a user provides an incorrect query, identify their specific error, explain the concept, and provide a hint.
+            - Keep responses brief, clear, and encouraging.
+            - Format all SQL code in markdown code blocks.
+            - Maintain context from the conversation history to provide relevant follow-up guidance.`
         }
       ];
 
