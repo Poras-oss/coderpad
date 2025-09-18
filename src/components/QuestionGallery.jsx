@@ -1382,7 +1382,7 @@ export default function QuestionGallery() {
                                         <div className="grid grid-cols-12 gap-5 items-center">
                                           <div className="col-span-12 md:col-span-5">
                                             <h3
-                                              className={`text-sm md:text-base font-medium ${
+                                              className={`text-sm md:text-sm font-medium ${
                                                 isDarkMode
                                                   ? "text-gray-300"
                                                   : "text-gray-700"
