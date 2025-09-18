@@ -32,6 +32,8 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
   const handleBackToHome = () => {
     window.location.href = "https://practice.datasenseai.com";
   };
+  const isPracticePage = window.location.href.includes('/practice-area?subject=sql');
+  const isLiveQuizPage = window.location.href.includes('/live-events');
 
   return (
     <header className="sticky top-0 w-full bg-[#008B8B] shadow-lg z-50">
@@ -50,25 +52,25 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
             <a className="hidden md:block text-white hover:underline text-lg" href="/live-events">Live Quiz</a>
             <a className="hidden md:block text-white hover:underline text-lg" href="https://assessment.datasenseai.com/">Create Quiz</a> */}
             <a
-              className="relative text-white text-lg font-medium transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
+              className="relative text-white text-lg font-base transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
               href="https://dashboard.datasenseai.com/practice-dashboard"
             >
               Dashboard
             </a>
             <a
-              className="relative text-white text-lg font-medium transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
+              className={`relative text-white text-lg ${isPracticePage ? "font-bold" : "font-base"}  transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full`}
               href="/practice-area?subject=sql"
             >
               Practice
             </a>
             <a
-              className="relative text-white text-lg font-medium transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
+              className={`relative text-white text-lg ${isLiveQuizPage ? "font-bold" : "font-base"}  transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full`}
               href="/live-events"
             >
               Live Quiz
             </a>
             <a
-              className="relative text-white text-lg font-medium transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
+              className="relative text-white text-lg font-base transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
               href="https://assessment.datasenseai.com/"
             >
               Create Quiz
@@ -233,13 +235,13 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
                 <span className="text-white text-sm">
                   Welcome, {user.firstName}
                 </span> */}
-                <UserButton afterSignOutUrl={`/live-events`} />
+                <UserButton afterSignOutUrl={`/`} />
               </div>
             ) : (
               <SignInButton
                 mode="modal"
-                fallbackRedirectUrl={`/live-events`}
-                signUpForceRedirectUrl={`/live-events`}
+                fallbackRedirectUrl={`/`}
+                signUpForceRedirectUrl={`/`}
               >
                 <button className="bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
                   Log In

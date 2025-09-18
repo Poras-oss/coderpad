@@ -4,7 +4,7 @@ import queryString from "query-string";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser, SignInButton, UserButton } from "@clerk/clerk-react";
 import logo from "../assets/logo.png";
-import { Loader2, Moon, Sun } from "lucide-react";
+import { Loader2, Moon, Sun, FolderKanban } from "lucide-react";
 import { Button } from "./ui/button";
 import QuizInstructionsDialog from "./QuizInstructionsDialog";
 import {
@@ -223,11 +223,15 @@ const DataSkillsDashboard = () => {
   </AlertDialogContent>
 </AlertDialog> */}
       <AlertDialog open={showInstructions} onOpenChange={setShowInstructions}>
-  <AlertDialogContent className={`max-w-lg shadow-xl border-none ${
+  <AlertDialogContent className={`font-sans max-w-lg shadow-xl border-none ${
     isDarkMode ? 'bg-[#262626] text-gray-50' : 'bg-white text-gray-900'
   }`}>
     <AlertDialogHeader>
-      <AlertDialogTitle className="text-2xl font-bold">
+      <div className="mx-auto mb-4 h-12 w-12 flex items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/50">
+        <FolderKanban className="h-6 w-6 text-yellow-500" />
+      </div>
+      {/* <AlertDialogTitle className="text-2xl font-bold"> */}
+      <AlertDialogTitle className="text-xl font-bold mb-2 text-teal-500">
         Quiz Instructions
       </AlertDialogTitle>
       <AlertDialogDescription asChild>
@@ -270,7 +274,7 @@ const DataSkillsDashboard = () => {
 
           {/* General Instructions */}
           <div>
-            <p className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>General Instructions:</p>
+            <p className={`font-semibold ${isDarkMode ? 'text-teal-500' : 'text-teal-500'}`}>General Instructions:</p>
             <ul className={`list-disc list-inside pl-4 mt-2 space-y-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               <li>This is a timed quiz and can only be attempted once.</li>
               <li>For coding questions, use the 'Run Code' button to check if your code works correctly.</li>
@@ -291,7 +295,7 @@ const DataSkillsDashboard = () => {
           setShowInstructions(false);
           pendingNavigation && pendingNavigation();
         }}
-        className="bg-blue-600 text-white hover:bg-blue-700"
+        className="bg-teal-500 text-white hover:bg-teal-600"
       >
         Start Quiz
       </AlertDialogAction>
