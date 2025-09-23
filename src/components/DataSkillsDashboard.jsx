@@ -1058,7 +1058,7 @@ const DataSkillsDashboard = () => {
                           <div className="flex items-center gap-4 w-full">
                               <div className="flex-1">
                                   <div className="flex justify-between items-center mb-2">
-                                    <p className="font-semibold">Number of Test Attended: {completedQuizzesCount} out of {totalQuizzes}</p>
+                                    <p className="font-semibold">Number of Test Completed: {completedQuizzesCount} out of {totalQuizzes}</p>
                                     <p className="font-semibold text-green-400">{progressPercentage}% Completed</p>
                                   </div>
                                   <div className={`h-2 rounded-full w-full ${isDarkMode ? "bg-white/15" : "bg-white/40"}`}>
