@@ -18,6 +18,7 @@ import {
 } from "./ui/alert-dialog";
 import Navbar from "./Navbar";
 import certificate from "../assets/certificate.png";
+import Loader from "./Loader";
 
 const SQLIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="h-9 w-9" fill="currentColor">
@@ -293,6 +294,7 @@ const DataSkillsDashboard = () => {
               {isSearching ? (
                 <div className="flex justify-center items-center h-32">
                   <Loader2 className="h-8 w-8 animate-spin text-cyan-600" />
+                  {/* <Loader className="h-8 w-8 animate-spin text-cyan-600" /> */}
                 </div>
               ) : searchResults.length > 0 ? (
                 <div className="space-y-3 p-1">
@@ -491,10 +493,12 @@ const DataSkillsDashboard = () => {
                   {isLoading ? (
                       // <div className="flex flex-col items-center justify-center p-8  text-black"><Loader2 className="h-8 w-8 animate-spin " /><p className="mt-4 text-lg font-medium">Loading quizzes...</p></div>
                       <div className="flex flex-col items-center justify-center p-8">
-                          <Loader2 className={`h-8 w-8 animate-spin ${isDarkMode ? "text-gray-200" : "text-black"}`} />
-                          <p className={`mt-4 text-lg font-medium ${isDarkMode ? "text-gray-200" : "text-black"}`}>
+                          {/* <Loader2 className={`h-8 w-8 animate-spin ${isDarkMode ? "text-gray-200" : "text-black"}`} /> */}
+                          <Loader />
+                          {/* <Loader inline={true} isDarkMode={isDarkMode} /> */}
+                          {/* <p className={`mt-4 text-lg font-medium ${isDarkMode ? "text-gray-200" : "text-black"}`}>
                               Loading quizzes...
-                          </p>
+                          </p> */}
                       </div>
                   ) : (
                       quizzes.map((quiz) => {

@@ -15,6 +15,7 @@ import Navbar from './Navbar';
 import { useNotification } from "../notification/NotificationProvider";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import logo from "../assets/coderpadLogo.png";
+import Loader from './Loader';
 
 
 export default function QuizApp() {
@@ -817,7 +818,8 @@ export default function QuizApp() {
 
   if (loading) return (
     <div className="w-full h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-[#1e1e1e]">
-      <Loader2 className="w-16 h-16 text-teal-500 animate-spin" />
+      {/* <Loader2 className="w-16 h-16 text-teal-500 animate-spin" /> */}
+      <Loader className="w-16 h-16 text-teal-500 animate-spin" />
       <h5 className="mt-4 text-2xl font-light text-gray-600 dark:text-gray-400">Loading Problem...</h5>
     </div>
   );
