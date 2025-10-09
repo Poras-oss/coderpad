@@ -21,6 +21,7 @@ import {
   Search,
   KeyRound,
 } from "lucide-react";
+import Loader from "./Loader";
 import ReactPlayer from "react-player/youtube";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -1023,9 +1024,7 @@ export default function QuestionGallery() {
 
             <ScrollArea className="h-[calc(100vh-150px)] mt-4">
               {isSearching ? (
-                <div className="flex justify-center items-center h-32">
-                  <Loader2 className="h-8 w-8 animate-spin text-cyan-600" />
-                </div>
+                <Loader inline={true} isDarkMode={isDarkMode} />
               ) : searchResults.length > 0 ? (
                 <div className="space-y-3 p-1">
                   {searchResults.map((quiz) => (
@@ -1350,16 +1349,7 @@ export default function QuestionGallery() {
                           </div>
                         </div>
                         {lessonLoading[subtopic] ? (
-                          <div className="flex items-center gap-2 p-4">
-                            <Loader2 className="h-5 w-5 animate-spin text-cyan-600" />
-                            <span
-                              className={`${
-                                isDarkMode ? "text-gray-300" : "text-gray-700"
-                              }`}
-                            >
-                              Loading questions...
-                            </span>
-                          </div>
+                          <Loader inline={true} isDarkMode={isDarkMode} />
                         ) : (lessonQuestions[subtopic] || []).length === 0 ? (
                           <div
                             className={`p-4 ${
