@@ -978,7 +978,7 @@ const Index = () => {
     'Dashboard': { description: 'Access the neural dashboard for advanced analytics and controls.', yesLink: 'https://dashboard.datasenseai.com/' },
     'Custom Test': { description: 'Start a custom test tailored to your skills and interests.', yesLink: 'https://assessment.datasenseai.com/' },
     'Practice Question': { description: 'Practice with individual questions to sharpen your knowledge.', yesLink: '/practice-area?subject=sql' },
-    'DataSense Gaming Arena': { description: 'Enter the DataSense Gaming Arena for interactive challenges.', yesLink: 'https://battleground.datasenseai.com/start' },
+    'DataSense Gaming Arena': { description: 'Enter the DataSense Gaming Arena for interactive challenges.', yesLink: '/games' },
   };
 
   if (isLoading) {
