@@ -106,19 +106,28 @@
 
       var script = document.createElement("script");
       script.src = loaderUrl;
+      script.type = "application/javascript";
+      script.onerror = (error) => {
+        console.error("Script loading error:", error);
+        alert("Failed to load Unity loader. Please check console for details.");
+      };
       script.onload = () => {
+        if (typeof createUnityInstance === "undefined") {
+          console.error("createUnityInstance is not defined after loading script");
+          return;
+        }
         createUnityInstance(canvas, config, (progress) => {
           document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                document.querySelector("#unity-loading-bar").style.display = "none";
-                document.querySelector("#unity-fullscreen-button").onclick = () => {
-                  unityInstance.SetFullscreen(1);
-                };
-
-              }).catch((message) => {
-                alert(message);
-              });
-            };
+        }).then((unityInstance) => {
+          document.querySelector("#unity-loading-bar").style.display = "none";
+          document.querySelector("#unity-fullscreen-button").onclick = () => {
+            unityInstance.SetFullscreen(1);
+          };
+        }).catch((message) => {
+          console.error("Unity instance creation error:", message);
+          alert(message);
+        });
+      };
 
       document.body.appendChild(script);
 
