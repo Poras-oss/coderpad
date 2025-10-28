@@ -1040,7 +1040,8 @@ export default function QuizApp() {
           {quizID && (
             <button
               onClick={() => handleSubmitQuiz(false)}
-              disabled={!canSubmit}
+              // disabled={!canSubmit}
+              disabled={!canSubmit || Object.keys(scores).length === 0}
               className="px-4 py-1.5 text-sm rounded-md text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50"
             >
               Submit Quiz

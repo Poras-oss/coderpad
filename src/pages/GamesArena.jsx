@@ -6,6 +6,11 @@ import CyberButton from '../components/home/CyberButton';
 import FuturisticGlitchPopup from '../components/home/FuturisticGlitchPopup';
 import ComingSoonGlitchPopup from '../components/home/ComingSoonGlitchPopup';
 import buttonClickSound from '../assets/mp3/button-click.mp3';
+import sbi from '../assets/games/SBI.png';
+import battelground from '../assets/games/Battleground.png';
+import analytics from '../assets/games/Data Analytics.png';
+import aiml from '../assets/games/AI_ML.png';
+import slot from '../assets/games/SLOT_Machine.png';
 
 // Update the games array to include route information
 const games = [
@@ -13,7 +18,8 @@ const games = [
         id: 1, 
         title: 'SQL Bureau of Investigation', 
         description: 'Database mystery solving game', 
-        image: 'https://images.pexels.com/photos/8761562/pexels-photo-8761562.jpeg?auto=compress&cs=tinysrgb&w=800', 
+        // image: 'https://images.pexels.com/photos/8761562/pexels-photo-8761562.jpeg?auto=compress&cs=tinysrgb&w=800', 
+        image: sbi, 
         color: '#00D9FF',
         route: '#',
         isComingSoon: true // Flag for unavailable games
@@ -22,7 +28,8 @@ const games = [
         id: 2, 
         title: 'Battleground', 
         description: 'Tactical FPS combat simulator', 
-        image: 'https://images.pexels.com/photos/7915437/pexels-photo-7915437.jpeg?auto=compress&cs=tinysrgb&w=800', 
+        // image: 'https://images.pexels.com/photos/7915437/pexels-photo-7915437.jpeg?auto=compress&cs=tinysrgb&w=800', 
+        image: battelground,
         color: '#00D9FF',
         route: 'https://battleground.datasenseai.com/start',
         isExternal: true // Flag for external URLs
@@ -31,28 +38,32 @@ const games = [
         id: 3, 
         title: '⁠Data Analytics Journey', 
         description: 'Strategic data journey game', 
-        image: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800', 
+        // image: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800', 
+        image: analytics,
         color: '#00D9FF',
-        route: '/unity-games',
+        // route: '/unity-games',
+        route: 'https://verdant-bombolone-41a667.netlify.app/game1/',
         isExternal: false
     },
     { 
         id: 4, 
         title: 'AI ML', 
         description: 'AI training simulation', 
-        image: 'https://images.pexels.com/photos/7034287/pexels-photo-7034287.jpeg?auto=compress&cs=tinysrgb&w=800', 
+        // image: 'https://images.pexels.com/photos/7034287/pexels-photo-7034287.jpeg?auto=compress&cs=tinysrgb&w=800', 
+        image: aiml,
         color: '#00D9FF',
-        route: '#',
-        isComingSoon: true
+        route: 'https://verdant-bombolone-41a667.netlify.app/game2/',
+        isExternal: true // Flag for external URLs
     },
     { 
         id: 5, 
         title: '⁠SQL Slot Machine', 
         description: 'Advanced SQL puzzle solver', 
-        image: 'https://images.pexels.com/photos/8728382/pexels-photo-8728382.jpeg?auto=compress&cs=tinysrgb&w=800', 
+        // image: 'https://images.pexels.com/photos/8728382/pexels-photo-8728382.jpeg?auto=compress&cs=tinysrgb&w=800', 
+        image: slot,
         color: '#00D9FF',
-        route: 'https://datasenseai.com/unity-games',
-        isExternal: true // Flag for external URLs
+        route: '#',
+        isComingSoon: true
     }
 ];
 
