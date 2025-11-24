@@ -53,7 +53,7 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
             <a className="hidden md:block text-white hover:underline text-lg" href="https://assessment.datasenseai.com/">Create Quiz</a> */}
             <a
               className="relative text-white text-lg font-base transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
-              href="https://dashboard.datasenseai.com/practice-dashboard"
+              href="https://dashboard.datasenseai.com/dashboard"
             >
               Dashboard
             </a>
