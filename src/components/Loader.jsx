@@ -34,14 +34,14 @@ const Loader = ({ inline = false, isDarkMode = false }) => {
           {/* Loading text */}
           <div className="flex items-center gap-2">
             {/* <span className={`text-base font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}> */}
-            <span className="bg-gradient-to-r from-teal-500 to-cyan-500 dark:from-teal-400 dark:via-cyan-400 dark:to-teal-400 bg-clip-text text-transparent animate-gradient-x">
+            {/* <span className="bg-gradient-to-r from-teal-500 to-cyan-500 dark:from-teal-400 dark:via-cyan-400 dark:to-teal-400 bg-clip-text text-transparent animate-gradient-x">
               Loading
             </span>
             <div className="flex gap-1">
               <span className="w-1.5 h-1.5 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full animate-bounce-custom" style={{ animationDelay: "0ms" }} />
               <span className="w-1.5 h-1.5 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full animate-bounce-custom" style={{ animationDelay: "150ms" }} />
               <span className="w-1.5 h-1.5 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full animate-bounce-custom" style={{ animationDelay: "300ms" }} />
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -144,7 +144,7 @@ const Loader = ({ inline = false, isDarkMode = false }) => {
 
         {/* Loading text with modern animation */}
         <div className="flex flex-col items-center gap-4">
-          <div className="flex items-center gap-3">
+          {/* <div className="flex items-center gap-3">
             <h2 className="text-2xl md:text-3xl font-bold relative">
               <span className="bg-gradient-to-r from-teal-500 to-cyan-500 dark:from-teal-400 dark:via-cyan-400 dark:to-teal-400 bg-clip-text text-transparent animate-gradient-x">
                 Loading
@@ -155,7 +155,7 @@ const Loader = ({ inline = false, isDarkMode = false }) => {
               <span className="w-2 h-2 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full animate-bounce-custom" style={{ animationDelay: "150ms" }} />
               <span className="w-2 h-2 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full animate-bounce-custom" style={{ animationDelay: "300ms" }} />
             </div>
-          </div>
+          </div> */}
           
           {/* Animated bars */}
           {/* <div className="flex gap-1.5">

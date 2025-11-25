@@ -12,6 +12,7 @@ import {
   FaDownload
 } from "react-icons/fa";
 import buttonClickSound from '../../assets/mp3/button-click.mp3';
+// import SqlCoursePage from '../SqlCoursePage';
 
 const socialLinks = [
   { icon: FaYoutube, title: "Youtube", url: "https://www.youtube.com/@Senseofdata" },
@@ -23,33 +24,24 @@ const socialLinks = [
 
 const pdfResources = [
   {
-    name: "SQL Notes",
-    // file: "/assets/resources/Full SQL Notes.pdf",
-    file: "assets/resources/Full SQL Notes 📘.pdf",
-  },
-  {
-    name: "Sql Cheat Sheet",
-    file: "assets/resources/sql-basics-cheat-sheet-a4.pdf",
-  },
-  {
-    name: "Beginners Guide to SQL",
-    file: "assets/resources/Beginners Guide to SQL.pdf",
-  },
-  {
-    name: "Advanced SQL questions",
-    file: "public/assets/resources/Advanced SQL questions.pdf",
-  },
-  {
     name: "SQL Cheat Sheet",
     file: "public/assets/resources/SQL Cheatsheet.pdf",
+  },
+  {
+    name: "DS - SQL Hand Written Notes",
+    file: "public/assets/resources/DS - SQL Hand Written Notes.pdf",
   },
   {
     name: "SQL E-book",
     file: "public/assets/resources/SQL E-book.pdf",
   },
   {
-    name: "DS - SQL Hand Written Notes",
-    file: "public/assets/resources/DS - SQL Hand Written Notes.pdf",
+    name: "SQL Notes by DataSense",
+    file: "assets/resources/SQL Notes by DataSense.pdf",
+  },
+  {
+    name: "SQL Heist Program Understanding",
+    file: "assets/resources/SQL Heist Brochure Final.pdf",
   },
 ];
 
@@ -197,7 +189,8 @@ const CyberNav = ({ onLearnSQLClick }) => {
               <button
                 onClick={() => {
                   handleClick();
-                  onLearnSQLClick?.();
+                  // onLearnSQLClick?.();
+                  window.location.href = '/sql-course';
                 }}
                 className="relative text-cyan-300 hover:text-cyan-100 font-mono text-sm md:text-lg transition-colors duration-200
                   after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-0.5 after:bg-cyan-300 after:transition-all after:duration-300 hover:after:w-full cursor-pointer"
@@ -403,7 +396,8 @@ const CyberNav = ({ onLearnSQLClick }) => {
                 onClick={() => {
                   handleClick();
                   closeMobileMenu();
-                  onLearnSQLClick?.();
+                  // onLearnSQLClick?.();
+                  window.location.href = '/sql-course';
                 }}
                 className="relative text-cyan-300 hover:text-cyan-100 font-mono text-base transition-colors duration-200 py-3 px-4 rounded-lg hover:bg-cyan-400/10 border border-transparent hover:border-cyan-400/30 w-full text-left"
               >
