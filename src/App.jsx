@@ -28,7 +28,7 @@ import Index from './pages/Index';
 import Pricing from './components/Pricing';
 import GamesArena from './pages/GamesArena';
 import UnityGameWrapper from './components/UnityGameWrapper';
-
+import SqlCoursePage from './components/SqlCoursePage';
 // Define custom hook outside the component
 const useSubscriptionPolling = (clerkId) => {
   useEffect(() => {
@@ -112,6 +112,7 @@ const App = () => {
           <Route path="/dashboard" element={<NavSwitcher />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/unity-games" element={<UnityGameWrapper />} />
+          <Route path="/sql-course" element={<SqlCoursePage />} />
         </Routes>
       </BrowserRouter>
     </NotificationProvider>
