@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Navbar from "./Navbar";
 import heroVideo from "../assets/heroCompressed.mp4";
 import Loader from "./Loader";
+import { Download } from "lucide-react";
 
 const pdfResources = [
   {
@@ -101,9 +102,10 @@ export default function SQLCourseLandingPage() {
           <a
             href="assets/resources/SQL Heist Brochure Final.pdf"
             download
-            className="mt-7 px-10 py-4 bg-white text-emerald-700 font-semibold text-lg rounded-xl shadow-lg hover:bg-emerald-50 inline-block text-center"
+            className="mt-7 px-10 py-4 bg-white text-emerald-700 font-semibold text-lg rounded-xl shadow-lg hover:bg-emerald-50 inline-flex text-center gap-2"
           >
-            Download Brochure
+            Course Overview
+            <Download/>
           </a>
           </div>
           <p className={`mt-3 text-sm ${
