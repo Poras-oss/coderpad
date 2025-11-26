@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Navbar from "./Navbar";
 import heroVideo from "../assets/heroCompressed.mp4";
 import Loader from "./Loader";
+import { Download } from "lucide-react";
 
 const pdfResources = [
   {
@@ -21,6 +22,7 @@ const pdfResources = [
 export default function SQLCourseLandingPage() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(null);
   const learningPlanSectionRef = useRef(null);
 
   useEffect(() => {
@@ -34,6 +36,20 @@ export default function SQLCourseLandingPage() {
 
   const scrollToLearningPlan = () => {
     learningPlanSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const openImagePopup = (imageSrc, imageAlt) => {
+    setSelectedImage({ src: imageSrc, alt: imageAlt });
+  };
+
+  const closeImagePopup = () => {
+    setSelectedImage(null);
+  };
+
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      closeImagePopup();
+    }
   };
 
   if (isLoading) {
@@ -76,12 +92,22 @@ export default function SQLCourseLandingPage() {
             An 18-module, beginner-friendly, self-paced program where you solve real analytics
             problems step-by-step and build a strong SQL foundation.
           </p>
+          <div className="flex flex-col md:flex-row gap-4">
           <button 
             onClick={scrollToLearningPlan}
             className="mt-7 px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-lg font-semibold shadow-md"
           >
             Get Instant Access
           </button>
+          <a
+            href="assets/resources/SQL Heist Brochure Final.pdf"
+            download
+            className="mt-7 px-10 py-4 bg-white text-emerald-700 font-semibold text-lg rounded-xl shadow-lg hover:bg-emerald-50 inline-flex text-center gap-2"
+          >
+            Course Overview
+            <Download/>
+          </a>
+          </div>
           <p className={`mt-3 text-sm ${
             isDarkMode ? "text-gray-400" : "text-slate-500"
           }`}>
@@ -90,7 +116,7 @@ export default function SQLCourseLandingPage() {
         </div>
 
         <div className="flex-1 flex justify-center">
-          <div className={`w-full max-w-md rounded-3xl shadow-2xl border overflow-hidden ${
+          <div className={`w-full max-w-2xl rounded-3xl shadow-2xl border overflow-hidden ${
             isDarkMode ? "border-emerald-700/50" : "border-emerald-200"
           }`}>
             <video
@@ -237,7 +263,8 @@ export default function SQLCourseLandingPage() {
                 <img
                   src="assets/sql-course/gDrive.jpg"
                   alt="Google Drive access for The SQL Heist Program"
-                  className="w-full h-full object-cover rounded-xl transition-transform duration-500 ease-in-out group-hover:scale-110"
+                  onClick={() => openImagePopup("assets/sql-course/gDrive.jpg", "Google Drive access for The SQL Heist Program")}
+                  className="w-full h-full cursor-pointer object-cover rounded-xl transition-transform duration-500 ease-in-out group-hover:scale-110"
                 />
               </div>
               <ul className={`mt-3 space-y-2 text-sm md:text-base ${
@@ -272,7 +299,8 @@ export default function SQLCourseLandingPage() {
                 <img
                   src="assets/sql-course/topmate.jpg"
                   alt="Topmate interface for The SQL Heist Program"
-                  className="w-full h-full object-cover rounded-xl transition-transform duration-500 ease-in-out group-hover:scale-110"
+                  onClick={() => openImagePopup("assets/sql-course/topmate.jpg", "Topmate interface for The SQL Heist Program")}
+                  className="w-full h-full object-cover cursor-pointer rounded-xl transition-transform duration-500 ease-in-out group-hover:scale-110"
                 />
               </div>
               <ul className={`mt-3 space-y-2 text-sm md:text-base ${
@@ -318,7 +346,8 @@ export default function SQLCourseLandingPage() {
             <img
               src="assets/sql-course/3.png"
               alt="SQL Heist Program certificate of completion"
-              className="w-full h-full object-contain rounded-3xl transition-transform duration-500 ease-in-out group-hover:scale-110"
+              onClick={() => openImagePopup("assets/sql-course/3.png", "SQL Heist Program certificate of completion")}
+              className="w-full h-full object-contain cursor-pointer rounded-3xl transition-transform duration-500 ease-in-out group-hover:scale-110"
             />
           </div>
         </div>
@@ -333,7 +362,8 @@ export default function SQLCourseLandingPage() {
             <img
               src="assets/sql-course/practiceQuestions.png"
               alt="DataSense practice website with 500+ SQL questions"
-              className="w-full h-full object-contain rounded-3xl transition-transform duration-500 ease-in-out group-hover:scale-110"
+              onClick={() => openImagePopup("assets/sql-course/practiceQuestions.png", "DataSense practice website with 500+ SQL questions")}
+              className="w-full h-full object-contain cursor-pointer rounded-3xl transition-transform duration-500 ease-in-out group-hover:scale-110"
             />
           </div>
           <div>
@@ -519,6 +549,22 @@ export default function SQLCourseLandingPage() {
         </div>
         © {new Date().getFullYear()} The SQL Heist Program · DataSense. All rights reserved.
       </footer>
+
+      {/* Image Popup Modal */}
+      {selectedImage && (
+        <div
+          onClick={handleBackdropClick}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md"
+        >
+          <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
+            <img
+              src={selectedImage.src}
+              alt={selectedImage.alt}
+              className="max-w-full max-h-[90vh] object-contain rounded-lg"
+            />
+          </div>
+        </div>
+      )}
     </div>
     </div>
   );
