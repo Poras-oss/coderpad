@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useUser, SignInButton, UserButton } from "@clerk/clerk-react";
-import { Moon, Sun, LayoutDashboard } from "lucide-react";
+import { Moon, Sun, LayoutDashboard, User } from "lucide-react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { Button } from "./ui/button";
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaYoutube, FaDiscord} from "react-icons/fa";
@@ -235,7 +235,15 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
                 <span className="text-white text-sm">
                   Welcome, {user.firstName}
                 </span> */}
-                <UserButton afterSignOutUrl={`/`} />
+                <UserButton afterSignOutUrl={`/`}>
+                  <UserButton.MenuItems>
+                    <UserButton.Action
+                      label="Profile"
+                      labelIcon={<User size={14} />}
+                      onClick={() => window.open("https://dashboard.datasenseai.com/portfolio", "_blank")}
+                    />
+                  </UserButton.MenuItems>
+                </UserButton>
               </div>
             ) : (
               <SignInButton
@@ -319,7 +327,15 @@ const Navbar = ({ isDarkMode, setIsDarkMode }) => {
                   <span className="text-white text-sm font-mono">
                     Welcome, {user.firstName}
                   </span>
-                  <UserButton afterSignOutUrl={`/live-events`} />
+                  <UserButton afterSignOutUrl={`/live-events`}>
+                    <UserButton.MenuItems>
+                      <UserButton.Action
+                        label="Profile"
+                        labelIcon={<User size={14} />}
+                        onClick={() => window.open("https://dashboard.datasenseai.com/portfolio", "_blank")}
+                      />
+                    </UserButton.MenuItems>
+                  </UserButton>
                 </>
               ) : (
                 <SignInButton
