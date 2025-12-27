@@ -14,30 +14,31 @@ import slot from '../assets/games/SLOT_Machine.png';
 
 // Update the games array to include route information
 const games = [
-    { 
-        id: 1, 
-        title: 'SQL Bureau of Investigation', 
-        description: 'Database mystery solving game', 
-        // image: 'https://images.pexels.com/photos/8761562/pexels-photo-8761562.jpeg?auto=compress&cs=tinysrgb&w=800', 
-        image: sbi, 
-        color: '#00D9FF',
-        route: '#',
-        isComingSoon: true // Flag for unavailable games
-    },
-    { 
-        id: 2, 
-        title: 'Battleground', 
-        description: 'Tactical FPS combat simulator', 
+    {
+        id: 1,
+        title: 'Battleground',
+        description: 'Tactical FPS combat simulator',
         // image: 'https://images.pexels.com/photos/7915437/pexels-photo-7915437.jpeg?auto=compress&cs=tinysrgb&w=800', 
         image: battelground,
         color: '#00D9FF',
         route: 'https://battleground.datasenseai.com/start',
         isExternal: true // Flag for external URLs
     },
-    { 
-        id: 3, 
-        title: '⁠Data Analytics Journey', 
-        description: 'Strategic data journey game', 
+    {
+        id: 2,
+        title: 'SQL Bureau of Investigation',
+        description: 'Database mystery solving game',
+        // image: 'https://images.pexels.com/photos/8761562/pexels-photo-8761562.jpeg?auto=compress&cs=tinysrgb&w=800', 
+        image: sbi,
+        color: '#00D9FF',
+        route: 'https://sbi.datasenseai.com/',
+        isExternal: true,
+        // isComingSoon: true // Flag for unavailable games
+    },
+    {
+        id: 3,
+        title: '⁠Data Analytics Journey',
+        description: 'Strategic data journey game',
         // image: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800', 
         image: analytics,
         color: '#00D9FF',
@@ -45,20 +46,20 @@ const games = [
         route: 'https://verdant-bombolone-41a667.netlify.app/game1/',
         isExternal: false
     },
-    { 
-        id: 4, 
-        title: 'AI ML', 
-        description: 'AI training simulation', 
+    {
+        id: 4,
+        title: 'AI ML',
+        description: 'AI training simulation',
         // image: 'https://images.pexels.com/photos/7034287/pexels-photo-7034287.jpeg?auto=compress&cs=tinysrgb&w=800', 
         image: aiml,
         color: '#00D9FF',
         route: 'https://verdant-bombolone-41a667.netlify.app/game2/',
         isExternal: true // Flag for external URLs
     },
-    { 
-        id: 5, 
-        title: '⁠SQL Slot Machine', 
-        description: 'Advanced SQL puzzle solver', 
+    {
+        id: 5,
+        title: '⁠SQL Slot Machine',
+        description: 'Advanced SQL puzzle solver',
         // image: 'https://images.pexels.com/photos/8728382/pexels-photo-8728382.jpeg?auto=compress&cs=tinysrgb&w=800', 
         image: slot,
         color: '#00D9FF',
@@ -89,7 +90,7 @@ const RotatingSubheading = () => {
     useEffect(() => {
         const interval = setInterval(() => {
             setIsBlinking(true);
-            
+
             setTimeout(() => {
                 setCurrentIndex((prev) => (prev + 1) % subheadings.length);
                 setIsBlinking(false);
@@ -220,7 +221,7 @@ export default function GamesArena() {
 
     const handleLaunchGame = (game) => {
         playButtonClick();
-        
+
         if (game.isComingSoon) {
             setSelectedComingSoonGame(game);
             setComingSoonPopupOpen(true);
@@ -256,7 +257,7 @@ export default function GamesArena() {
 
     const handleGameLaunch = () => {
         if (!selectedGame) return;
-        
+
         playButtonClick();
         setPopupOpen(false);
 
@@ -301,7 +302,7 @@ export default function GamesArena() {
                         Select Your Mission
                     </h2> */}
                 </div>
-                
+
                 <div className="flex-1 flex items-center justify-center relative fn_cs_slider_wrapper">
                     <div className="relative w-full max-w-6xl h-[34rem]">
                         <ul>
@@ -329,13 +330,13 @@ export default function GamesArena() {
                                                 >
                                                     <img src={game.image} alt={game.title} className="absolute inset-0 w-full h-full object-cover" />
                                                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-                                                    
+
                                                     <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
                                                         <div className="transform transition-transform duration-500 ease-in-out group-hover:-translate-y-16">
                                                             <h3 className="text-2xl font-bold" style={{ color: game.color, textShadow: `0 0 10px ${game.color}` }}>{game.title}</h3>
                                                             <p className="text-md text-gray-300 mt-1">{game.description}</p>
                                                         </div>
-                                                        
+
                                                         {index === activeIndex && (
                                                             <div className="absolute bottom-5 left-5 right-5 opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-in-out">
                                                                 <CyberButton
@@ -367,7 +368,7 @@ export default function GamesArena() {
                         <ArrowRight size={24} />
                     </button>
                 </div>
-                
+
                 <div className="text-center py-4 flex-shrink-0">
                     <div className="inline-flex items-center gap-2">
                         {games.map((_, index) => (
