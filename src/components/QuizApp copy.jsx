@@ -591,6 +591,10 @@ export default function QuizApp() {
         saveSubmission(user.id, questionID, isCorrect, userQueries[currentQuestionIndex]);
         addToStreak(user.id, questionID);
 
+        // Activity Heatmap Trigger
+        axios.post('https://server.datasenseai.com/user-streak/update-activity', { clerkId: user.id })
+          .catch(err => console.error("Activity update failed", err));
+
         setSubmissions(prevSubmissions => [
           ...prevSubmissions,
           {
@@ -715,7 +719,7 @@ export default function QuizApp() {
   };
 
   const handleBackToHome = () => {
-    window.location.href = "https://practice.datasenseai.com";
+    navigate('/live-events');
   };
 
   // Overlay Handler for guest users
@@ -808,6 +812,30 @@ export default function QuizApp() {
       <h5 className="mt-4 text-2xl font-light text-red-600 dark:text-red-400">{error}</h5>
     </div>
   );
+
+  // Check for empty questions array
+  if (quizData && (!quizData.questions || quizData.questions.length === 0)) {
+    return (
+      <div className="w-full h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-[#1e1e1e]">
+        <div className="text-center p-8 bg-white dark:bg-[#252526] rounded-xl shadow-lg border border-gray-200 dark:border-[#333333] max-w-md mx-4">
+          <div className="mx-auto mb-4 h-16 w-16 flex items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/50">
+            <Briefcase className="h-8 w-8 text-yellow-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No Questions Available</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            This quiz currently has no questions content. It may be under construction or an upcoming event.
+          </p>
+          <button
+            onClick={handleBackToHome}
+            className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 mx-auto"
+          >
+            <ChevronLeft size={18} />
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const currentQuestion = quizData?.questions[currentQuestionIndex];
   if (!currentQuestion) return null;
@@ -954,8 +982,8 @@ export default function QuizApp() {
                     <button
                       onClick={() => setTimerMode('stopwatch')}
                       className={`p-3 rounded-lg flex flex-col items-center justify-center text-center transition-all duration-200 border-2 ${timerMode === 'stopwatch'
-                          ? 'bg-blue-50 dark:bg-blue-900/50 border-blue-500'
-                          : 'bg-gray-100 dark:bg-[#333333] border-transparent hover:bg-gray-200 dark:hover:bg-gray-600'
+                        ? 'bg-blue-50 dark:bg-blue-900/50 border-blue-500'
+                        : 'bg-gray-100 dark:bg-[#333333] border-transparent hover:bg-gray-200 dark:hover:bg-gray-600'
                         }`}
                     >
                       <Timer size={28} className="text-blue-500 mb-2" />
@@ -964,8 +992,8 @@ export default function QuizApp() {
                     <button
                       onClick={() => setTimerMode('timer')}
                       className={`p-3 rounded-lg flex flex-col items-center justify-center text-center transition-all duration-200 border-2 ${timerMode === 'timer'
-                          ? 'bg-orange-50 dark:bg-orange-900/50 border-orange-500'
-                          : 'bg-gray-100 dark:bg-[#333333] border-transparent hover:bg-gray-200 dark:hover:bg-gray-600'
+                        ? 'bg-orange-50 dark:bg-orange-900/50 border-orange-500'
+                        : 'bg-gray-100 dark:bg-[#333333] border-transparent hover:bg-gray-200 dark:hover:bg-gray-600'
                         }`}
                     >
                       <Clock size={28} className="text-orange-500 mb-2" />
@@ -982,8 +1010,8 @@ export default function QuizApp() {
                             key={min}
                             onClick={() => setCountdownSeconds(min * 60)}
                             className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${countdownSeconds === min * 60
-                                ? 'bg-teal-500 text-white'
-                                : 'bg-gray-200 dark:bg-[#333333] hover:bg-gray-300 dark:hover:bg-gray-500'
+                              ? 'bg-teal-500 text-white'
+                              : 'bg-gray-200 dark:bg-[#333333] hover:bg-gray-300 dark:hover:bg-gray-500'
                               }`}
                           >
                             {min} min
@@ -1065,8 +1093,8 @@ export default function QuizApp() {
                         key={tab}
                         title={tab}
                         className={`p-3 rounded-md transition-colors ${activeTab === tab.toLowerCase()
-                            ? 'bg-teal-100 dark:bg-teal-800 text-teal-600 dark:text-teal-300'
-                            : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700'
+                          ? 'bg-teal-100 dark:bg-teal-800 text-teal-600 dark:text-teal-300'
+                          : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700'
                           }`}
                         onClick={() => {
                           setActiveTab(tab.toLowerCase());
@@ -1093,8 +1121,8 @@ export default function QuizApp() {
                             <button
                               key={index}
                               className={`flex-shrink-0 h-8 w-8 text-sm rounded-md flex items-center justify-center transition-colors ${index === currentQuestionIndex
-                                  ? 'bg-teal-500 text-white font-semibold shadow-md'
-                                  : 'bg-gray-100 dark:bg-[#252526] hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300'
+                                ? 'bg-teal-500 text-white font-semibold shadow-md'
+                                : 'bg-gray-100 dark:bg-[#252526] hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300'
                                 }`}
                               onClick={() => handleQuestionSelect(index)}
                             >
@@ -1112,8 +1140,8 @@ export default function QuizApp() {
                         <button
                           key={tab}
                           className={`py-2 px-1 text-sm font-medium transition-colors ${activeTab === tab.toLowerCase()
-                              ? 'border-b-2 border-teal-500 text-gray-900 dark:text-white'
-                              : 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                            ? 'border-b-2 border-teal-500 text-gray-900 dark:text-white'
+                            : 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
                             }`}
                           onClick={() => setActiveTab(tab.toLowerCase())}
                         >
@@ -1493,8 +1521,8 @@ export default function QuizApp() {
                       <button
                         onClick={() => setQuestionFeedback(questionFeedback === 'like' ? null : 'like')}
                         className={`p-2 rounded-md flex items-center space-x-2 transition-colors ${questionFeedback === 'like'
-                            ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-                            : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700'
+                          ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                          : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700'
                           }`}
                         aria-label="Like this question"
                       >
@@ -1503,8 +1531,8 @@ export default function QuizApp() {
                       <button
                         onClick={() => setQuestionFeedback(questionFeedback === 'dislike' ? null : 'dislike')}
                         className={`p-2 rounded-md flex items-center space-x-2 transition-colors ${questionFeedback === 'dislike'
-                            ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                            : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700'
+                          ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                          : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700'
                           }`}
                         aria-label="Dislike this question"
                       >
@@ -1642,8 +1670,8 @@ export default function QuizApp() {
                     {!feedback && !output && <div className="text-gray-500 text-sm">Run code or submit to see results here.</div>}
                     {feedback && (
                       <div className={`flex items-start gap-3 mb-4 p-3 rounded-md text-sm ${feedback.isCorrect
-                          ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300'
-                          : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-300'
+                        ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+                        : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-300'
                         }`}>
                         {feedback.isCorrect ? <CheckCircle2 className="h-5 w-5 mt-0.5 flex-shrink-0" /> : <XCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />}
                         <span>{feedback.text}</span>
@@ -1714,14 +1742,14 @@ export default function QuizApp() {
                   key={difficulty}
                   onClick={() => handleDifficultySelect(difficulty.toLowerCase())}
                   className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out w-full mx-1 ${selectedDifficulty === difficulty.toLowerCase()
-                      ? difficulty.toLowerCase() === 'easy'
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 shadow-md'
-                        : difficulty.toLowerCase() === 'medium'
-                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 shadow-md'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 shadow-md'
-                      : isDarkMode
-                        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                    ? difficulty.toLowerCase() === 'easy'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 shadow-md'
+                      : difficulty.toLowerCase() === 'medium'
+                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 shadow-md'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 shadow-md'
+                    : isDarkMode
+                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                     }`}
                 >
                   {difficulty}

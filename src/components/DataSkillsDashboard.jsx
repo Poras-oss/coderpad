@@ -36,19 +36,19 @@ const Footer = ({ isDarkMode }) => (
 
 // New Testimonial Card Component
 const TestimonialCard = ({ isDarkMode, avatar, name, role, comment, stats }) => (
-    <div className={`p-4 rounded-lg flex flex-col ${isDarkMode ? "bg-[#25272C]" : "bg-slate-50"}`}>
-        <div className="flex items-center gap-3">
-            {/* <img src={avatar} alt={name} className="h-10 w-10 rounded-full object-cover" /> */}
-            <div className={`h-10 w-10 rounded-full object-cover ${isDarkMode ? "bg-gradient-to-t from-[#25272C] to-[#4D4D4D]" : "bg-slate-50"}`}>
-              <p className={`flex justify-center items-center h-full font-bold ${isDarkMode ? "text-white" : "text-gray-900"} `}>{avatar}</p>
-            </div>
-            <div>
-                <div className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{name}</div>
-                <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{role}</div>
-            </div>
-        </div>
-        <p className={`mt-3 text-sm flex-1 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>"{comment}"</p>
+  <div className={`p-4 rounded-lg flex flex-col ${isDarkMode ? "bg-[#25272C]" : "bg-slate-50"}`}>
+    <div className="flex items-center gap-3">
+      {/* <img src={avatar} alt={name} className="h-10 w-10 rounded-full object-cover" /> */}
+      <div className={`h-10 w-10 rounded-full object-cover ${isDarkMode ? "bg-gradient-to-t from-[#25272C] to-[#4D4D4D]" : "bg-slate-50"}`}>
+        <p className={`flex justify-center items-center h-full font-bold ${isDarkMode ? "text-white" : "text-gray-900"} `}>{avatar}</p>
+      </div>
+      <div>
+        <div className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{name}</div>
+        <div className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{role}</div>
+      </div>
     </div>
+    <p className={`mt-3 text-sm flex-1 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>"{comment}"</p>
+  </div>
 );
 
 
@@ -61,7 +61,7 @@ const DataSkillsDashboard = () => {
   const [quizType, setQuizType] = useState("");
   const [showInstructions, setShowInstructions] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState(null);
-  
+
   // States for search functionality
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
@@ -110,13 +110,13 @@ const DataSkillsDashboard = () => {
     try {
       const response = await axios.get(url);
       const leaderboard = response.data.leaderboard;
-      
+
       // Check both timely and late users
       const allUsers = [
         ...(leaderboard.timelyUsers || []),
         ...(leaderboard.lateUsers || [])
       ];
-      
+
       return allUsers.some(leaderboardUser =>
         leaderboardUser.userId && leaderboardUser.userId.split(',')[0].trim() === userEmail
       );
@@ -127,60 +127,60 @@ const DataSkillsDashboard = () => {
 
   // MODIFIED: This effect now loads quizzes first, then fetches completion status in the background.
   useEffect(() => {
-      // Break out of iframe if necessary
-      if (window.self !== window.top) {
-        window.top.location.href = window.location.href;
-      }
+    // Break out of iframe if necessary
+    if (window.self !== window.top) {
+      window.top.location.href = window.location.href;
+    }
 
-      const fetchDashboardData = async () => {
-        setIsLoading(true);
-        try {
-          // Step 1: Fetch all quizzes and display them immediately.
-          const quizResponse = await axios.get("https://server.datasenseai.com/quiz/quizzes");
-          const allQuizzes = quizResponse.data.slice().reverse();
-          setQuizzes(allQuizzes);
-          
-          // --- KEY CHANGE ---
-          // Step 2: Stop the main loader. The user can now see and interact with the quiz list.
-          setIsLoading(false); 
+    const fetchDashboardData = async () => {
+      setIsLoading(true);
+      try {
+        // Step 1: Fetch all quizzes and display them immediately.
+        const quizResponse = await axios.get("https://server.datasenseai.com/quiz/quizzes");
+        const allQuizzes = quizResponse.data.slice().reverse();
+        setQuizzes(allQuizzes);
 
-          // Step 3: If the user is signed in, fetch their completion status in the background.
-          // The UI will update progressively as statuses are fetched.
-          if (isSignedIn && user) {
-            // Initialize completion status as all false
-            const initialStatusMap = {};
-            allQuizzes.forEach(quiz => {
-              initialStatusMap[quiz._id] = false;
-            });
-            setCompletionStatus(initialStatusMap);
+        // --- KEY CHANGE ---
+        // Step 2: Stop the main loader. The user can now see and interact with the quiz list.
+        setIsLoading(false);
 
-            // Fetch actual statuses without blocking the UI
-            const statusPromises = allQuizzes.map(quiz =>
-              checkIfQuizCompleted(quiz, user).then(isCompleted => ({
-                quizId: quiz._id,
-                isCompleted,
-              }))
-            );
-            
-            const statuses = await Promise.all(statusPromises);
-            
-            // Update the status map with the fetched data
-            const finalStatusMap = {};
-            statuses.forEach(status => {
-              finalStatusMap[status.quizId] = status.isCompleted;
-            });
-            setCompletionStatus(finalStatusMap);
-          }
-        } catch (error) {
-          console.error("Error fetching dashboard data:", error);
-          setIsLoading(false); // Ensure loader is turned off on error
+        // Step 3: If the user is signed in, fetch their completion status in the background.
+        // The UI will update progressively as statuses are fetched.
+        if (isSignedIn && user) {
+          // Initialize completion status as all false
+          const initialStatusMap = {};
+          allQuizzes.forEach(quiz => {
+            initialStatusMap[quiz._id] = false;
+          });
+          setCompletionStatus(initialStatusMap);
+
+          // Fetch actual statuses without blocking the UI
+          const statusPromises = allQuizzes.map(quiz =>
+            checkIfQuizCompleted(quiz, user).then(isCompleted => ({
+              quizId: quiz._id,
+              isCompleted,
+            }))
+          );
+
+          const statuses = await Promise.all(statusPromises);
+
+          // Update the status map with the fetched data
+          const finalStatusMap = {};
+          statuses.forEach(status => {
+            finalStatusMap[status.quizId] = status.isCompleted;
+          });
+          setCompletionStatus(finalStatusMap);
         }
-        // The `finally` block is removed as we now control isLoading manually
-      };
-
-      if (isLoaded) {
-        fetchDashboardData();
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+        setIsLoading(false); // Ensure loader is turned off on error
       }
+      // The `finally` block is removed as we now control isLoading manually
+    };
+
+    if (isLoaded) {
+      fetchDashboardData();
+    }
   }, [isLoaded, isSignedIn, user]); // Rerun when user logs in/out
 
   useEffect(() => {
@@ -218,13 +218,13 @@ const DataSkillsDashboard = () => {
     }
     const type = getQuizType(quizName);
     let navigationPath;
-    
+
     if (type === "sql") navigationPath = `/quiz?quizID=${quizID}`;
     else if (type === "python") navigationPath = `/pyQuiz?quizID=${quizID}`;
     else if (type === "mcq") navigationPath = `/mcqQuiz?quizID=${quizID}`;
     else {
-        alert("Unknown quiz type.");
-        return;
+      alert("Unknown quiz type.");
+      return;
     }
 
     setQuizType(type);
@@ -239,7 +239,7 @@ const DataSkillsDashboard = () => {
     }
     navigateTo(`/leaderboard?quizID=${quizID}&quizName=${quizName}`);
   };
-  
+
   // **MODIFIED**: This function now opens the premium popup
   const handleSolution = () => {
     setPremiumFeatureName("Quiz Solution");
@@ -259,19 +259,18 @@ const DataSkillsDashboard = () => {
     'Start Quiz': { width: 0, position: 0 },
     'Completed': { width: 100, position: 100 },
   };
-  
+
   return (
-    <div className={`font-sans flex flex-col min-h-screen ${
-      isDarkMode ? "dark bg-[#1D1E23]" : "bg-gray-100"
-    }`}>
+    <div className={`font-sans flex flex-col min-h-screen ${isDarkMode ? "dark bg-[#1D1E23]" : "bg-gray-100"
+      }`}>
       <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
-      
+
       <div
-        className={`mt-14 fixed inset-0 z-40 transition-opacity duration-300 ${ isSearchActive ? "bg-black/60 backdrop-blur-sm" : "bg-transparent pointer-events-none" }`}
+        className={`mt-14 fixed inset-0 z-40 transition-opacity duration-300 ${isSearchActive ? "bg-black/60 backdrop-blur-sm" : "bg-transparent pointer-events-none"}`}
         onClick={() => setIsSearchActive(false)}
       >
         <div
-          className={`w-full transition-transform duration-300 ease-in-out ${ isDarkMode ? "bg-[#25272C]" : "bg-white" } ${ isSearchActive ? "translate-y-0" : "-translate-y-full" }`}
+          className={`w-full transition-transform duration-300 ease-in-out ${isDarkMode ? "bg-[#25272C]" : "bg-white"} ${isSearchActive ? "translate-y-0" : "-translate-y-full"}`}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="p-6 max-w-screen-2xl mx-auto">
@@ -324,11 +323,10 @@ const DataSkillsDashboard = () => {
           </div>
         </div>
       </div>
-      
+
       <AlertDialog open={showInstructions} onOpenChange={setShowInstructions}>
-        <AlertDialogContent className={`font-sans max-w-lg shadow-xl border-none ${
-          isDarkMode ? 'bg-[#262626] text-gray-50' : 'bg-white text-gray-900'
-        }`}>
+        <AlertDialogContent className={`font-sans max-w-lg shadow-xl border-none ${isDarkMode ? 'bg-[#262626] text-gray-50' : 'bg-white text-gray-900'
+          }`}>
           <AlertDialogHeader>
             <div className="mx-auto mb-4 h-12 w-12 flex items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/50">
               <FolderKanban className="h-6 w-6 text-yellow-500" />
@@ -402,241 +400,240 @@ const DataSkillsDashboard = () => {
 
       {/* Main Content */}
       <main className="flex-1 w-full max-w-screen-2xl mx-auto flex flex-col gap-4 p-4">
-        
+
         <div className="flex items-center justify-between">
-            <div className="flex-1">
-                <div
-                    className={`w-full rounded-lg px-4 py-3 flex items-center gap-4 ${isDarkMode ? "text-white" : "text-white"}`}
-                    style={{
-                        background: isDarkMode
-                            ? "linear-gradient(90deg,rgb(53, 54, 55) 0%,rgb(29, 30, 35) 100%)"
-                            : "linear-gradient(90deg,rgb(53, 54, 55) 0%,rgb(237, 240, 240) 100%)",
-                    }}
-                >
-                    <Merge className="h-4 w-4 text-cyan-300 font-bold" />
-                    <div className="text-sm md:text-[15px] font-medium">This path is a part of SQL Learning Roadmap</div>
-                    <a href="https://dashboard.datasenseai.com/sql-journey" target="_blank" rel="noopener noreferrer" className={`pl-10 ${isDarkMode ? "text-cyan-300 hover:text-cyan-200" : "text-cyan-300 hover:text-cyan-200"} text-sm font-semibold underline`}>
-                        View Roadmap
-                    </a>
-                </div>
+          <div className="flex-1">
+            <div
+              className={`w-full rounded-lg px-4 py-3 flex items-center gap-4 ${isDarkMode ? "text-white" : "text-white"}`}
+              style={{
+                background: isDarkMode
+                  ? "linear-gradient(90deg,rgb(53, 54, 55) 0%,rgb(29, 30, 35) 100%)"
+                  : "linear-gradient(90deg,rgb(53, 54, 55) 0%,rgb(237, 240, 240) 100%)",
+              }}
+            >
+              <Merge className="h-4 w-4 text-cyan-300 font-bold" />
+              <div className="text-sm md:text-[15px] font-medium">This path is a part of SQL Learning Roadmap</div>
+              <a href="https://dashboard.datasenseai.com/sql-journey" target="_blank" rel="noopener noreferrer" className={`pl-10 ${isDarkMode ? "text-cyan-300 hover:text-cyan-200" : "text-cyan-300 hover:text-cyan-200"} text-sm font-semibold underline`}>
+                View Roadmap
+              </a>
             </div>
-            <div className="hidden md:block">
-                <button
-                    onClick={() => setIsSearchActive(true)}
-                    className={`w-full max-w-md flex items-center gap-2 text-left p-2 rounded-lg border ${isDarkMode ? "bg-[#2f2f2f] border-[#3f3f3f] text-gray-400" : "bg-white border-gray-300 text-gray-500"}`}
-                >
-                    <Search className="h-4 w-4" />
-                    Search quizzes...
-                </button>
-            </div>
+          </div>
+          <div className="hidden md:block">
+            <button
+              onClick={() => setIsSearchActive(true)}
+              className={`w-full max-w-md flex items-center gap-2 text-left p-2 rounded-lg border ${isDarkMode ? "bg-[#2f2f2f] border-[#3f3f3f] text-gray-400" : "bg-white border-gray-300 text-gray-500"}`}
+            >
+              <Search className="h-4 w-4" />
+              Search quizzes...
+            </button>
+          </div>
         </div>
-        
+
         <div className="flex gap-6">
-            <div className="flex-1 max-w-5xl py-4 flex flex-col gap-6">
-              
-              <div
-                  className="relative overflow-hidden rounded-2xl p-6 md:p-7 text-white shadow-lg"
-                  style={{
-                      backgroundImage: `linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(180deg, #1eafaf 0%, #126464 100%)`,
-                      backgroundSize: "32px 32px, 32px 32px, cover",
-                      backgroundPosition: "0 0, 0 0, 0 0",
-                      border: isDarkMode ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.25)",
-                  }}
-              >
-                  <div className="flex flex-col gap-5">
-                      <div>
-                          <div className="flex items-center gap-3 mb-3">
-                              <div className={`h-14 w-14 rounded-xl flex items-center justify-center ${isDarkMode ? "bg-white/10" : "bg-white/20"}`}>
-                                  <SQLIcon />
-                              </div>
-                              <div className="flex items-center gap-2 ml-auto">
-                                  <span className="text-xs px-5 py-2 rounded-lg backdrop-blur bg-[#abfff9] text-black">🏅 Certification Available</span>
-                                  <span className="text-xs px-5 py-2 rounded-lg backdrop-blur font-bold bg-[#FFF9D8] text-[#FFB039]">★ 4.6 (3.5k+)</span>
-                              </div>
-                          </div>
-                          <h2 className="text-3xl md:text-[32px] font-extrabold tracking-tight">SQL Live Quizzes</h2>
-                          <p className="mt-2 text-base text-white/95">Join real-time interactive quizzes designed to test your knowledge under pressure. Compete, learn, and sharpen your skills with timed challenges on SELECT, Joins, Aggregates, Subqueries, and more — all based on real-world scenarios.</p>
-                          <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mt-5 text-white/90 text-base">
-                              <div className="flex items-center gap-2"><BookOpen className="h-4 w-4" /> New Quiz Weekly</div>
-                              <div className="flex items-center gap-2"><Clock3 className="h-4 w-4" /> 15+ Case Studies</div>
-                              <div className="flex items-center gap-2"><Star className="h-4 w-4" /> 1,500+ Premium Quality Problems</div>
-                              <div className="flex items-center gap-2"><Users className="h-4 w-4" /> 18.5k Learners</div>
-                              <div className="flex items-center gap-2"><Flag className="h-4 w-4" /> Advanced Level</div>
-                          </div>
-                      </div>
+          <div className="flex-1 max-w-5xl py-4 flex flex-col gap-6">
 
-                      <div className="mt-4">
-                          <div className="flex items-center gap-4 w-full">
-                              <div className="flex-1">
-                                  <div className="flex justify-between items-center mb-2">
-                                    <p className="font-semibold">Number of Test Completed: {completedQuizzesCount} out of {totalQuizzes}</p>
-                                    <p className="font-semibold text-green-400">{progressPercentage}% Completed</p>
-                                  </div>
-                                  <div className={`h-2 rounded-full w-full ${isDarkMode ? "bg-white/15" : "bg-white/40"}`}>
-                                      <div
-                                          className="h-2 rounded-full bg-green-400 transition-all duration-500"
-                                          style={{ width: `${progressPercentage}%` }}
-                                      />
-                                  </div>
-                              </div>
-                              {/* **MODIFIED**: Added onClick handler */}
-                              <Button onClick={handleStartSolvingClick} className={`${isDarkMode ? "bg-white text-[#12325d] hover:bg-white/90" : "bg-white text-[#12325d] hover:bg-white/95"} font-semibold px-6 py-5 rounded-xl whitespace-nowrap ml-6`}>
-                                  Start Solving
-                              </Button>
-                          </div>
-                      </div>
+            <div
+              className="relative overflow-hidden rounded-2xl p-6 md:p-7 text-white shadow-lg"
+              style={{
+                backgroundImage: `linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(180deg, #1eafaf 0%, #126464 100%)`,
+                backgroundSize: "32px 32px, 32px 32px, cover",
+                backgroundPosition: "0 0, 0 0, 0 0",
+                border: isDarkMode ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.25)",
+              }}
+            >
+              <div className="flex flex-col gap-5">
+                <div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`h-14 w-14 rounded-xl flex items-center justify-center ${isDarkMode ? "bg-white/10" : "bg-white/20"}`}>
+                      <SQLIcon />
+                    </div>
+                    <div className="flex items-center gap-2 ml-auto">
+                      <span className="text-xs px-5 py-2 rounded-lg backdrop-blur bg-[#abfff9] text-black">🏅 Certification Available</span>
+                      <span className="text-xs px-5 py-2 rounded-lg backdrop-blur font-bold bg-[#FFF9D8] text-[#FFB039]">★ 4.6 (3.5k+)</span>
+                    </div>
                   </div>
-              </div>
+                  <h2 className="text-3xl md:text-[32px] font-extrabold tracking-tight">SQL Live Quizzes</h2>
+                  <p className="mt-2 text-base text-white/95">Join real-time interactive quizzes designed to test your knowledge under pressure. Compete, learn, and sharpen your skills with timed challenges on SELECT, Joins, Aggregates, Subqueries, and more — all based on real-world scenarios.</p>
+                  <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mt-5 text-white/90 text-base">
+                    <div className="flex items-center gap-2"><BookOpen className="h-4 w-4" /> New Quiz Weekly</div>
+                    <div className="flex items-center gap-2"><Clock3 className="h-4 w-4" /> 15+ Case Studies</div>
+                    <div className="flex items-center gap-2"><Star className="h-4 w-4" /> 1,500+ Premium Quality Problems</div>
+                    <div className="flex items-center gap-2"><Users className="h-4 w-4" /> 18.5k Learners</div>
+                    <div className="flex items-center gap-2"><Flag className="h-4 w-4" /> Advanced Level</div>
+                  </div>
+                </div>
 
-              {/* **MODIFIED**: Attached ref to this container */}
-              <div ref={quizzesContainerRef} className="space-y-4">
-                  {isLoading ? (
-                      // <div className="flex flex-col items-center justify-center p-8  text-black"><Loader2 className="h-8 w-8 animate-spin " /><p className="mt-4 text-lg font-medium">Loading quizzes...</p></div>
-                      <div className="flex flex-col items-center justify-center p-8">
-                          {/* <Loader2 className={`h-8 w-8 animate-spin ${isDarkMode ? "text-gray-200" : "text-black"}`} /> */}
-                          <Loader />
-                          {/* <Loader inline={true} isDarkMode={isDarkMode} /> */}
-                          {/* <p className={`mt-4 text-lg font-medium ${isDarkMode ? "text-gray-200" : "text-black"}`}>
+                <div className="mt-4">
+                  <div className="flex items-center gap-4 w-full">
+                    <div className="flex-1">
+                      <div className="flex justify-between items-center mb-2">
+                        <p className="font-semibold">Number of Test Completed: {completedQuizzesCount} out of {totalQuizzes}</p>
+                        <p className="font-semibold text-green-400">{progressPercentage}% Completed</p>
+                      </div>
+                      <div className={`h-2 rounded-full w-full ${isDarkMode ? "bg-white/15" : "bg-white/40"}`}>
+                        <div
+                          className="h-2 rounded-full bg-green-400 transition-all duration-500"
+                          style={{ width: `${progressPercentage}%` }}
+                        />
+                      </div>
+                    </div>
+                    {/* **MODIFIED**: Added onClick handler */}
+                    <Button onClick={handleStartSolvingClick} className={`${isDarkMode ? "bg-white text-[#12325d] hover:bg-white/90" : "bg-white text-[#12325d] hover:bg-white/95"} font-semibold px-6 py-5 rounded-xl whitespace-nowrap ml-6`}>
+                      Start Solving
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* **MODIFIED**: Attached ref to this container */}
+            <div ref={quizzesContainerRef} className="space-y-4">
+              {isLoading ? (
+                // <div className="flex flex-col items-center justify-center p-8  text-black"><Loader2 className="h-8 w-8 animate-spin " /><p className="mt-4 text-lg font-medium">Loading quizzes...</p></div>
+                <div className="flex flex-col items-center justify-center p-8">
+                  {/* <Loader2 className={`h-8 w-8 animate-spin ${isDarkMode ? "text-gray-200" : "text-black"}`} /> */}
+                  <Loader />
+                  {/* <Loader inline={true} isDarkMode={isDarkMode} /> */}
+                  {/* <p className={`mt-4 text-lg font-medium ${isDarkMode ? "text-gray-200" : "text-black"}`}>
                               Loading quizzes...
                           </p> */}
+                </div>
+              ) : (
+                quizzes.map((quiz) => {
+                  const isCompleted = completionStatus[quiz._id] || false;
+                  const status = isCompleted ? "Completed" : "Start Quiz";
+                  const style = progressStyles[status];
+
+                  return (
+                    <div key={quiz._id} className={`p-4 rounded-lg flex flex-col gap-2 ${isDarkMode ? "bg-[#32363C]" : "bg-white"} border ${isDarkMode ? "border-[#2f2f2f]" : "border-gray-200"}`}>
+                      <div className="flex justify-between items-center">
+                        <h3 className={`font-bold text-lg ${isDarkMode ? "text-white" : "text-gray-900"}`}>{removeQuizTypePrefix(quiz.quizName)}</h3>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <Button onClick={() => handleStartQuiz(quiz._id, quiz.quizName)} className="bg-cyan-400 hover:bg-cyan-500 text-white">Start Quiz</Button>
+                          <Button onClick={() => handleQuizResults(quiz._id, quiz.quizName)} className="bg-cyan-600 hover:bg-cyan-700 text-white px-4">Results</Button>
+                          <Button onClick={handleSolution} className=" bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-900/50 text-black dark:text-white px-4"> <Video /> Solution</Button>
+                        </div>
                       </div>
-                  ) : (
-                      quizzes.map((quiz) => {
-                          const isCompleted = completionStatus[quiz._id] || false;
-                          const status = isCompleted ? "Completed" : "Start Quiz";
-                          const style = progressStyles[status];
 
-                          return (
-                            <div key={quiz._id} className={`p-4 rounded-lg flex flex-col gap-2 ${isDarkMode ? "bg-[#32363C]" : "bg-white"} border ${isDarkMode ? "border-[#2f2f2f]" : "border-gray-200"}`}>
-                                <div className="flex justify-between items-center">
-                                    <h3 className={`font-bold text-lg ${isDarkMode ? "text-white" : "text-gray-900"}`}>{removeQuizTypePrefix(quiz.quizName)}</h3>
-                                    <div className="flex items-center gap-2 flex-shrink-0">
-                                        <Button onClick={() => handleStartQuiz(quiz._id, quiz.quizName)} className="bg-cyan-400 hover:bg-cyan-500 text-white">Start Quiz</Button>
-                                        <Button onClick={() => handleQuizResults(quiz._id, quiz.quizName)} className="bg-cyan-600 hover:bg-cyan-700 text-white px-4">Results</Button>
-                                        <Button onClick={handleSolution} className=" bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-900/50 text-black dark:text-white px-4"> <Video/> Solution</Button>
-                                    </div>
-                                </div>
+                      <div className="pt-2">
+                        <div className="relative h-5 flex items-center">
+                          <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full" />
+                          <div
+                            className={`absolute h-2 rounded-full transition-all duration-700 ease-out ${status === "Completed"
+                              ? "bg-gradient-to-r from-green-400 to-green-500"
+                              : "bg-gradient-to-r from-cyan-400 to-cyan-500"
+                              }`}
+                            style={{ width: `${style.width}%` }}
+                          />
+                          <div
+                            className="absolute top-1/2 w-5 h-5 rounded-full bg-white dark:bg-slate-800 shadow-lg transition-all duration-700 ease-out"
+                            style={{
+                              left: `${style.position}%`,
+                              transform: 'translateX(-50%) translateY(-50%)',
+                              border: `3px solid ${status === "Completed" ? "#22c55e" : "#06b6d4"}`
+                            }}
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          <span className={`text-left ${status === 'Start Quiz' ? 'font-bold text-cyan-500' : ''}`}>Start Quiz</span>
+                          <span className={`text-right ${status === 'Completed' ? 'font-bold text-green-500' : ''}`}>Completed</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
 
-                                <div className="pt-2">
-                                    <div className="relative h-5 flex items-center">
-                                        <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full" />
-                                        <div
-                                            className={`absolute h-2 rounded-full transition-all duration-700 ease-out ${
-                                                status === "Completed" 
-                                                ? "bg-gradient-to-r from-green-400 to-green-500" 
-                                                : "bg-gradient-to-r from-cyan-400 to-cyan-500"
-                                            }`}
-                                            style={{ width: `${style.width}%` }}
-                                        />
-                                        <div
-                                            className="absolute top-1/2 w-5 h-5 rounded-full bg-white dark:bg-slate-800 shadow-lg transition-all duration-700 ease-out"
-                                            style={{
-                                                left: `${style.position}%`,
-                                                transform: 'translateX(-50%) translateY(-50%)',
-                                                border: `3px solid ${status === "Completed" ? "#22c55e" : "#06b6d4"}`
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                        <span className={`text-left ${status === 'Start Quiz' ? 'font-bold text-cyan-500' : ''}`}>Start Quiz</span>
-                                        <span className={`text-right ${status === 'Completed' ? 'font-bold text-green-500' : ''}`}>Completed</span>
-                                    </div>
-                                </div>
-                            </div>
-                          );
-                      })
-                  )}
+          <aside className="hidden xl:block w-[450px] py-4 space-y-4">
+            <div className={`rounded-xl overflow-hidden shadow ${isDarkMode ? "bg-[#32363C]" : "bg-white"}`}>
+              <div className={`p-4 border-b ${isDarkMode ? "border-white/10" : "border-gray-200"}`}>
+                <div className="h-48 rounded-lg flex items-center justify-center"><img className="h-48 w-68" src={certificate} alt="certificate" /></div>
+                <div className="flex items-center gap-2 mt-3">
+                  <span className={`text-[11px] px-2 py-1 rounded-full ${isDarkMode ? "bg-white/10 text-white" : "bg-blue-50 text-blue-700"} border ${isDarkMode ? "border-white/15" : "border-blue-200"}`}>Certification available</span>
+                  <span className={`text-[11px] px-2 py-1 rounded-full ${isDarkMode ? "bg-white/10 text-white" : "bg-emerald-50 text-emerald-700"} border ${isDarkMode ? "border-white/15" : "border-emerald-200"}`}>Included in premium</span>
+                </div>
+              </div>
+              <div className="p-4">
+                <h3 className={`text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Certificate on Completion</h3>
+                <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"} text-base mt-2`}>The top three performers of each live quiz, will get a completion certificate.</p>
+                <Button className={`mt-3 w-full ${isDarkMode ? "bg-cyan-700 hover:bg-cyan-600" : "bg-cyan-600 hover:bg-cyan-700"} text-white opacity-50 cursor-not-allowed`}>View Certificate</Button>
               </div>
             </div>
 
-            <aside className="hidden xl:block w-[450px] py-4 space-y-4">
-              <div className={`rounded-xl overflow-hidden shadow ${isDarkMode ? "bg-[#32363C]" : "bg-white"}`}>
-                <div className={`p-4 border-b ${isDarkMode ? "border-white/10" : "border-gray-200"}`}>
-                  <div className="h-48 rounded-lg flex items-center justify-center"><img className="h-48 w-68" src={certificate} alt="certificate" /></div>
-                  <div className="flex items-center gap-2 mt-3">
-                      <span className={`text-[11px] px-2 py-1 rounded-full ${isDarkMode ? "bg-white/10 text-white" : "bg-blue-50 text-blue-700"} border ${isDarkMode ? "border-white/15" : "border-blue-200"}`}>Certification available</span>
-                      <span className={`text-[11px] px-2 py-1 rounded-full ${isDarkMode ? "bg-white/10 text-white" : "bg-emerald-50 text-emerald-700"} border ${isDarkMode ? "border-white/15" : "border-emerald-200"}`}>Included in premium</span>
+            <div className={`rounded-xl overflow-hidden shadow ${isDarkMode ? "bg-[#32363C]" : "bg-white"}`}>
+              <div className="p-4">
+                <h3 className={`text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Prerequisite course</h3>
+                <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"} text-base mt-2`}>We recommend you complete this course first before you jump into SQL Practice Queries. This will help you understand even better.</p>
+                <div className={`mt-4 rounded-lg p-3 ${isDarkMode ? "bg-gradient-to-t from-[#25272C] to-[#4D4D4D]" : "bg-slate-50"}`}>
+                  <div className="flex items-start gap-3">
+                    <div className={`h-10 w-10 rounded-md flex items-center justify-center ${isDarkMode ? "bg-white/10" : "bg-white"} ring-1 ${isDarkMode ? "ring-white/10" : "ring-gray-200"}`}><span className={`${isDarkMode ? "text-white" : "text-gray-700"}`}>🗄️</span></div>
+                    <div className="flex-1">
+                      <div className={`text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Learn SQL</div>
+                      <div className={`mt-1 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Start your journey into data handling with this interactive SQL course.</div>
+                      <div className={`mt-2 text-sm flex items-center gap-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}><span>14 courses</span><span>71.9k learners</span></div>
+                    </div>
                   </div>
-                </div>
-                <div className="p-4">
-                  <h3 className={`text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Certificate on Completion</h3>
-                  <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"} text-base mt-2`}>The top three performers of each live quiz, will get a completion certificate.</p>
-                  <Button className={`mt-3 w-full ${isDarkMode ? "bg-cyan-700 hover:bg-cyan-600" : "bg-cyan-600 hover:bg-cyan-700"} text-white opacity-50 cursor-not-allowed`}>View Certificate</Button>
+                  {/* **MODIFIED**: onClick handler updated to set the feature name */}
+                  <Button onClick={() => {
+                    setPremiumFeatureName("Learn SQL");
+                    setIsPremiumPopupOpen(true);
+                  }} className={`${isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-900 hover:bg-black"} text-white w-full mt-3`}>Learn SQL</Button>
                 </div>
               </div>
+            </div>
 
-              <div className={`rounded-xl overflow-hidden shadow ${isDarkMode ? "bg-[#32363C]" : "bg-white"}`}>
-                <div className="p-4">
-                  <h3 className={`text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Prerequisite course</h3>
-                  <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"} text-base mt-2`}>We recommend you complete this course first before you jump into SQL Practice Queries. This will help you understand even better.</p>
-                  <div className={`mt-4 rounded-lg p-3 ${isDarkMode ? "bg-gradient-to-t from-[#25272C] to-[#4D4D4D]" : "bg-slate-50"}`}>
-                      <div className="flex items-start gap-3">
-                          <div className={`h-10 w-10 rounded-md flex items-center justify-center ${isDarkMode ? "bg-white/10" : "bg-white"} ring-1 ${isDarkMode ? "ring-white/10" : "ring-gray-200"}`}><span className={`${isDarkMode ? "text-white" : "text-gray-700"}`}>🗄️</span></div>
-                          <div className="flex-1">
-                              <div className={`text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Learn SQL</div>
-                              <div className={`mt-1 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Start your journey into data handling with this interactive SQL course.</div>
-                              <div className={`mt-2 text-sm flex items-center gap-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}><span>14 courses</span><span>71.9k learners</span></div>
-                          </div>
-                      </div>
-                      {/* **MODIFIED**: onClick handler updated to set the feature name */}
-                      <Button onClick={() => {
-                        setPremiumFeatureName("Learn SQL");
-                        setIsPremiumPopupOpen(true);
-                      }} className={`${isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-900 hover:bg-black"} text-white w-full mt-3`}>Learn SQL</Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                 <TestimonialCard 
-                   isDarkMode={isDarkMode}
-                   avatar="KR"
-                   name="Kavya Reddy"
-                   role="Data Analyst at Uber"
-                  //  comment="From zero coding experience to landing a ride at Uber! 🚕 The structured curriculum, mentorship program and career guidance were exceptional."
-                   comment="The SQL Live Quizzes are incredibly realistic! 🚀 Competing under pressure helped me ace my technical interviews. The real-time challenges perfectly simulate actual work scenarios."
-                   stats={{ likes: 285, comments: 12 }}
-                 />
-                 <TestimonialCard 
-                   isDarkMode={isDarkMode}
-                   avatar="RV"
-                   name="Riya Verma"
-                   role="Mentored via Topmate"
-                   comment="These timed SQL quizzes were a complete game-changer! 💯 The pressure simulation and instant feedback helped me build confidence. Went from beginner to solving complex queries in weeks!"
-                   stats={{ likes: 483, comments: 45 }}
-                 />
-                 <TestimonialCard 
-                   isDarkMode={isDarkMode}
-                   avatar="NS"
-                   name="Neha Singh"
-                   role="Data Scientist"
-                   comment="Love the competitive edge of Live Quizzes! ⚡ The real-world scenarios and case studies made learning SQL actually fun. Finally understood JOINs and subqueries through practice."
-                   stats={{ likes: 483, comments: 45 }}
-                   />
-                 <TestimonialCard 
-                   isDarkMode={isDarkMode}
-                   avatar="VK"
-                   name="Vikash Kumar"
-                   role="Data Scientist"
-                   comment="Just cracked Microsoft's SQL round! 🎯 The Live Quiz pressure training was exactly what I needed. Those timed challenges built my speed and accuracy to interview-level!"
-                   stats={{ likes: 483, comments: 45 }}
-                 />
-                 <TestimonialCard 
-                   isDarkMode={isDarkMode}
-                  //  avatar="https://randomuser.me/api/portraits/men/1.jpg"
-                   avatar="AM"
-                   name="Arjun Mehta"
-                   role="Senior Data Engineer at Netflix"
-                   comment="Completed all 11 SQL Live Quizzes and got my certificate! 🏆 The progressive difficulty levels and premium quality problems took my SQL skills from intermediate to advanced. Best practice platform out there!"
-                   stats={{ likes: 483, comments: 45 }}
-                 />
-              </div>
-            </aside>
+            <div className="space-y-3">
+              <TestimonialCard
+                isDarkMode={isDarkMode}
+                avatar="KR"
+                name="Kavya Reddy"
+                role="Data Analyst at Uber"
+                //  comment="From zero coding experience to landing a ride at Uber! 🚕 The structured curriculum, mentorship program and career guidance were exceptional."
+                comment="The SQL Live Quizzes are incredibly realistic! 🚀 Competing under pressure helped me ace my technical interviews. The real-time challenges perfectly simulate actual work scenarios."
+                stats={{ likes: 285, comments: 12 }}
+              />
+              <TestimonialCard
+                isDarkMode={isDarkMode}
+                avatar="RV"
+                name="Riya Verma"
+                role="Mentored via Topmate"
+                comment="These timed SQL quizzes were a complete game-changer! 💯 The pressure simulation and instant feedback helped me build confidence. Went from beginner to solving complex queries in weeks!"
+                stats={{ likes: 483, comments: 45 }}
+              />
+              <TestimonialCard
+                isDarkMode={isDarkMode}
+                avatar="NS"
+                name="Neha Singh"
+                role="Data Scientist"
+                comment="Love the competitive edge of Live Quizzes! ⚡ The real-world scenarios and case studies made learning SQL actually fun. Finally understood JOINs and subqueries through practice."
+                stats={{ likes: 483, comments: 45 }}
+              />
+              <TestimonialCard
+                isDarkMode={isDarkMode}
+                avatar="VK"
+                name="Vikash Kumar"
+                role="Data Scientist"
+                comment="Just cracked Microsoft's SQL round! 🎯 The Live Quiz pressure training was exactly what I needed. Those timed challenges built my speed and accuracy to interview-level!"
+                stats={{ likes: 483, comments: 45 }}
+              />
+              <TestimonialCard
+                isDarkMode={isDarkMode}
+                //  avatar="https://randomuser.me/api/portraits/men/1.jpg"
+                avatar="AM"
+                name="Arjun Mehta"
+                role="Senior Data Engineer at Netflix"
+                comment="Completed all 11 SQL Live Quizzes and got my certificate! 🏆 The progressive difficulty levels and premium quality problems took my SQL skills from intermediate to advanced. Best practice platform out there!"
+                stats={{ likes: 483, comments: 45 }}
+              />
+            </div>
+          </aside>
         </div>
       </main>
 
       <Footer isDarkMode={isDarkMode} />
-      
+
       {/* **MODIFIED**: Popup now uses dynamic state for its content */}
       {isPremiumPopupOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
