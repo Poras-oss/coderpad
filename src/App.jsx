@@ -26,7 +26,7 @@ import { NotificationProvider } from "./notification/NotificationProvider";
 import NavSwitcher from './components/DashAndBadgeSwitch';
 import Index from './pages/Index';
 import Pricing from './components/Pricing';
-import GamesArena from './pages/GamesArena';
+// import GamesArena from './pages/GamesArena';
 import UnityGameWrapper from './components/UnityGameWrapper';
 import SqlCoursePage from './components/SqlCoursePage';
 // Define custom hook outside the component
@@ -95,7 +95,7 @@ const App = () => {
           */}
           {/* <Route path="/" element={<iframe src="/home.html" style={{ width: '100%', height: '100vh', border: 'none' }} title="External Page" />} /> */}
           <Route path="/" element={<Index />} />
-          <Route path="/games" element={<GamesArena />} />
+          {/* <Route path="/games" element={<GamesArena />} /> */}
           <Route path="/live-events" element={<DataSkillsDashboard />} />
           <Route path="/quiz" element={<QuizApp />} />
           <Route path="/pyQuiz" element={<PythonQuizApp />} />

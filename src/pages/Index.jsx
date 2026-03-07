@@ -275,7 +275,9 @@ const Chatbot = ({ isExpanded, onToggleExpand }) => {
 };
 
 const Index = () => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => {
+    return sessionStorage.getItem('hasSeenLoader') !== 'true';
+  });
   const [popupOpen, setPopupOpen] = useState(false);
   const [comingSoonPopupOpen, setComingSoonPopupOpen] = useState(false);
   const [learnSQLPopupOpen, setLearnSQLPopupOpen] = useState(false);
@@ -305,11 +307,14 @@ const Index = () => {
     'Dashboard': { description: 'Access the neural dashboard for advanced analytics and controls.', yesLink: 'https://dashboard.datasenseai.com/' },
     'Custom Test': { description: 'Start a custom test tailored to your skills and interests.', yesLink: 'https://assessment.datasenseai.com/' },
     'Practice Question': { description: 'Practice with individual questions to sharpen your knowledge.', yesLink: '/practice-area?subject=sql' },
-    'DataSense Gaming Arena': { description: 'Enter the DataSense Gaming Arena for interactive challenges.', yesLink: '/games' },
+    'DataSense Gaming Arena': { description: 'Enter the DataSense Gaming Arena for interactive challenges.', yesLink: 'https://datasenseai.com/games-arena' },
   };
 
   if (isLoading) {
-    return <CyberLoader onComplete={() => setIsLoading(false)} />;
+    return <CyberLoader onComplete={() => {
+      sessionStorage.setItem('hasSeenLoader', 'true');
+      setIsLoading(false);
+    }} />;
   }
 
   const handleOpenPopup = (badgeType) => {
