@@ -443,6 +443,10 @@ const PythonQuizApp = () => {
     //Increment the question solving streak
     addToStreak(user.id, questionID);
 
+    // Activity Heatmap Trigger
+    axios.post('https://server.datasenseai.com/user-streak/update-activity', { clerkId: user.id })
+      .catch(err => console.error("Activity update failed", err));
+
     setSubmissions(prevSubmissions => [
       ...prevSubmissions,
       {
